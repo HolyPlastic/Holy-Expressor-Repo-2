@@ -398,6 +398,32 @@ All prior JS scaling logic obsolete.
 THIS IS NEWER AND ACTUALLY WORKED, ABOVE I AM UNSURE:
 
 
+### 🧠 2025-12-04 – Custom Search Resurrection (Final)
+
+**Initial State:**  
+The Holy Expressor plugin’s Strict Custom Search feature appeared “broken” for months. Clicking **Apply** with Custom Search enabled produced no logs, no toast, and no expression changes, across all recent and older backups. UI routing and scoping were suspected as likely causes.
+
+**Core Discovery:**  
+Search Captain was dying silently **before matching logic even ran** due to an illegal `.trim()` call inside ExtendScript. When `.trim()` was executed on a non-string token, ExtendScript threw an exception that never propagated back to CEP, preventing callbacks and killing all logs and toasts. The crash existed across multiple backups, not just the current repo.
+
+**Result:**  
+Removing the unsafe `.trim()` and guarding token handling allowed Search Captain to return valid payloads again. Strict matching now works correctly for:
+• Stroke Width  
+• Opacity  
+• Fill Color  
+• Roundness  
+Including nested and container-scoped queries via `>` expressions.
+
+**Final Outcome:**  
+Custom Search expression application is fully operational, strict, and reliable. The issue was not routing, scoping, or UX — but a hidden host exception preventing the entire apply pipeline.
+
+**Next Work (Confirmed):**  
+1. End LiveSync “Snippet Spam” loop  
+2. Restore clean toasts + payload logs  
+3. Remove fuzzy matching patch (strict mode only)
+
+---
+
 ──────────────────────────────────────────────
 
 # === DEV ARCHIVE UPDATES (MERGED) ===
