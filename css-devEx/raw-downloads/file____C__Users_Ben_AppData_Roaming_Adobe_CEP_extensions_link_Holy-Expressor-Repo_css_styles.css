@@ -1,0 +1,3140 @@
+/*#region ÃƒÂ°Ã…Â¸Ã…â€™Ã‚ÂÃƒÂ°Ã…Â¸Ã…â€™Ã‚ÂÃƒÂ°Ã…Â¸Ã…â€™Ã‚ÂÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ GLOBAL COLOURS */
+/* =====ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ GLOBAL COLORS =========== _-_-_-_ 
+var(--G-color-1);
+===================================== _-_-_-_*/
+
+
+:root {
+  /* Fallback theme colour ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â used until JS overrides */
+  --G-color-1: #1effd6;
+  --G-grey-1: #3a3a3a;
+  /* JS will overwrite these at runtime */
+  --G-color-1-H: 0;
+  --G-color-1-S: 0;
+  --G-color-1-L: 0;
+  --G-colour-1-RGB: 0, 0, 0;
+  --G-color-1-mid: hsl(var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 0.75),
+      calc(var(--G-color-1-L) * 2 * 0.08));
+  --G-color-1-mid-2: hsl(
+      /* mid desat */
+      var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 0.45),
+      calc(var(--G-color-1-L) * 2 * 0.18));
+  --G-color-1-mid-3: hsl(
+      /* mid desat but darker */
+      var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 0),
+      calc(var(--G-color-1-L) * 2 * 0.15));
+  --G-color-1-mid-4: hsl(
+      /* balance of mid desat 1 and 2 */
+      var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 0.45),
+      calc(var(--G-color-1-L) * 2 * 0.18));
+  --G-color-1-dark-bg: hsl(var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 0.9),
+      calc(var(--G-color-1-L) * 2 * 0.04));
+  --G-color-1-deepdark-bg: hsl(var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 1),
+      calc(var(--G-color-1-L) * 2 * 0.02));
+  --G-color-1-lowsatdark-bg: hsl(var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 0.1),
+      calc(var(--G-color-1-L) * 2 * 0.04));
+  --G-color-1-offwhite: hsl(var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 1),
+      calc(var(--G-color-1-L) * 2 * 0.8));
+  --G-color-1-light: hsl(var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 1),
+      calc(var(--G-color-1-L) * 2 * 0.8));
+  --G-color-1-midlight: hsl(var(--G-color-1-H),
+      var(--G-color-1-S),
+      calc(var(--G-color-1-L) * 2 * 0.3));
+  --G-color-1-midlight2: hsl(var(--G-color-1-H),
+      var(--G-color-1-S),
+      calc(var(--G-color-1-L) * 2 * 0.65));
+  --G-color-1-midup: hsl(var(--G-color-1-H),
+      calc(var(--G-color-1-S) * 0.75),
+      calc(var(--G-color-1-L) * 2 * 0.2));
+  --G-colour-1-opac-75: rgba(var(--G-colour-1-RGB), 0.75);
+  --G-colour-1-opac-50: rgba(var(--G-colour-1-RGB), 0.5);
+  --G-colour-1-opac-30: rgba(var(--G-colour-1-RGB), 0.3);
+  --G-colour-1-opac-10: rgba(var(--G-colour-1-RGB), 0.1);
+  --G-faded-text: rgba(255, 255, 255, 0.151);
+
+
+
+
+  /* === After Effects Theme Colors === */
+  --AE-theme-darkest: #1d1d1d;
+  --AE-theme-dark: #323232;
+  --AE-theme-light: #f8f8f8;
+  --outer-borders: 0.5px solid var(--G-colour-1-opac-50);
+}
+
+/*#endregion ÃƒÂ°Ã…Â¸Ã…â€™Ã‚ÂÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ */
+
+.is-hidden {
+  display: none !important;
+}
+
+/*#region - ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â  FONT ÃƒÂ¢Ã…â€œÃ¢â‚¬â„¢ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ¢Ã…â€œÃ¢â‚¬â„¢ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ°Ã…Â¸Ã¢â‚¬Â Ã¢â‚¬Â */
+/* =============================
+         ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¬ TEXT Stuff
+   ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â  Utility: Text Sizes
+   ============================= */
+.text-xs {
+  font-size: 8px !important;
+}
+
+.text-sm {
+  font-size: 9px !important;
+  color: var(--G-color-1-offwhite);
+}
+
+.text-md {
+  font-size: 11px !important;
+}
+
+.text-lg {
+  font-size: 13px !important;
+}
+
+.text-xl {
+  font-size: 20px !important;
+}
+
+
+/*#region- FONT LOADS  */
+
+/* V1 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Pixel font metrics override
+   ÃƒÂ¢Ã…Â¡Ã¢â€žÂ¢ÃƒÂ¯Ã‚Â¸Ã‚Â VALIDATOR: Chromium-based CEF supports these; Safari is irrelevant for CEP. */
+@font-face {
+  font-family: "Pixel";
+  /* default metrics */
+  src: url("../fonts/Pixel.ttf") format("truetype");
+  ascent-override: normal;
+  descent-override: normal;
+  line-gap-override: normal;
+}
+
+@font-face {
+  font-family: "Pixel-Corrected";
+  /* corrected metrics */
+  src: url("../fonts/Pixel.ttf") format("truetype");
+  ascent-override: 100%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+
+
+@font-face {
+  font-family: "Dosis";
+  src: url("../fonts/Dosis-VariableFont_wght.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*#region*  ye*/
+
+
+
+@font-face {
+  font-family: "Hooked Up 101";
+  src: url("../fonts/Hooked Up 101.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TOSTADA";
+  src: url("../fonts/TOSTADA.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TOSTADA Italic";
+  src: url("../fonts/TOSTADA Italic.ttf") format("truetype");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "puree____2";
+  src: url("../fonts/puree____2.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "BPdotsUnicaseSquareBold";
+  src: url("../fonts/BPdotsUnicaseSquareBold.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat-Regular";
+  src: url("../fonts/Montserrat-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PLANK__";
+  src: url("../fonts/PLANK__.TTF") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "tycho";
+  src: url("../fonts/tycho___.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- ÃƒÂ°Ã…Â¸Ã¢â‚¬Â Ã¢â‚¬Â¢ Added Fonts --- */
+
+@font-face {
+  font-family: "COURIERO";
+  src: url("../fonts/COURIERO.TTF") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "0927____";
+  src: url("../fonts/0927____.TTF") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "6809 Chargen";
+  src: url("../fonts/6809 Chargen.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Deftone Stylus";
+  src: url("../fonts/Deftone Stylus.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GlitchGoblin";
+  src: url("../fonts/GlitchGoblin.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "kleenblades_ldr";
+  src: url("../fonts/kleenblades_ldr.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "mionta";
+  src: url("../fonts/mionta.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "nymonak";
+  src: url("../fonts/nymonak.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+
+@font-face {
+  font-family: "V Dub";
+  src: url("../fonts/V Dub.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zelega Zenega";
+  src: url("../fonts/Zelega Zenega.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zero Hour";
+  src: url("../fonts/Zero Hour.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*#endregion ye*/
+
+/* #endregion */
+
+/*#region - FONT --roots  */
+/* ================================
+   ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ Global Font Variables
+   ================================ */
+
+:root {
+  --f-pixel: "Pixel", monospace;
+  --f-pixel-c: "Pixel-Corrected", monospace;
+
+  /*#region  ye*/
+  --f-hooked: "Hooked Up 101", sans-serif;
+  --f-tost: "TOSTADA", sans-serif;
+  --f-tostitalic: "TOSTADA Italic", sans-serif;
+  --f-puree: "puree____2", sans-serif;
+  --f-dots: "BPdotsUnicaseSquareBold", sans-serif;
+  --f-mont: "Montserrat-Regular", sans-serif;
+  --f-plank: "PLANK__", sans-serif;
+  --f-tycho: "tycho", sans-serif;
+
+  /* ÃƒÂ°Ã…Â¸Ã¢â‚¬Â Ã¢â‚¬Â¢ New Additions */
+  --f-couriero: "COURIERO", monospace;
+  --f-pixboss: "0927____", monospace;
+  --f-6809: "6809 Chargen", monospace;
+  --f-deftone: "Deftone Stylus", cursive;
+  --f-glitch: "GlitchGoblin", sans-serif;
+  --f-kleen: "kleenblades_ldr", sans-serif;
+  --f-mionta: "mionta", sans-serif;
+  --f-nymonak: "nymonak", sans-serif;
+  --f-pixel: "Pixel", monospace;
+  --f-vdub: "V Dub", sans-serif;
+  --f-zelega: "Zelega Zenega", sans-serif;
+  --f-zero: "Zero Hour", sans-serif;
+  /*#endregion*/
+}
+
+/* #endregion */
+
+/*#region - ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â© Font Utility Classes Pack */
+/* ================================
+    ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Direct Reference Version
+   ================================ */
+
+.f18,
+.f18-c {
+  font-weight: normal;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  font-smooth: never;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  display: inline-block;
+  /* Make inlineÃƒÂ¢Ã¢â€šÂ¬Ã‚Âblock so alignment works */
+  vertical-align: middle;
+  /* baseline / middle alignment of inline box */
+  transform: translateY(0.1em);
+  /* small translate downward: adjust value as needed */
+  line-height: 1;
+  /* avoid altering extra vertical padding from lineÃƒÂ¢Ã¢â€šÂ¬Ã‚Âheight */
+}
+
+.f18 {
+  font-family: var(--f-pixel);
+}
+
+.f18-c {
+  /* font shifted down */
+  font-family: var(--f-pixel-c);
+}
+
+
+
+.f21 {
+  font-family: "Dosis", sans-serif;
+  font-weight: normal;
+
+}
+
+.f20 {
+  font-family: "Zero Hour", sans-serif;
+  font-weight: normal;
+
+}
+
+
+/*#region - ye*/
+.f1 {
+  font-family: "V Dub", sans-serif;
+  font-weight: normal;
+}
+
+.f2 {
+  font-family: "Hooked Up 101", sans-serif;
+  font-weight: normal;
+}
+
+.f3 {
+  font-family: "TOSTADA", sans-serif;
+  font-weight: normal;
+}
+
+.f4 {
+  font-family: "TOSTADA Italic", sans-serif;
+  font-weight: normal;
+}
+
+.f5 {
+  font-family: "puree____2", sans-serif;
+  font-weight: normal;
+}
+
+.f6 {
+  font-family: "BPdotsUnicaseSquareBold", sans-serif;
+  font-weight: normal;
+}
+
+.f7 {
+  font-family: "Montserrat-Regular", sans-serif;
+  font-weight: normal;
+}
+
+.f8 {
+  font-family: "PLANK__", sans-serif;
+  font-weight: normal;
+}
+
+.f9 {
+  font-family: "tycho", sans-serif;
+  font-weight: normal;
+}
+
+.f10 {
+  font-family: "COURIERO", monospace;
+  font-weight: normal;
+}
+
+.f11 {
+  font-family: "0927____", monospace;
+  font-weight: normal;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
+}
+
+.f12 {
+  font-family: "6809 Chargen", monospace;
+  font-weight: normal;
+
+}
+
+.f13 {
+  font-family: "Deftone Stylus", cursive;
+  font-weight: normal;
+}
+
+.f14 {
+  font-family: "GlitchGoblin", sans-serif;
+  font-weight: normal;
+}
+
+.f15 {
+  font-family: "kleenblades_ldr", sans-serif;
+  font-weight: normal;
+}
+
+.f16 {
+  font-family: "mionta", sans-serif;
+  font-weight: normal;
+}
+
+.f17 {
+  font-family: "nymonak", sans-serif;
+  font-weight: normal;
+}
+
+.f19 {
+  font-family: "Zelega Zenega", sans-serif;
+  font-weight: normal;
+}
+
+
+/* ===defunkt font utils?==========================
+   ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¤ Utility: Fonts
+   ============================= 
+.font-sans { font-family: Arial, sans-serif !important; }
+.font-mono { font-family: ui-monospace, Menlo, Consolas, monospace !important; }
+.font-alt  { font-family: "BPdotsUnicaseSquareBold", sans-serif !important; }
+.font-serif { font-family: Georgia, serif !important; }
+.font-mycustom { font-family: "MyCustomFont", sans-serif !important; }
+.font-dotsbold { font-family: "BPdotsUnicaseSquareBold", sans-serif !important; }
+*/
+/*#endregion*/
+
+
+
+/*#endregion*/
+
+/*#region - HEADINGs ÃƒÂ°Ã…Â¸Ã¢â‚¬â€Ã‚Â¼ ============================== */
+/*____________________________________________________*/
+
+.hdr {
+  margin-bottom: -14px;
+}
+
+h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+/* Dedicated heading override for Holy Expressor title */
+.hdr h2 {
+  font-family: "PLANK__", sans-serif;
+  font-size: 20px;
+}
+
+
+.heading-1 {
+  font-size: 10px;
+  color: var(--G-faded-text);
+
+  letter-spacing: 0.25em;
+  vertical-align: top !important;
+  ;
+}
+
+h4 {
+
+  margin: 6px 0;
+  font-size: 13px;
+  font-family: var(--f-pixel) !important;
+  font-size: 20px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+
+  font-weight: normal;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  font-smooth: never;
+
+}
+
+
+/*#endregion*/
+
+/*---------------------------------\-----*/
+/*#endregion* font-----------------\----*/
+
+
+/*#region* - ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‹Å“ Utility: Checkbox Labels ============================== */
+/*____________________________________________________*/
+
+
+
+.checkbox-Diamond {
+  --size: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  color: var(--AE-theme-darkest);
+  stroke: var(--G-color-1);
+  transition: color 0.2s ease-out, transform 0.2s ease-out;
+
+
+  transform: translateZ(0);
+
+}
+
+.checkbox-Diamond input {
+  display: none;
+}
+
+.checkbox-Diamond input:checked+svg rect {
+  fill: var(--G-color-1-midup);
+}
+
+.checkbox-Diamond svg:hover {
+  stroke: var(--G-color-1-midlight2);
+  transform: scale(1.2);
+}
+
+.checkbox-Diamond:active {
+  transform: scale(0.95) translateZ(0);
+}
+
+
+
+
+
+
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+
+.checkbox-layercontrols {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto !important;
+  transform: translateX(-4px) translateY(2px) translateZ(0);
+}
+
+
+/*---------------------------------\-----*/
+/*#endregion* checkbox-------------\----*/
+
+/*#region* - Global styles,,? ============================== */
+/*____________________________________________________*/
+/* =============================
+   ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â§ Base Resets & Global Styles
+   ============================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 0;
+  color: #000000;
+  margin: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+.shade-hard {
+  position: relative;
+  background: var(--G-color-1-deepdark-bg);
+  border-radius: 6px;
+}
+
+.shade-hard::after {
+  content: "";
+  position: absolute;
+  inset: 1px -1px -2px -1px;
+  /* adjust to push down slightly */
+  border-bottom: 1px solid var(--G-color-1);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/*---------------------------------\-----*/
+/*#endregion global styles,?-------------\----*/
+
+/*#region -ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â³ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¨QUICK Panel ============================== */
+/*____________________________________________________*/
+
+
+/* Panel styling */
+.quick-panel {
+  background-color: inherit;
+  transform: translateY(-7px) translateX(-3px);
+}
+
+
+.quickpanel-header {
+  background-color: inherit;
+}
+
+/*---------------------------------\-----*/
+/*#endregion* ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â³ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¨----------------------\----*/
+
+
+
+
+/*#region -ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â²ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚ÂªPanels ============================== */
+/*____________________________________________________*/
+
+:root {
+  --panel-border: 0, 128, 255;
+  /* RGB only */
+}
+
+/* Panel styling */
+.panel {
+  background: #1f1f1f;
+
+  border: 1.3px solid var(--G-colour-1-opac-50);
+
+  border-radius: 8px;
+  padding: 6px;
+  margin-top: 6px;
+  position: relative;
+  /* required for absolute positioning to work */
+  background-color: #101010;
+  overflow: hidden;
+  /* keeps pseudo-element edges clean */
+}
+
+/*---------------------------------\-----*/
+/*#endregion* panels----------------------\----*/
+
+
+/*#region - ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…â€œÃƒÂ°Ã…Â¸Ã…Â½Ã…Â¾ÃƒÂ¯Ã‚Â¸Ã‚Â DROPDOWN MENUS =========================== */
+/*____________________________________________________*/
+
+
+/* ---------------------------------------------------------
+   ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â© Context Menu Layout Normalization ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â V9.6
+   Hidden menus cannot intercept events; active menus do.
+--------------------------------------------------------- */
+
+/* Base */
+.context-menu {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: 100000 !important;
+  min-width: 140px;
+  background: var(--G-color-1-deepdark-bg);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+  /* hidden by default */
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s ease-out;
+  transform: translate3d(0, 0, 0);
+  will-change: opacity, transform;
+  color: #fff;
+}
+
+
+.context-menu.active {
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* reset & structure */
+.context-menu,
+.context-menu ul,
+.context-menu li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.context-menu li {
+  display: block;
+}
+
+.context-menu button {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 5px 7px;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--G-colour-1-light);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-bottom: 1px solid var(--G-color-1);
+}
+
+.context-menu button:hover {
+  background: var(--G-color-1);
+  color: var(--G-color-1-deepdark-bg);
+}
+
+/*  ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â± Context Menu Layout ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Extended Utility Set
+   Generic flex layout + right-side button pattern
+   ============================= */
+
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ Flex rows with space for actions (like delete / rename / info) */
+.context-menu li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ Primary label button (fills width except side buttons) */
+.context-menu .menu-main-btn {
+  flex: 1;
+  text-align: left;
+  padding-right: 6px;
+  /* spacing before side button */
+}
+
+
+/* =========SIDE ICONS====================
+
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ Optional side / icon / delete button */
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ Override for side buttons (like delete, info, etc.) */
+
+.context-menu .menu-side-btn {
+  width: auto !important;
+  /* stop inheriting full width */
+  padding: 2px 6px;
+  /* tighten hitbox */
+  margin-left: auto;
+  /* push to far right */
+  text-align: center;
+  /* keep centered in its own box */
+  flex-shrink: 0;
+  /* prevent squishing */
+  border-bottom: 0px solid;
+  color: var(--G-color-1);
+}
+
+.context-menu .menu-side-btn:hover {
+  opacity: 1;
+  background: var(--G-color-1);
+  color: var(--G-color-1-deepdark-bg);
+  border-bottom: 1px solid var(--G-color-1);
+  border: 0px solid var(--G-color-1) !important;
+}
+
+.context-menu .menu-side-btn:active {
+  transform: scale(0.95);
+}
+
+
+
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ Variant color helpers (reusable elsewhere) */
+
+.context-menu .menu-side-btn.danger {
+  color: var(--G-color-1-deepdark-bg);
+
+
+}
+
+.context-menu .menu-side-btn.warn {
+  color: #ffcc66;
+}
+
+/* rename / caution */
+.context-menu .menu-side-btn.ok {
+  color: #9effa8;
+}
+
+/* confirm / success */
+
+
+/* Variants */
+.context-menu.snippet-menu {
+  background: #ff6e5a;
+}
+
+
+
+
+
+.context-menu.bank-menu {
+  background: #491e41;
+}
+
+
+
+/*
+   ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¸ Context Menu Divider (Universal)
+   - visually separates groups of menu items
+   - plays nice inside flex <li> stacks
+   ============================= */
+
+.context-menu .menu-divider {
+  height: 1px;
+  background: var(--G-color-1-mid);
+  margin: 6px 0;
+  border: none;
+  pointer-events: none;
+  transform: translateY(2px);
+
+}
+
+/*---------------------------------\-----*/
+/*#endregion* context menus--------\----*/
+
+
+/*#region - ÃƒÂ¢Ã‚ÂÃ‚Â¹ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ¢Ã‚Â¬Ã¢â‚¬Âº FOREGROUND Panels ============================== */
+/*____________________________________________________*/
+
+.foreground-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 99999;
+  animation: fgFadeIn 0.2s ease forwards;
+}
+
+.foreground-panel-box {
+
+  background: var(--G-color-1-deepdark-bg);
+  border: 1px solid var(--G-color-1);
+  border-radius: 8px;
+  padding: 12px;
+  /* min-width: 280px; */
+  max-width: -135px;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 60%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 11px;
+  animation: fgPopIn 0.2s ease forwards;
+
+
+  /*
+  background:var(--G-color-1-deepdark-bg);
+  border: 1px solid var(--G-color-1);
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 280px;
+  max-width: 480px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fgPopIn 0.2s ease forwards;
+*/
+
+}
+
+.foreground-panel-title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--G-color-1);
+}
+
+.foreground-panel-content label {
+  font-size: 11px;
+}
+
+.foreground-panel-content input,
+.foreground-panel-content textarea {
+  width: 100%;
+  padding: 6px;
+  background: var(--G-color-1-lowsatdark-bg);
+  border: 1px solid #3b3b3b;
+  color: var(--G-color-1);
+  border-radius: 4px;
+}
+
+.foreground-panel-close {
+  align-self: flex-end;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: 1px solid #3b3b3b;
+  border-radius: 4px;
+  background: #333;
+  color: #eee;
+  cursor: pointer;
+}
+
+@keyframes fgFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fgPopIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/*---------------------------------\-----*/
+/*#endregion* ----------------------\----*/
+
+
+/*#region - Rows ÃƒÂ°Ã…Â¸Ã¢â‚¬Â¢Ã‚Â³ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â°ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â° ============================== */
+/*____________________________________________________*/
+
+/* Utility: Form Rows */
+.row {
+  display: flex;
+  align-items:
+    center;
+  gap: 8px;
+  margin: 4px 0;
+  max-width: none;
+  flex-wrap: nowrap;
+}
+
+.row label {
+  font-size: 12px;
+}
+
+.row input[type="text"],
+.row input[type="number"],
+select,
+textarea,
+input {
+  background: #1e1e1e;
+  color: #e8e8e8;
+  border: 1px solid #3b3b3b;
+  border-radius: 0;
+  padding: 2px;
+}
+
+textarea {
+  width: 100%;
+}
+
+
+/*---------------------------------\-----*/
+/*#endregion* rows-----------------\----*/
+
+
+/*#region -ÃƒÂ°Ã…Â¸Ã…Â½Ã¢â‚¬ÂºÃƒÂ¯Ã‚Â¸Ã‚Â EXPRESS AREA ÃƒÂ°Ã…Â¸Ã¢â‚¬â€œÃ‚Â¥ÃƒÂ¯Ã‚Â¸Ã‚Â ============================== */
+/*____________________________________________________*/
+
+
+
+/* ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ Mode Switch ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ old visual style, adapted to current HTML */
+.modeSwitchBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px;
+  user-select: none;
+  font-size: 8px;
+  transform: translate(0px, 3px);
+}
+
+/* Tab buttons (Express | Rewrite) */
+.modeSwitchBar .mode-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--G-grey-1);
+  cursor: pointer;
+  letter-spacing: inherit;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Middle diamond button */
+.modeSwitchBar .mode-switch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  border: none !important;
+}
+
+/* Diamond SVG sizing */
+.modeSwitchBar .mode-switch-svg {
+  width: 14px;
+  height: auto;
+  display: block;
+}
+
+/* Fill + color inheritance */
+.modeSwitchBar .diamond-left,
+.modeSwitchBar .diamond-right {
+  fill: currentColor;
+}
+
+/* Active color state */
+.modeSwitchBar .mode-btn.active,
+#modePanel[data-mode="express"] #modeExpressBtn,
+#modePanel[data-mode="rewrite"] #modeRewriteBtn {
+  color: var(--G-color-1);
+}
+
+/* Dynamic color logic for diamonds */
+[data-mode="express"] .diamond-left {
+  color: var(--G-color-1);
+}
+
+[data-mode="express"] .diamond-right {
+  color: var(--G-grey-1);
+}
+
+[data-mode="rewrite"] .diamond-left {
+  color: var(--G-grey-1);
+}
+
+[data-mode="rewrite"] .diamond-right {
+  color: var(--G-color-1);
+}
+
+/* Optional subtle glow for active state 
+.modeSwitchBar .mode-btn.active .mode-switch-svg,
+#modePanel[data-mode="express"] .mode-switch-svg,
+#modePanel[data-mode="rewrite"] .mode-switch-svg {
+  filter: drop-shadow(0 0 2px var(--G-color-1));
+}*/
+
+/* ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â± MasterBox ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ gives the outer container full styling */
+#modePanel {
+  background: none;
+  border: var(--outer-borders);
+  border-radius: 0px 0px 0px 16px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+}
+
+/* Inner content keeps rounding + hides overflow */
+.modePanel-inner {
+  border-radius: inherit;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Optional inner padding for spacing inside the box */
+#modePanel .he-mode-views {
+  padding: 0px;
+}
+
+/* Remove redundant borders/radius from the inner panels */
+#modeViewExpress,
+#modeViewRewrite {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+
+#modeViewExpress {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: transparent !important;
+  position: relative;
+  /* anchor overlay controls to the panel */
+
+  box-sizing: border-box;
+  overflow: visible;
+  /* allow overlay buttons to float over the panel edge */
+}
+
+#modeViewExpress.panel {
+  margin: 0px;
+  padding: 0px 0px 0px;
+}
+
+#modeViewExpress .express-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+/* Remove container spacing */
+#modeViewExpress #codeEditor .cm-editor {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none;
+  /* optional */
+}
+
+/* Remove scroller spacing */
+#modeViewExpress #codeEditor .cm-scroller {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove inner content padding */
+#modeViewExpress #codeEditor .cm-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+#modeViewExpress .row {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  /* Optional */
+}
+
+
+
+
+
+.express-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+/* Overlay button group that floats on the panel border */
+.express-editor-overlay {
+
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: none;
+  border: none;
+
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translateY(64%) translateX(17px);
+  /* required */
+  z-index: 100;
+  /* overlay above the document UI */
+}
+
+/* === Checkbox container (always above buttons) === */
+.express-editor-overlay-checkbox {
+  position: relative;
+  transform: translateX(31.5px) translateY(4px) translateZ(0);
+  /* its own stacking context */
+  z-index: 10;
+  /* guarantees entire checkbox plane renders above buttons */
+}
+
+
+/* === Buttons container === */
+.express-editor-overlay-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translateZ(0);
+  /* creates its own stacking context for buttons */
+  position: relative;
+  z-index: 1;
+  /* sits below the checkbox block */
+}
+
+
+
+
+
+
+
+
+/* ========================larger container just for the maximise button */
+.express-editor-top-overlay {
+  position: absolute;
+  right: 12px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: none;
+  border: none;
+  transform: translateY(-26.4%) translateX(17px) scale(0.7);
+  pointer-events: none;
+  /* allow editor interactions beneath the wrapper */
+  z-index: 6;
+}
+
+.express-editor-top-overlay>* {
+  pointer-events: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================================
+   REWRITE MODE ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ NEW UI CLASSES
+   ================================ */
+
+#modeViewRewrite {
+  position: relative;
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  overflow: visible;
+  height: 97px;
+}
+
+
+
+
+
+
+/*=====-===-=-=-=-=-==========*/
+ 
+#rewriteUnderlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.rewrite-underlay-line {
+  position: absolute;
+  width: 160%;
+  height: 1px;
+  background: rgba(var(--G-colour-1-RGB), 0.18);
+  opacity: 0.55;
+}
+
+#rewriteUnderlay .rewrite-underlay-line:nth-child(1) {
+  top: 22%;
+  left: -20%;
+  transform: rotate(10deg);
+}
+
+#rewriteUnderlay .rewrite-underlay-line:nth-child(2) {
+  top: 52%;
+  left: -18%;
+  transform: rotate(14deg);
+  opacity: 0.35;
+}
+
+#rewriteUnderlay .rewrite-underlay-line:nth-child(3) {
+  bottom: 12%;
+  left: -22%;
+  transform: rotate(8deg);
+  opacity: 0.25;
+}
+
+ 
+
+  
+ 
+ 
+ 
+/*=====-===-=-=-=-=-==========*/
+ 
+#rewriteOverlay {
+  position: absolute;
+  right: 12px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: none;
+  border: none;
+  transform: translateY(67px) translateX(-16.6px) scale(0.7);
+  pointer-events: none;
+  /* allow editor interactions beneath the wrapper */
+  z-index: 6;
+}
+
+#rewriteOverlay>* {
+  pointer-events: auto;
+}
+
+
+  
+ 
+ 
+ 
+/*=====-===-=-=-=-=-==========*/
+ 
+.rewrite-checkbox-block {
+  display: flex;
+  align-items: center;
+}
+
+.rewrite-checkbox-block .row {
+  margin: 0;
+}
+
+.rewrite-checkbox-block .checkbox-label {
+  gap: 8px;
+}
+ 
+ 
+ 
+ 
+/*=====-===-=-=-=-=-==========*/
+ 
+.rewrite-typography-label {
+  font-family: var(--f-pixel);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--G-color-1-midlight2);
+  -webkit-font-smoothing: none;
+  pointer-events: none;
+}
+
+.rewrite-typography-diamond {
+  width: 18px;
+  height: 18px;
+  color: var(--G-color-1-mid);
+}
+
+#rewriteClearBtn {
+  --size: 22px;
+  color: var(--G-color-1-midlight2);
+  stroke: var(--G-color-1-midlight2);
+}
+ 
+ 
+ 
+ 
+/*=====-=-===SEARCH N REPLACE-=-=-=-=-=====-===-=-=-=-=-=======-=-=-=-=-==========*/
+/*#region=====-===-=-=-=-=-=====-===-=-=-=-=-==========*/
+ 
+#rewriteSearchWrapper,
+#rewriteReplaceWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  z-index: 1;
+  transform: translateY(-4.900000000000003px);
+}
+
+#rewriteSearchWrapper {
+  padding: 0px;
+}
+
+#rewriteReplaceWrapper {
+  padding: 0px;
+  transform: translateY(-28px);
+}
+
+#rewriteSearchWrapper .text-input,
+#rewriteReplaceWrapper .text-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#rewriteSearchWrapper>label.block-label,
+#rewriteReplaceWrapper>label.block-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  border: 0;
+  transform: translate(6px, 14px);
+}
+
+ 
+ 
+ 
+/*#endregion*=====-===-=-=-=-=-==========*/
+ 
+.rewrite-label-search,
+.rewrite-label-replace {
+  font-family: var(--f-pixel);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--G-color-1-midlight2);
+  -webkit-font-smoothing: none;
+}
+
+.rewrite-label-search {
+  position: relative;
+  margin-right: auto;
+  top: -9.399999999999999px;
+  left: -11.399999999999999px;
+  transform: scale(0.65);
+  gap: 0px;
+}
+
+.rewrite-label-replace {
+  position: relative;
+  margin-left: auto;
+  left: 15.199999999999989px;
+  top: 18.200000000000024px;
+  transform: scale(0.65);
+  gap: 69;
+}
+
+ 
+ 
+ 
+/*=====-===-=-=-=-=-==========*/
+ 
+.rewrite-edge-line-bottom,
+.rewrite-edge-line-top {
+  position: relative;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--G-color-1-midlight2);
+  pointer-events: none;
+  gap: 0px;
+}
+
+.rewrite-edge-line-bottom {
+    top: 14.700000000000008px;
+}
+
+.rewrite-edge-line-top {
+  top: 0px;
+}
+ 
+ 
+ 
+/*=====-===-=-=-=-=-==========*/
+ 
+.rewrite-gradient-down,
+.rewrite-gradient-up {
+  position: relative;
+  left: 0;
+  right: 0;
+  height: 14px;
+  pointer-events: none;
+  gap: 0px;
+  top: 10px;
+  opacity: 0.5;
+}
+
+.rewrite-gradient-down {top: 0;height: 11px;background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0.32) 0%, rgba(var(--G-colour-1-RGB), 0) 100%);}
+
+.rewrite-gradient-up {
+  top: 0px;
+  background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0) 0%, rgba(var(--G-colour-1-RGB), 0.32) 100%);
+}
+ 
+ 
+
+
+
+
+
+
+
+ 
+ 
+/*=====-===-=-=-=-=-==========*/
+ 
+/*
+.rewrite-action-button {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--f-pixel);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, rgba(var(--G-colour-1-RGB), 0.6) 0%, rgba(var(--G-colour-1-RGB), 1) 100%);
+  color: var(--AE-theme-darkest);
+  box-shadow: 0 0 0 rgba(var(--G-colour-1-RGB), 0.35), 0 0 24px rgba(var(--G-colour-1-RGB), 0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rewrite-action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(var(--G-colour-1-RGB), 0.45);
+}
+
+.rewrite-action-button:active {
+  transform: translateY(0);
+  box-shadow: 0 0 12px rgba(var(--G-colour-1-RGB), 0.35);
+}
+
+.rewrite-action-button.is-busy,
+.rewrite-action-button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}*/
+
+
+
+
+
+
+
+
+/* Mode switch arrow v2 */
+.modeSwitchBar .mode-switch-svg.modeSwitchSvg {
+  width: 18px;
+  height: auto;
+}
+
+.modeSwitchSvg {
+  width: 18px;
+  height: auto;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.modeSwitchSvg #inactivearrow {
+  color: var(--G-grey-1);
+  opacity: 0.65;
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+
+.modeSwitchSvg #bigarrow {
+  color: var(--G-color-1-midlight2);
+  transition: color 0.25s ease;
+}
+
+.modeSwitchSvg #lilarrow {
+  color: var(--G-color-1-mid);
+  transition: color 0.25s ease;
+}
+
+#modePanel[data-mode="express"] .modeSwitchSvg {
+  transform: scaleX(1);
+}
+
+#modePanel[data-mode="rewrite"] .modeSwitchSvg {
+  transform: scaleX(-1);
+}
+
+#modePanel[data-mode="rewrite"] .modeSwitchSvg #inactivearrow {
+  color: var(--G-color-1-mid-3);
+  opacity: 0.85;
+}
+
+#modePanel[data-mode="rewrite"] .modeSwitchSvg #bigarrow {
+  color: var(--G-color-1);
+}
+
+#modePanel[data-mode="rewrite"] .modeSwitchSvg #lilarrow {
+  color: var(--G-color-1-midlight2);
+}
+
+/*
+.eeo-z-Main {
+  z-index: 9;
+}
+
+
+.eeo-z-Checkbox {
+  z-index: 10;
+}
+*/
+
+
+.express-editor-overlay-btn {
+  pointer-events: auto;
+}
+
+.express-editor-overlay-btn+.express-editor-overlay-btn {
+  margin-left: 0;
+}
+
+
+.express-panel-btn {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--G-color-1);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.express-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  margin-top: 0px;
+}
+
+
+
+.customSearch-Master {
+  position: relative;
+  transform: translateY(-3px);
+  /* move the entire system down */
+}
+
+.customSearch-checkbox {
+  --size: 12px;
+  width: 12px !important;
+  /* tightly wrap the SVG */
+  height: 12px !important;
+  position: relative;
+  /* create stacking context */
+  z-index: 5;
+  /* ensures it sits above .customSearch-textBox-frame */
+  display: inline-flex;
+  /* preserve SVG layout */
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  /* removes inline spacing */
+  width: auto;
+  height: auto;
+  flex: 0 0 auto;
+  /* prevent stretch */
+  transform: translate(1.5px, 17.7px);
+}
+
+/* SVG inherits exact intrinsic size */
+.customSearch-checkbox svg {
+  display: block;
+  width: 12.47px;
+  height: 12.47px;
+  flex: 0 0 auto;
+}
+
+.customSearch-checkbox:active {
+  transform: translate(1.5px, 17.7px) scale(0.95) translateZ(0);
+}
+
+
+
+/* Custom Search TextBox */
+.customSearch-textBox-frame {
+  position: relative;
+  width: 100%;
+  height: 19px;
+  /* lock vertical */
+  line-height: 19px;
+  color: var(--hx-accent, #043542);
+  display: block;
+  transform: translate(0px, 0px);
+}
+
+.customSearch-frame-row {
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  color: inherit;
+}
+
+.customSearch-frame-row svg {
+  display: block;
+  height: 100%;
+  shape-rendering: geometricPrecision;
+}
+
+.customSearch-frame-row .cap-left,
+.customSearch-frame-row .cap-right {
+  flex: 0 0 auto;
+}
+
+.customSearch-frame-row .cap-left {
+  width: 16.82px;
+}
+
+.customSearch-frame-row .cap-right {
+  width: 7.71px;
+}
+
+.customSearch-frame-row .cap-mid {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.customSearch-frame-row .cap-mid line {
+  vector-effect: non-scaling-stroke;
+}
+
+
+#customSearch {
+  font-size: 12px;
+  transform: translateX(10px)
+}
+
+/* input overlays the SVG but is transparent */
+.customSearch-textBox-frame input#customSearch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  color: var(--G-color-1-light);
+  border: none;
+  padding: 0 8px;
+  outline: none;
+  pointer-events: auto;
+}
+
+#customSearch.enabled {
+  color: var(--G-color-1-light);
+}
+
+#customSearch.disabled {
+  color: var(--search-disabled-text, rgba(255, 0, 0, 0.55));
+}
+
+/* disabled state tint remains while strokes keep currentColor */
+.customSearch-textBox-frame.disabled {
+  opacity: .7;
+}
+
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ Frame color states */
+.customSearch-textBox-frame.enabled .customSearch-frame-row {
+  color: var(--search-enabled-color, var(--G-color-1));
+}
+
+.customSearch-textBox-frame.disabled .customSearch-frame-row {
+  color: var(--search-disabled-color, #2b3d44);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.express-apply {
+  margin-top: 10px;
+  padding-bottom: 6px;
+  margin-top: 12px;
+}
+
+.express-misc {
+  margin-top: 16px;
+}
+
+
+
+/*#region - Codemirror Editor styling ============================== */
+/*____________________________________________________*/
+
+
+
+/* Container */
+#codeEditor {
+  flex: 1 1 auto;
+  min-height: 120px;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+body.editor-maximized {
+  height: 100vh;
+  overflow: hidden;
+}
+
+body.editor-maximized #appRoot {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+body.editor-maximized #modeViewExpress {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+body.editor-maximized .hdr,
+body.editor-maximized .tabs,
+body.editor-maximized #snippetsBar,
+body.editor-maximized #snippetContextMenu,
+body.editor-maximized #expressions,
+body.editor-maximized #expressControls,
+body.editor-maximized #expressMisc,
+body.editor-maximized #bankSelectMenu {
+  display: none !important;
+}
+
+body.editor-maximized #modeViewExpress .express-panel-header .heading-1 {
+  display: none;
+}
+
+body.editor-maximized #codeEditor {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+body.editor-maximized #expressApplyRow {
+  margin-top: auto;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+body.editor-maximized #expressApplyRow .apply-row {
+  width: 100%;
+  max-width: 100%;
+  justify-content: center;
+}
+
+body.editor-maximized #toast {
+  display: block;
+}
+
+/* Editor itself */
+#codeEditor .cm-editor {
+
+  min-height: 120px;
+  min-width: 0;
+  /* ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ allows flex child to shrink */
+  flex: 1 1 auto;
+
+
+  border: 0px solid #444;
+  border-radius: 6px;
+  background: #1b1b1b;
+  font-family: "Fira Code", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #f0f0f0;
+  box-shadow: inset 0 0 6px #00000055;
+  transition: border-color 0.2s ease;
+  margin: 0px 0px;
+}
+
+/* Focus ring */
+#codeEditor .cm-editor.cm-focused {
+  border-color: #4c7ef3;
+  outline: none;
+}
+
+/* Content area */
+#codeEditor .cm-content {
+  padding: 6px 0px;
+  caret-color: #4c7ef3;
+}
+
+/* ÃƒÂ°Ã…Â¸Ã…Â½Ã¢â‚¬ÂºÃƒÂ¯Ã‚Â¸Ã‚Â CodeMirror Scrollbar Styling */
+
+/* style the scroll container and reduce its thickness */
+#codeEditor .cm-scroller {
+  overflow: auto;
+}
+
+/* narrower scrollbar inside cm-scroller */
+#codeEditor .cm-scroller::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+#codeEditor .cm-scroller::-webkit-scrollbar-track {
+  background: #1b1b1b;
+}
+
+#codeEditor .cm-scroller::-webkit-scrollbar-thumb {
+  background-color: #4c7ef3;
+  border-radius: 3px;
+}
+
+#codeEditor .cm-scroller::-webkit-scrollbar-thumb:hover {
+  background-color: #3a6ed3;
+}
+
+/*---------------------------------\-----*/
+/*#endregion* codemirror----------------------\----*/
+
+/*---------------------------------\-----*/
+/*#endregion* express----------------------\----*/
+
+
+/*#region - ÃƒÂ¢Ã…â€œÃ¢â‚¬Å¡ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ¢Ã…â€œÃ¢â‚¬Å¡ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â°ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â°S N I P P E T S ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â°ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â°ÃƒÂ¢Ã…â€œÃ¢â‚¬Å¡ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ¢Ã…â€œÃ¢â‚¬Å¡ÃƒÂ¯Ã‚Â¸Ã‚Â ÃƒÂ°Ã…Â¸Ã¢â‚¬â€Ã‚Â¼ ============================== */
+/*____________________________________________________*/
+
+/*#region BANKÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¦ */
+
+#bankHeader {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  /* minimal space between text and dropdown */
+  margin-top: -2px;
+  margin-left: 0px;
+  margin-bottom: 0px;
+}
+
+/* ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â·ÃƒÂ¯Ã‚Â¸Ã‚Â Static label + editable input share same styling */
+#bankHeader #bankNameLabel,
+#bankHeader input[type="text"] {
+  display: inline-block;
+  font-family: var(--f-pixel-c);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--G-color-1-offwhite);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  width: 120px;
+  /* compact fixed width */
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#bankNameLabel {
+  overflow: visible;
+  display: inline-block;
+}
+
+/* ÃƒÂ¢Ã…â€œÃ‚ÂÃƒÂ¯Ã‚Â¸Ã‚Â Focused input gets light accent line */
+#bankHeader input[type="text"]:focus {
+  border-bottom: 1px solid var(--G-color-1);
+  background: var(--G-color-1-lowsatdark-bg);
+  overflow: visible;
+  align-items: baseline;
+  /* avoids cutting off tall shadows */
+}
+
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â§ Context Menu Layout Fix */
+#bankSelectMenu li {
+  position: relative;
+  /* establishes local coordinate space */
+  display: block;
+  /* stop flex shrink */
+}
+
+/* Main bank button now spans full width */
+#bankSelectMenu .bank-name-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding-right: 24px;
+  /* space for the delete buttonÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s visual area */
+  box-sizing: border-box;
+}
+
+/* Delete button positioned on top (same x/y as before) */
+#bankSelectMenu .menu-side-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  /* ensures it sits visually in front */
+  pointer-events: auto;
+}
+
+/* Optional: prevent click interference */
+#bankSelectMenu .bank-name-btn {
+  position: relative;
+  z-index: 1;
+}
+
+
+/*#endregion */
+
+
+/*#region - SNIPPET EditorÃƒÂ°Ã…Â¸Ã…Â½Ã…Â¾ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ¢Ã…â€œÃ¢â‚¬Å¡ÃƒÂ¯Ã‚Â¸Ã‚Â================================== */
+/*   ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â© Snippet Editor (Foreground Panel content)============== */
+
+.snippet-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.snippet-editor-form label {
+  font-size: 11px;
+  color: var(--G-color-1-offwhite);
+}
+
+.snippet-editor-input,
+.snippet-editor-textarea {
+  width: 100%;
+  padding: 6px;
+  background: #1e1e1e;
+  border: 1px solid #3b3b3b;
+  color: #eee;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.snippet-editor-textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.snippet-editor-save {
+  align-self: flex-end;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border: 1px solid #3b3b3b;
+  border-radius: 4px;
+  background: #333;
+  color: #eee;
+  cursor: pointer;
+}
+
+.snippet-editor-save:hover {
+  background: #444;
+}
+
+/*---------------------------------\-----*/
+/*#endregion* snip editor-----------\----*/
+
+
+#snippetsBar {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  border: var(--outer-borders);
+  border-radius: 0px 16px 0px 0px;
+}
+
+#snippetsRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: var(--snippet-row-height, 26px);
+  height: 100%;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+
+/* ======================================================================== */
+
+
+
+/*---------------------------------\-----*/
+/*#endregion* snips main-----------\----*/
+
+
+/*#region ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¡ÃƒÂ¢Ã…â€œÃ‚Â¨ÃƒÂ¢Ã…â€œÃ‚Â¨ HOLY GLOW============================= */
+/*____________________________________________________*/
+
+/* ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+   ÃƒÂ°Ã…Â¸Ã…â€™Ã…Â¸ GLOBAL GLOW UTILITY
+   - Attach via class .holy-glow or variants
+   - Works on any element with position:relative
+   - Includes hover animation
+   =================================================== */
+
+/* Base */
+.holy-glow {
+  position: relative;
+  /* ensures ::after anchors correctly */
+  z-index: 1;
+  /* keeps content above glow */
+}
+
+/* Glow layer */
+.holy-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0px;
+  /* how far glow extends beyond element */
+  border-radius: inherit;
+  /* adapts to rounded shapes */
+  background: var(--G-color-1);
+  opacity: 0.25;
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* Hover intensity */
+.holy-glow:hover::after {
+  opacity: 0.45;
+  filter: blur(10px);
+
+}
+
+.holy-glow-text {
+  position: relative;
+  color: #1b1b1b;
+  /* fallback for browsers w/out filter */
+  text-shadow:
+    0 0 4px var(--G-color-1),
+    0 0 8px var(--G-color-1),
+    0 0 12px var(--G-color-1-light);
+  transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+.holy-glow-text:hover {
+  color: #1b1b1b;
+  text-shadow:
+    0 0 6px var(--G-color-1),
+    0 0 12px var(--G-color-1-light),
+    0 0 18px var(--G-color-1-light);
+}
+
+@keyframes slowPulse {
+  from {
+    opacity: 0.25;
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 0.6;
+    filter: blur(12px);
+  }
+}
+
+/*---------------------------------\-----*/
+/*#endregion* ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¡ÃƒÂ¢Ã…â€œÃ‚Â¨ÃƒÂ¢Ã…â€œÃ‚Â¨----------------------\----*/
+
+
+/* ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€ */
+/* ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */
+/*#region - ÃƒÂ¢Ã‚Â¬Ã¢â‚¬ÂºÃƒÂ¢Ã‚Â¬Ã…â€œÃƒÂ¢Ã‚Â¬Ã¢â‚¬Âº   B U T T O N   S T Y L E S   ÃƒÂ¢Ã‚Â¬Ã¢â‚¬ÂºÃƒÂ¢Ã‚Â¬Ã…â€œÃƒÂ¢Ã‚Â¬Ã¢â‚¬Âº ======================= */
+/*____________________________________________________*/
+
+
+/*#region ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚ÂªÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Âµ M A I N BUTTONS ============================== */
+/*____________________________________________________*/
+
+
+button {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--G-colour-1-opac-30);
+  border-radius: 6px;
+  background: #333;
+  color: var(--G-color-1-light);
+  cursor: pointer;
+  font-size: 11.5px;
+}
+
+button.primary {
+  background: #4c7ef3;
+
+}
+
+button.tab-btn {
+  background: #221325;
+  margin-left: 6px;
+  padding: 0px 0px;
+  width: 20%;
+  font-size: 80%;
+  color: #513a56;
+}
+
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+
+/* ==================================================
+   ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â© Clear Button (SVG version)
+   ================================================== */
+.btn-clearSVG {
+  /* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â§ Core sizing controlled by a variable for unified scaling */
+  --size: 25px;
+  --stroke-width: 0.8px;
+  --icon-scale: 1;
+  --icon-offset-x: 0;
+  --icon-offset-y: 0;
+  width: var(--size);
+  height: var(--size);
+  color: var(--G-color-1-mid);
+  stroke: var(--G-color-1);
+
+  border: none;
+  background: none;
+  display: inline-flex;
+  /* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â§ changed from flex to inline-flex so it doesnÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢t stretch rows */
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+  cursor: pointer;
+
+
+
+  transition: color 0.2s ease-out, transform 0.2s ease-out;
+
+  position: relative;
+  transform: translateZ(0);
+  /* isolates for GPU safety */
+
+}
+
+
+
+.btn-clearSVG svg:hover {
+  color: var(--G-color-1);
+  stroke: var(--G-color-1-midlight2);
+  transform: scale(1.2) translateZ(0);
+
+  transition: color 0.2s ease-out, transform 0.2s
+}
+
+.btn-clearSVG:hover .inner-contents {
+  stroke: var(--G-color-1-mid) !important;
+}
+
+.btn-clearSVG:active {
+  transform: scale(0.95) translateZ(0);
+}
+
+/* ==================================================
+   SVG inside the button
+   ================================================== */
+.btn-clearSVG .btn-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: translate(var(--icon-offset-x), var(--icon-offset-y)) scale(var(--icon-scale));
+
+  shape-rendering: geometricPrecision;
+  vector-effect: non-scaling-stroke;
+}
+
+.btn-clearSVG .btn-icon,
+.btn-clearSVG .btn-icon * {
+  vector-effect: non-scaling-stroke;
+  stroke-width: var(--stroke-width);
+}
+
+/* ==================================================
+   ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â©ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â€ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ¢Ã¢â‚¬Â Ã¢â€žÂ¢ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ¢Ã‚Â¬Ã¢â‚¬Â¡ÃƒÂ¯Ã‚Â¸Ã‚Â Clear Button bespokes
+   ================================================== */
+
+
+
+#deleteExpressionsBtn {
+
+  transform: translateX(24px);
+  --size: 20px;
+}
+
+
+#bankSelectBtn {
+  --size: 16px;
+  margin-top: 4px;
+  margin-right: 2px;
+}
+
+#editorClearBtn {
+  height: 45px !important;
+  width: auto !important;
+  aspect-ratio: unset !important;
+}
+
+
+#editorClearBtn.express-editor-overlay-btn {
+  --size: 20px;
+  transform: translateY(-7px);
+}
+
+#loadPathFromSelectionBtn,
+#loadFromSelectionBtn {
+  --size: 20px;
+
+}
+
+#loadFromSelectionBtn {
+  transform: translateX(6px);
+}
+
+#loadPathFromSelectionBtn {
+  transform: translateX(18px);
+  z-index: 10;
+}
+
+
+
+
+/* ==================================================
+   Discreet buttons (text or symbol style)
+   ================================================== */
+button.btn-discreet {
+  background: none;
+  border: none;
+
+
+
+  cursor: pointer;
+  transition: color 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+button.btn-discreet:focus-visible {
+  box-shadow: 0 0 0 2px rgba(var(--G-colour-1-RGB), 0.35);
+}
+
+button.btn-discreet svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--G-color-1);
+  stroke: var(--G-color-1);
+  transition: inherit;
+  stroke-width: 0.5px;
+}
+
+button.btn-discreet .icon-collapse {
+  display: none;
+}
+
+button.btn-discreet.is-active .icon-expand {
+  display: none;
+}
+
+button.btn-discreet.is-active .icon-collapse {
+  display: inline;
+}
+
+/* ==================================================
+   Editor maximize
+   ================================================== */
+#editorMaximizeBtn {
+  border-radius: 6px;
+}
+
+#editorMaximizeBtn:hover {
+  border-radius: 6px;
+  margin-left: auto;
+}
+
+
+/* Wrapper keeps circle + label together */
+.target-btn-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 8px;
+  /* spacing between buttons */
+}
+
+/*-----------------------------------\----*/
+/*#endregion* main buttons-----------\----*/
+
+/*#region - ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â©ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â©ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â© GLOBAL BUTTON ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â©LABELS ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°================= */
+/* ÃƒÂ°Ã…Â¸Ã…â€™Ã‚Â GLOBAL BUTTON LABELS */
+.label {
+  font-size: 10px;
+  /* default readable size */
+  color: #cccccc;
+  text-align: center;
+  letter-spacing: 1px;
+  /* subtle tracking */
+  text-transform: uppercase;
+  /* consistent button look */
+  pointer-events: none;
+
+  /* prevents accidental selection */
+}
+
+
+.label-under {
+  font-size: 6.5px;
+  /* default readable size */
+  color: #ccc;
+  text-align: center;
+  letter-spacing: 1px;
+  /* subtle tracking */
+  text-transform: uppercase;
+  /* consistent button look */
+  pointer-events: none;
+  /* prevents accidental selection */
+}
+
+/*#endregion* ----------------------\----*/
+
+
+/*#region ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â§ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â§ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â§ RHOMBUS Button styling ============================== */
+/*____________________________________________________*/
+
+
+
+.btn-rhombus {
+  --btn-stroke: var(--G-color-1);
+  --btn-fill: var(--G-color-1-mid);
+  --btn-text: var(--G-color-1-light);
+  color: var(--btn-stroke);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  transform:
+    scale(1.4) translateX(10px);
+  transform-origin: center;
+  margin-top: 5px;
+  margin-bottom: 2px;
+
+
+}
+
+.f21.snippet-btn:nth-child(2) .label {
+top: 14px;
+  /* or 3px if you want a bit more drop */
+}
+
+.btn-rhombus:hover {
+  --btn-stroke: var(--G-color-1-light);
+  --btn-fill: var(--G-color-1);
+  --btn-text: var(--G-color-1-deepdark-bg);
+  font-weight: bold;
+  background: none;
+  border-color: none;
+}
+
+
+.btn-rhombus .rhombus-icon path,
+.btn-rhombus .rhombus-icon line,
+.btn-rhombus .rhombus-icon rect {
+  stroke: var(--btn-stroke);
+  stroke-width: 1.5;
+  stroke-miterlimit: 10;
+  fill: var(--btn-fill);
+}
+
+
+
+.btn-rhombus .rhombus-icon rect {
+  stroke: none;
+  /* middle stays clean */
+}
+
+.btn-rhombus .label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--btn-text);
+  font-family: var(--f1);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/*#endregion*/
+
+/*#region ÃƒÂ¢Ã‚ÂÃ‚Â¹ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ¢Ã‚ÂÃ‚Â¹ÃƒÂ¯Ã‚Â¸Ã‚ÂÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â§ RHOMBUS Snippet ÃƒÂ¢Ã…â€œÃ¢â‚¬Å¡ÃƒÂ¯Ã‚Â¸Ã‚Â Buttons ----------*/
+
+/*These two are legacy definitions for snippets in general (not the rhombus 
+   itself). They mostly affect padding, color, and hover visuals.
+   You can move these up near the flex block ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â theyÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢re non-conflicting. */
+/* ======================================================================== */
+
+
+/* ======================================================================== */
+/* ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â© Snippet Button Strip ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â fixed rhombus layout                           */
+/* ------------------------------------------------------------------------ */
+
+:root {
+  --btn-Rs-fill: var(--G-color-1-mid);
+  --btn-Rs-text: var(--G-color-1-midlight);
+  --btn-Rs-fill-hover: var(--G-color-1);
+  --btn-Rs-text-hover: var(--G-color-1-deepdark-bg);
+  --snippet-row-height: 26px;
+}
+
+.snippetsRow>.snippet-btn {
+  flex: 1 1 33.3333%;
+}
+
+.snippet-btn {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  flex: 1 1 33.3333%;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--btn-Rs-fill);
+  stroke-width: 1px;
+  stroke: var(--G-color-1);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  vector-effect: non-scaling-stroke;
+}
+
+.snippet-btn:hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--btn-Rs-fill-hover);
+}
+
+.btn-rhombus2-flex {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.btn-rhombus2-flex svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.snippet-btn .label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0 8px;
+  font-family: var(--f1);
+  font-size: 11.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--btn-Rs-text);
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: calc(100% - 12px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 1;
+  line-height: 1.1;
+}
+
+.snippet-btn:hover .label {
+  color: var(--btn-Rs-text-hover);
+  font-weight: bold;
+}
+
+.snippet-btn:focus-visible {
+  outline: 2px solid var(--btn-Rs-fill-hover);
+  outline-offset: -2px;
+}
+
+.snippet-btn:focus-visible .label {
+  font-weight: bold;
+}
+
+
+.rhombus-left {
+  --rhombus-transform: scaleX(1.23) translateX(-4%);
+}
+
+.rhombus-middle {
+  --rhombus-transform: scaleX(1.23);
+}
+
+.rhombus-right {
+  --rhombus-transform: scaleX(1.23) translateX(4%);
+}
+
+
+.rhombus-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform: var(--rhombus-transform, scaleX(1.1));
+  transform-origin: center;
+}
+
+/*#endregion*/
+
+
+
+
+
+
+/* #endregion */
+
+
+/*#region*-_ DropDown time*/
+
+/* ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
+   ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ   ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â½ Dropdown Button (Cleaned) ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ V2.0 ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
+   ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */
+
+button.Dd-blank {
+  background: none;
+  margin-left: 4px;
+  /* tighter than before */
+  padding: 0 4px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 0px solid var(--G-colour-1-opac-30);
+  width: 18px;
+  /* ensures proper square hitbox */
+  color: var(--G-color-1-offwhite);
+  transform: translate(0.7px, 2.2px) scale(1.1);
+}
+
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â» Dropdown icon positioning */
+button.Dd-blank .dropdown-icon {
+  width: 8px;
+  height: 8px;
+  display: block;
+  margin: 0;
+  transform: translateY(-0.5px) translateX(0.3px);
+}
+
+/* ÃƒÂ¢Ã…â€œÃ‚Â´ÃƒÂ¯Ã‚Â¸Ã‚Â SVG appearance + slight highlight (kept minimal) */
+.dropdown-icon path {
+  stroke: var(--G-color-1);
+  fill: var(--G-color-1-mid);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  transition: stroke 0.25s ease, fill 0.25s ease, filter 0.35s ease;
+
+}
+
+/* Hover: intensify fill + light stroke highlight */
+button.Dd-blank:hover .dropdown-icon path {
+  fill: var(--G-color-1);
+  filter: drop-shadow(0 0 4px var(--G-color-1-light));
+}
+
+/* Icon wrapper sizing */
+.dropdown-icon {
+  width: 9px;
+  height: 10px;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+
+
+/*#endregion*/
+
+
+/*#region - Circle buttons ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Âµ ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°================= */
+/*____________________________________________________*/
+
+/* ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦   ÃƒÂ¢Ã‚Â Ã¢â€šÂ¬ÃƒÂ¢Ã‚Â¢Ã¢â€šÂ¬ÃƒÂ¢Ã‚Â£Ã‚Â¤ÃƒÂ¢Ã‚Â£Ã‚Â¶ÃƒÂ¢Ã‚Â£Ã‚Â¶ÃƒÂ¢Ã‚Â£Ã‚Â¶ÃƒÂ¢Ã‚Â£Ã‚Â¤ÃƒÂ¢Ã‚Â¡Ã¢â€šÂ¬   ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ */
+/* ÃƒÂ¢Ã…â€œÃ‚Â§ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°  ÃƒÂ¢Ã‚Â¢Ã‚Â¸ÃƒÂ¢Ã‚Â£Ã‚Â¿ÃƒÂ¢Ã‚Â£Ã‚Â¿ÃƒÂ¢Ã‚Â£Ã‚Â¿ÃƒÂ¢Ã‚Â£Ã‚Â¿ÃƒÂ¢Ã‚Â£Ã‚Â¿ÃƒÂ¢Ã‚Â£Ã‚Â¿ÃƒÂ¢Ã‚Â¡Ã¢â‚¬Â¡    ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬â€Ã¢â‚¬Â°ÃƒÂ¢Ã…â€œÃ‚Â§ */
+/* ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦   ÃƒÂ¢Ã‚Â Ã‹â€ ÃƒÂ¢Ã‚Â Ã¢â‚¬ÂºÃƒÂ¢Ã‚Â Ã‚Â¿ÃƒÂ¢Ã‚Â Ã‚Â¿ÃƒÂ¢Ã‚Â Ã‚Â¿ÃƒÂ¢Ã‚Â Ã¢â‚¬ÂºÃƒÂ¢Ã‚Â Ã‚Â   ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ÃƒÂ¢Ã…â€œÃ‚Â¦ */
+/*                  Circle style */
+
+
+/* ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â© Circle Button Label Variant (sibling version) */
+.circle-btn+.label {
+  font-size: 1px;
+  color: #00ffd9;
+  margin-top: 4px;
+  text-align: center;
+  letter-spacing: 1.5px;
+}
+
+
+.circle-btn {
+  width: 26px;
+  height: 26px;
+
+  padding: 11px 11px;
+  /*border: solid #8a8a8ab !important;*/
+  border: solid #8a8a8a !important;
+  border-radius: 41px;
+
+  background: #242424;
+  color: #eee;
+
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 0.2s;
+
+}
+
+
+/* --------------- Behaviours  ÃƒÂ¢Ã‚Â Ã‚ÂÃƒÂ¢Ã‚Â Ã¢â‚¬ÂºÃƒÂ¢Ã‚Â Ã‚Â¿ÃƒÂ¢Ã‚Â Ã‚Â¿ÃƒÂ¢Ã‚Â Ã‚Â¿ÃƒÂ¢Ã‚Â Ã¢â‚¬ÂºÃƒÂ¢Ã‚Â Ã‚Â  */
+
+.circle-btn:hover {
+  border: 1.5px solid #702801 !important;
+  /* dark orange hover */
+}
+
+
+.circle-btn.flash-orange {
+  border: 1.5px solid #ff7427 !important;
+  /* bright orange click flash */
+}
+
+
+.circle-btn.stay-orange {
+  border: 1.5px solid #ff7427 !important;
+  /* bright orange persistent */
+}
+
+
+/*  ÃƒÂ°Ã…Â¸Ã…Â¸Ã‚Â¦Blue versions */
+.circle-btn.circle-blue:hover {
+  border: 1.5px solid #1e40af !important;
+  /* dark blue hover */
+}
+
+.circle-btn.circle-blue.flash-blue {
+  border: 1.5px solid #3b82f6 !important;
+  /* bright blue click flash */
+}
+
+.circle-btn.circle-blue.stay-blue {
+  border: 1.5px solid #3b82f6 !important;
+  /* bright blue persistent */
+}
+
+
+
+
+
+/*---------------------------------\-----*/
+/*#endregion* ----------------------\----*/
+
+/*#region - APPLY ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â¼ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ ============================== */
+/*____________________________________________________*/
+
+
+
+/* =============================
+   ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‹Å“ Buttons - Custom Variants
+   ============================= */
+
+
+button.target-btn {
+  border: 2px solid #ff7415;
+}
+
+.apply-row {
+  display: flex;
+  gap: 8px;
+}
+
+.apply-btn {
+  font-family: "dotsbold", sans-serif !important;
+  background-color: var(--G-colour-1-opac-10);
+  color: #fff;
+  /* text color */
+  border: 1px solid var(--G-color-1);
+  /* border color */
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.apply-target-btn {
+  background-color: #ff7415;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#exprPickBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: none;
+  color: #ff0000;
+
+  cursor: pointer;
+}
+
+/*-------------------------------\-----*/
+/*#endregion* APPLY -------------\----*/
+/* ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€ */
+/* ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */
+/*---------------------------------\-----*/
+/*#endregion* ÃƒÂ¢Ã‚Â¬Ã¢â‚¬ÂºÃƒÂ¢Ã‚Â¬Ã…â€œÃƒÂ¢Ã‚Â¬Ã¢â‚¬Âº BUTTON-------\----*/
+
+
+
+
+
+/*#region - Misc/Dev/Admin ÃƒÂ¢Ã…Â¾Ã¢â‚¬Â¢ÃƒÂ¢Ã…Â¾Ã¢â‚¬Â¢ÃƒÂ¢Ã…Â¾Ã¢â‚¬Â¢ ============================== */
+/*____________________________________________________*/
+
+
+/* =============================
+   ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Target / Apply Outputs
+   ============================= */
+#TargetList,
+#applyOutput {
+  font-family: dotsbold, sans-serif !important;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+/* =============================
+   ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Â Apply Log button
+   ============================= */
+
+#openApplyLog,
+.btn-theme,
+.holy-color-modal .picker-actions button {
+  padding: 4px 12px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #f2f2f2;
+  background: linear-gradient(180deg, #3a3a3a 0%, #252525 100%);
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+#openApplyLog:hover,
+.btn-theme:hover,
+.holy-color-modal .picker-actions button:hover {
+  background: linear-gradient(180deg, #4a4a4a 0%, #2f2f2f 100%);
+  border-color: #777;
+}
+
+#openApplyLog:active,
+.btn-theme:active,
+.holy-color-modal .picker-actions button:active {
+  background: linear-gradient(180deg, #2f2f2f 0%, #1c1c1c 100%);
+  border-color: #666;
+}
+
+.btn-theme {
+  margin-left: 8px;
+}
+
+.holy-color-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 9998;
+  cursor: pointer;
+}
+
+.holy-color-modal {
+  position: absolute;
+  bottom: 60px;
+  right: 20px;
+  background: var(--G-color-1-deepdark-bg);
+  border: 1px solid var(--G-colour-1-opac-30);
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+  width: 260px;
+  padding: 12px;
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+}
+
+.holy-color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-input {
+  width: 100%;
+  text-align: center;
+  background: var(--G-color-1-mid);
+  border: 2px solid var(--G-color-1) !important;
+  color: var(--G-color-1);
+  border-radius: 4px;
+  padding: 6px 8px;
+  text-transform: uppercase;
+}
+
+.holy-color-picker .color-area {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+
+  border: 2px solid var(--G-color-1);
+  cursor: crosshair;
+  background: #222;
+  touch-action: none;
+}
+
+/* ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ HUE SLIDER ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â fully CEP-compatible version */
+.hue-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid var(--G-colour-1-opac-30);
+  background: linear-gradient(90deg,
+      hsl(0, 100%, 50%),
+      hsl(60, 100%, 50%),
+      hsl(120, 100%, 50%),
+      hsl(180, 100%, 50%),
+      hsl(240, 100%, 50%),
+      hsl(300, 100%, 50%),
+      hsl(360, 100%, 50%));
+  outline: none;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* CEP uses WebKit syntax for pseudo-elements */
+.hue-slider::-webkit-slider-runnable-track {
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid var(--G-colour-1-opac-30);
+  background: inherit;
+  /* reuse main gradient */
+}
+
+.hue-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+  margin-top: -1px;
+  /* aligns thumb vertically */
+}
+
+.holy-color-picker .picker-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.holy-color-picker .picker-actions button {
+  flex: 1;
+}
+
+.holy-color-picker .btn-apply,
+.holy-color-picker .btn-cancel {
+  border-radius: 8px;
+  border: 1px solid var(--G-colour-1-opac-30);
+  background-image: none;
+
+  letter-spacing: 0.5px;
+}
+
+.holy-color-picker .btn-apply {
+  background: var(--G-color-1);
+  color: #0a0a0a;
+}
+
+.holy-color-picker .btn-cancel {
+  background: var(--G-color-1-deepdark-bg, #2b2b2b);
+  color: #ddd;
+}
+
+/* =============================
+   ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Â Toast Notifications
+   ============================= */
+
+#toast {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  font-size: 12px;
+  background: #00000088;
+  padding: 6px 8px;
+  border-radius: 6px;
+  display: none;
+}
+
+/* =============================
+   ÃƒÂ¢Ã…Â¾Ã¢â‚¬Â¢ Misc Layout
+   ============================= */
+.picks {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+
+/*---------------------------------\-----*/
+/*#endregion* ----------------------\----*/

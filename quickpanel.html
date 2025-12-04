@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Holy Expressor Quick Access</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/codemirror_styles.css" />
+  <script>
+    (function STYLE_boot(){
+      try {
+        var theme = localStorage.getItem('he_theme') || 'default';
+        document.documentElement.classList.add('theme-' + theme);
+      } catch (err) {
+        console.warn('[QuickPanel] Failed to set theme', err);
+      }
+    })();
+  </script>
+  <script src="js/panel_state.js"></script>
+  <script src="js/libs/CSInterface.js"></script>
+  <script src="js/json2.js"></script>
+  <script defer src="js/main_UTILS.js"></script>
+  <script defer src="js/main_STATE.js"></script>
+  <script defer src="js/main_FLYO.js"></script>
+  <script defer src="js/main_MENU.js"></script>
+  <script defer src="js/main_UI.js"></script>
+  <script defer src="js/main_EXPRESS.js"></script>
+  <script defer src="js/main_BUTTON_LOGIC_1.js"></script>
+  <script defer src="js/main_SNIPPETS.js"></script>
+  <script defer src="js/quickpanel.js"></script>
+</head>
+<body class="quick-panel">
+
+
+
+  
+
+    <div id="snippetsBar" class="panel">
+      <div id="bankHeader">
+        <span class="heading-1 f18-c">Snippets</span>
+        <button id="bankSelectBtn" class="Dd-blank" title="Select Bank" aria-label="Select Bank">
+          <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 5.63 5.63">
+            <path d="M1.13.5h3.38c.46,0,.77.49.56.9l-1.69,3.38c-.23.46-.89.46-1.12,0L.57,1.4c-.21-.42.09-.9.56-.9Z" />
+          </svg>
+        </button>
+        <span id="bankNameLabel" class="f18-c">Bank 1</span>
+        <ul id="bankSelectMenu" class="context-menu"></ul>
+      </div>
+
+      <div class="snippetsRow" id="snippetsRow"></div>
+    </div>
+
+  <ul id="snippetContextMenu" class="context-menu snippet-menu">
+    <li><button data-action="edit">Edit</button></li>
+    <li><button data-action="express">Express...</button></li>
+  </ul>
+
+      <button id="quickPanelCloseBtn" class="btn-discreet" title="Close panel" aria-label="Close panel">
+        <span aria-hidden="true">×</span>
+      </button>
+
+  <footer id="toast"></footer>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Holy Expressor Flyover</title>
+  <link rel="stylesheet" href="../css/styles.css">  <!-- same token file -->
+  <style>
+   body {
+  background: rgba(251, 125, 35, 0.985); /* dark translucent panel */
+  border-radius: 12px;                /* restore soft edges */
+  padding: 16px;
+  color: white;
+  -webkit-app-region: drag;           /* draggable surface */
+}
+
+button {
+  -webkit-app-region: no-drag;        /* allow interaction */
+}
+
+  </style>
+</head>
+<body>
+  <div id="root">
+    <!-- UI: CodeMirror editor and buttons -->
+    <div id="editor"></div>
+    <button id="applyBtn">Apply</button>
+    <button id="cancelBtn">Cancel</button>
+  </div>
+  <script src="flyo_RENDERER.js"></script>
+</body>
+</html>

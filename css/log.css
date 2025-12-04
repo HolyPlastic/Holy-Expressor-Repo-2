@@ -1,0 +1,57 @@
+:root {
+  color-scheme: dark;
+  --log-bg: #111;
+  --log-panel: #141414;
+  --log-border: #2c2c2c;
+  --log-text: #f0f0f0;
+  --log-muted: #a0a0a0;
+  --log-accent: #f7b955;
+  font-family: "Menlo", "Consolas", "SFMono-Regular", monospace;
+}
+
+body {
+  margin: 0;
+  background: var(--log-bg);
+  color: var(--log-text);
+  font-family: inherit;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.log-header {
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--log-border);
+  background: rgba(32, 32, 32, 0.9);
+}
+
+.log-header h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--log-accent);
+}
+
+.log-status {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--log-muted);
+}
+
+.log-content {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 14px 16px 20px;
+  background: var(--log-panel);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow-y: auto;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+.log-content strong {
+  color: var(--log-accent);
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionList>
+
+  <Extension Id="com.holy.expressor.panel">
+    <HostList>
+      <Host Name="AEFT" Port="6904" />
+    </HostList>
+  </Extension>
+
+  <Extension Id="com.holy.expressor.quickpanel">
+    <HostList>
+      <Host Name="AEFT" Port="6905" />
+    </HostList>
+  </Extension>
+
+  <Extension Id="com.holy.expressor.colorpicker">
+    <HostList>
+      <Host Name="AEFT" Port="6906" />
+    </HostList>
+  </Extension>
+
+  <Extension Id="com.holy.expressor.fulleditor">
+    <HostList>
+      <Host Name="AEFT" Port="6907" />
+    </HostList>
+  </Extension>
+
+  <Extension Id="com.holy.expressor.log">
+    <HostList>
+      <Host Name="AEFT" Port="6908" />
+    </HostList>
+  </Extension>
+
+
+</ExtensionList>

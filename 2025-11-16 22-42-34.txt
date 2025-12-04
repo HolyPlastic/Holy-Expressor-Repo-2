@@ -1,0 +1,1 @@
+mklink /J "C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\_Holy-Expressor-Repo" "C:\Users\Ben\Documents\__NEXUS\_GRID\_GRID_Ae\SCRIPTS_Ae\HOLY EXPRESSOR X\Holy-Expressor-Repo"

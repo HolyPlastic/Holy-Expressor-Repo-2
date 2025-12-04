@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Holy Expressor — Full Editor</title>
+
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/codemirror_styles.css" />
+
+  <script src="js/libs/CSInterface.js"></script>
+  <script src="js/json2.js"></script>
+  <script>
+    window.HX_FULL_EDITOR_CONTEXT = true;
+  </script>
+  <script src="js/main_UTILS.js"></script>
+  <script src="js/main_UI.js"></script>
+  <script src="js/main_EXPRESS.js"></script>
+  <script src="js/main_DEV_INIT.js"></script>
+
+  <script src="js/codemirror/codemirror-bundle.js"></script>
+  <script src="js/codemirror-init.js"></script>
+</head>
+
+<body class="theme-default holy-full-editor">
+  <div id="fullEditorHeader">
+    <label><input type="checkbox" id="useAbsoluteComp" /> Use Absolute Comp</label>
+    <button id="loadPathFromSelectionBtn">Load Path from Selection</button>
+    <button id="loadFromSelectionBtn">Load from Selection</button>
+    <button id="editorClearBtn">Clear Editor</button>
+    <button id="returnToMainBtn">Return to Main Panel</button>
+  </div>
+
+  <div id="codeEditor"></div>
+
+  <script>
+    (function () {
+      function ensureBaseExtensions() {
+        var cm = window.codemirror;
+        if (!cm) {
+          return [];
+        }
+
+        if (Array.isArray(window.baseExtensions) && window.baseExtensions.length) {
+          return window.baseExtensions;
+        }
+
+        var extensions = [];
+        if (cm.basicSetup) extensions.push(cm.basicSetup);
+        if (typeof cm.javascript === "function") extensions.push(cm.javascript());
+        if (cm.oneDark) extensions.push(cm.oneDark);
+        if (cm.EditorView && cm.EditorView.lineWrapping) extensions.push(cm.EditorView.lineWrapping);
+        window.baseExtensions = extensions;
+        return extensions;
+      }
+
+      function initFullEditor() {
+        var cm = window.codemirror;
+        if (!cm || !cm.EditorState || !cm.EditorView) {
+          console.warn("[FullEditor] CodeMirror bundle missing or incomplete");
+          return;
+        }
+
+        var state = cm.EditorState.create({
+          doc: "",
+          extensions: ensureBaseExtensions()
+        });
+
+        window.fullEditor = new cm.EditorView({
+          state: state,
+          parent: document.querySelector("#codeEditor")
+        });
+
+        window.editor = window.fullEditor;
+      }
+
+      function bindReturnButton() {
+        var returnBtn = document.getElementById("returnToMainBtn");
+        if (!returnBtn) return;
+
+        returnBtn.addEventListener("click", function () {
+          window.localStorage.setItem("HX_FULL_EDITOR_OPEN", "false");
+          window.HX_EDITOR_LOCKED = false;
+
+          try {
+            var cs = new CSInterface();
+            if (cs && typeof cs.closeExtension === "function") {
+              cs.closeExtension();
+            }
+          } catch (err) {
+            console.warn("[FullEditor] Failed to close extension", err);
+          }
+        });
+      }
+
+      function bindClearButton() {
+        var clearBtn = document.getElementById("editorClearBtn");
+        if (!clearBtn) return;
+
+        clearBtn.addEventListener("click", function () {
+          if (!window.fullEditor || !window.fullEditor.state) {
+            console.warn("[FullEditor] Clear requested without an active editor instance");
+            return;
+          }
+
+          try {
+            var docText = window.fullEditor.state.doc.toString();
+            window.fullEditor.dispatch({
+              changes: { from: 0, to: docText.length, insert: "" }
+            });
+            if (typeof window.fullEditor.focus === "function") {
+              window.fullEditor.focus();
+            }
+          } catch (err) {
+            console.warn("[FullEditor] Failed to clear editor contents", err);
+          }
+        });
+      }
+
+      function init() {
+        initFullEditor();
+        bindReturnButton();
+        bindClearButton();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+{
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "editor.guides.bracketPairsHorizontal": "active",
+    "editor.guides.highlightActiveBracketPair": true,
+    "editor.matchBrackets": "always",
+"editor.minimap.showSlider": "always",
+
+
+"maptz.regionfolder": {
+  "[css]": {
+    "foldStart": "/* #> [NAME] */",
+    "foldEnd": "/* #< */",
+    "foldStartRegex": "/\\*\\s*#>\\b.*\\*/",
+    "foldEndRegex": "/\\*\\s*#<\\b.*\\*/",
+    "disableFolding": false
+  }
+}
+,
+
+    "workbench.colorCustomizations": {
+  // 👇 Apply to *all* themes
+  "editor.background": "#1f1f22",
+  "editorGutter.background": "#1f1f22",
+
+"editor.selectionBackground": "#455057",
+  "editor.lineHighlightBorder": "#4b4949",
+  "editor.rangeHighlightBackground": "#e3e3e340",
+  "editor.selectionHighlightBackground" : "#25252540",
+  "editor.selectionHighlightBorder": "#000000",
+  
+"editor.bracketPairColorization.enabled": true,
+"editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+
+
+  // Depth 1 brackets
+  "editorBracketHighlight.foreground1": "#ffffff",  
+  // Depth 2 brackets
+  "editorBracketHighlight.foreground2": "#fdefc0",  
+  // Depth 3 brackets
+  "editorBracketHighlight.foreground3": "#f3d5ab",  
+  // Depth 4 brackets
+  "editorBracketHighlight.foreground4": "#e9bd7f",  
+  // Depth 5 brackets
+  "editorBracketHighlight.foreground5": "#e4a040",  
+  // Depth 6 brackets
+  "editorBracketHighlight.foreground6": "#f99150"
+
+
+
+
+
+
+
+
+
+
+
+  //"editor.foreground": "#E0E0E0",
+
+ /* // Optional: Bracket highlight
+  "editorBracketMatch.background": "#3A3A3A40",
+  "editorBracketMatch.border": "#00FF00",
+
+  // Optional: Sidebar + UI
+  "sideBar.background": "#181818",
+  "activityBar.background": "#1A1A1A",
+  "titleBar.activeBackground": "#111111"*/
+
+
+
+
+
+    },
+    "problems.decorations.enabled": false,
+
+    "minimapSlider.background": "#4c7ef380",         // Semi-transparent slider
+    "minimapSlider.hoverBackground": "#f99150",    // Brighter when hovering
+    "minimapSlider.activeBackground": "#4c7ef3",     // Full opacity when dragging
+}
