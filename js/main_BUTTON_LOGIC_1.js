@@ -184,13 +184,6 @@ if (typeof Holy !== "object") Holy = {};
             V4 – use editor expression for Custom Search; fallback to builder only if editor is empty
             ============================ */
           function onApply() {
-            console.log("🔎 [DIAGNOSTIC] DOM useCustomSearch =", document.querySelector("#useCustomSearch")?.checked);
-console.log("🔎 [DIAGNOSTIC] State useCustomSearch =", Holy.State.get("useCustomSearch"));
-console.log("🔎 [DIAGNOSTIC] customSearch field =", document.querySelector("#customSearch")?.value);
-
-            console.log("Blue Apply button clicked");
-            
-
             var expr = Holy.EXPRESS.PORTAL_getCurrentExpression();
             var hasEditorExpr = !!(expr && String(expr).trim().length);
             if (!hasEditorExpr) {
