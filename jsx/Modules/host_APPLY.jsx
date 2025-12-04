@@ -280,13 +280,25 @@ function he_S_LS_applyExpressionToTargetList(jsonStr) {
 
 
 // TOKEN STRIKER: one-token fallback (used by Search Captain when tokens.length===1)
-function he_S_TS_collectAndApply(group, token, expr, state) {
+function he_S_TS_collectAndApply(group, token, expr, state, strict) {
   for (var j = 1; j <= group.numProperties; j++) {
     var pr = group.property(j);
     if (!pr) continue;
 
     if (pr.propertyType === PropertyType.PROPERTY && pr.canSetExpression) {
-      if (pr.name === token || pr.matchName === token) {
+      var matchExact = (pr.name === token || pr.matchName === token);
+      var matchLoose = false;
+      try {
+        matchLoose = (String(pr.name || "").toLowerCase().indexOf(String(token || "").toLowerCase()) >= 0);
+      } catch (_) {}
+
+      if ((strict && !matchExact) || (!strict && !(matchExact || matchLoose))) {
+        // Strict mode requires an exact match; non-strict allows partials for resilience
+        // against localized names or stray whitespace.
+        continue;
+      }
+
+      if (matchExact || matchLoose) {
         //  filter before apply to avoid hidden Layer Style noise on one-token searches
         // Silent ignore for LS styles that aren't enabled
         if (he_U_Ls_1_isLayerStyleProp(pr) && !he_U_Ls_2_styleEnabledForLeaf(pr)) { continue; }
@@ -309,7 +321,7 @@ function he_S_TS_collectAndApply(group, token, expr, state) {
       }
     } else if (pr.propertyType === PropertyType.INDEXED_GROUP || pr.propertyType === PropertyType.NAMED_GROUP) {
       // recurse into sub-groups using Token Striker itself
-      he_S_TS_collectAndApply(pr, token, expr, state);
+      he_S_TS_collectAndApply(pr, token, expr, state, strict);
     }
   }
 }
@@ -401,7 +413,7 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
           }
         }
       } else {
-        he_S_TS_collectAndApply(layer, tokens[0], expr, state);
+        he_S_TS_collectAndApply(layer, tokens[0], expr, state, strict);
       }
     }
     app.endUndoGroup();
