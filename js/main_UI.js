@@ -198,11 +198,6 @@ ensureHostReady(() => {
       expressOnlyElements.push(useAbsoluteComp.parentElement);
     }
 
-    var customSearchMaster = document.getElementById("customSearch-Master");
-    if (customSearchMaster) {
-      expressOnlyElements.push(customSearchMaster);
-    }
-
     [loadPathFromSelectionBtn, loadFromSelectionBtn, editorClearBtn].forEach(function (btn) {
       if (btn) {
         expressOnlyElements.push(btn);

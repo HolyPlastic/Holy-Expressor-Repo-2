@@ -303,11 +303,54 @@ function cy_deleteExpressions() {
   });
 }
 
+function cy_filterEntriesByCustomSearch(entries, searchTerm) {
+  var list = Array.isArray(entries) ? entries : [];
+  var tokens = String(searchTerm || "")
+    .split(">")
+    .map(function (t) { return t.replace(/^\s+|\s+$/g, ""); })
+    .filter(function (t) { return !!t; });
+
+  if (!tokens.length) return list.slice();
+
+  var filtered = [];
+  for (var i = 0; i < list.length; i++) {
+    var entry = list[i];
+    if (!entry) continue;
+
+    var pathTokens = String(entry.path || "")
+      .split(">")
+      .map(function (p) { return p.replace(/^\s+|\s+$/g, ""); })
+      .filter(function (p) { return !!p; });
+
+    if (!pathTokens.length && entry.name) {
+      pathTokens = [String(entry.name).replace(/^\s+|\s+$/g, "")];
+    }
+
+    if (!pathTokens.length || pathTokens.length < tokens.length) continue;
+
+    var matches = true;
+    for (var t = 0; t < tokens.length; t++) {
+      var expected = tokens[tokens.length - 1 - t];
+      var actual = pathTokens[pathTokens.length - 1 - t];
+      if (expected !== actual) {
+        matches = false;
+        break;
+      }
+    }
+
+    if (matches) filtered.push(entry);
+  }
+
+  return filtered;
+}
+
 function cy_replaceInExpressions(searchStr, replaceStr, options) {
   var search = (searchStr === undefined || searchStr === null) ? "" : String(searchStr);
   var replace = (replaceStr === undefined || replaceStr === null) ? "" : String(replaceStr);
   var opts = options || {};
   var matchCase = typeof opts.matchCase === "boolean" ? opts.matchCase : true;
+  var customSearchTerm = (opts.customSearchTerm && String(opts.customSearchTerm).trim()) || "";
+  var useCustomSearch = !!customSearchTerm;
 
   if (search === "") {
     return Promise.reject({ userMessage: "Enter a Search term" });
@@ -352,9 +395,14 @@ function cy_replaceInExpressions(searchStr, replaceStr, options) {
     var replacementValue = replace;
 
     var reports = [];
+    var customSearchMatchedCount = 0;
     var tasks = layers.map(function (layer) {
       return cy_collectExprTargets(layer).then(function (data) {
         var entries = (data && data.entries) ? data.entries : [];
+        if (useCustomSearch) {
+          entries = cy_filterEntriesByCustomSearch(entries, customSearchTerm);
+          customSearchMatchedCount += entries.length;
+        }
         var updates = [];
         var replacements = 0;
         var patternFlags = matchCase ? "g" : "gi";
@@ -414,14 +462,23 @@ function cy_replaceInExpressions(searchStr, replaceStr, options) {
       }
 
       if (!batch.length) {
+        if (useCustomSearch && customSearchMatchedCount === 0) {
+          throw { userMessage: "No matching properties found for Custom Search filter" };
+        }
+
         var noneMsg = '[Holy.SEARCH] No matches for "' + search + '" across ' + layers.length + ' layer(s).';
+        if (useCustomSearch && customSearchMatchedCount > 0) {
+          noneMsg = 'No replacements found in filtered properties';
+        }
         console.log(noneMsg);
         return {
           ok: true,
           replacements: 0,
           layersChanged: 0,
           layersCount: layers.length,
-          message: noneMsg
+          message: noneMsg,
+          customSearchUsed: useCustomSearch,
+          customSearchMatches: customSearchMatchedCount
         };
       }
 
@@ -442,7 +499,9 @@ function cy_replaceInExpressions(searchStr, replaceStr, options) {
           layersCount: layers.length,
           message: msg,
           applyReport: applyReport,
-          suppressedExpressionWarnings: categorizedErrors.suppressed
+          suppressedExpressionWarnings: categorizedErrors.suppressed,
+          customSearchUsed: useCustomSearch,
+          customSearchMatches: customSearchMatchedCount
         };
       });
     });
@@ -503,6 +562,7 @@ Holy.EXPRESS = {
   cy_collectExprTargets: cy_collectExprTargets,
   cy_safeApplyExpression: cy_safeApplyExpressionBatch,
   cy_replaceInExpressions: cy_replaceInExpressions,
-  cy_deleteExpressions: cy_deleteExpressions
+  cy_deleteExpressions: cy_deleteExpressions,
+  cy_filterEntriesByCustomSearch: cy_filterEntriesByCustomSearch
 };
 })();
