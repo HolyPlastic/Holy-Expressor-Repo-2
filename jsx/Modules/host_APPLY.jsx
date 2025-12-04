@@ -320,6 +320,18 @@ function he_S_TS_collectAndApply(group, token, expr, state) {
 
 // SEARCH CAPTAIN: Apply expression by scanning for a property name/matchName across layers (with token support)
 function he_P_SC_applyExpressionBySearch(jsonStr) {
+
+// V3 – Force AE to refresh viewer focus so selection is valid
+try {
+    if (app.activeViewer && typeof app.activeViewer.setActive === "function") {
+        app.activeViewer.setActive();
+    }
+} catch (e) {
+    // silent; safety only
+}
+
+
+
   try {
     var data = JSON.parse(jsonStr || "{}");
     var expr   = data.expressionText || "";
@@ -330,12 +342,14 @@ function he_P_SC_applyExpressionBySearch(jsonStr) {
     if (!comp || !(comp instanceof CompItem)) return JSON.stringify({ ok:false, err:"No active comp" });
     if (!search) return JSON.stringify({ ok:false, err:"No search term" });
 
-    // Build clean token list (ignore empty parts)
-    var rawTokens = search.split(">"), tokens = [];
-    for (var ti=0; ti<rawTokens.length; ti++) {
-      var t = rawTokens[ti].trim();
-      if (t.length) tokens.push(t);
-    }
+// V2 Minimal Fix – guard against non-string tokens
+var rawTokens = search.split(">"), tokens = [];
+for (var ti = 0; ti < rawTokens.length; ti++) {
+    var rt = rawTokens[ti];
+    var t = (typeof rt === "string") ? rt.trim() : "";
+    if (t && t.length) tokens.push(t);
+}
+
 
     // Gather layer scope
     var scopeLayers = [];

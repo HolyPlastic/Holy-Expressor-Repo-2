@@ -487,11 +487,26 @@ function normalizeApplyResult(payload) {
             if (!useSearch && csInput && csInput.value && csInput.value.trim().length > 0) useSearch = true;
 
             if (useSearch) {
-              var searchVal = csInput ? csInput.value.trim() : "";
+             // V1 – Fallback for Custom Search sync delays
+var searchVal = csInput ? String(csInput.value || "").trim() : "";
+
+// If nothing from DOM, pull from saved state
+if (!searchVal && Holy.State && typeof Holy.State.getState === "function") {
+    try {
+        var ss = Holy.State.getState() || {};
+        if (ss.customSearch) {
+            searchVal = String(ss.customSearch || "").trim();
+        }
+    } catch (e) {
+        console.warn("Custom Search fallback error:", e);
+    }
+}
+
               if (!searchVal) { Holy.UI.toast("Enter a Custom Name to search"); return; }
 
               if (hasEditorExpr) {
                 // Use the editor text exactly as authored
+                console.warn("📤 DISPATCH → Strict Search:", { expr, searchVal });
                 Holy.EXPRESS.HE_applyByStrictSearch(expr, searchVal);
               } else if (typeof Holy.EXPRESS.buildExpressionForSearch === "function") {
                 // Fallback: build from preset if user has not typed anything yet

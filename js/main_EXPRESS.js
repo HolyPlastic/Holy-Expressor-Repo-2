@@ -113,6 +113,7 @@ function HE_applyByStrictSearch(expr, searchVal) {
   var payload = JSON.stringify({ expressionText: String(expr), searchTerm: q, strictMode: true });
   var escaped = payload.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
+console.warn("📡 CALLING JSX → he_P_SC_applyExpressionBySearch", escaped);
   Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', function (reportRaw) {
     // Always guarantee a non-empty report
     var report = reportRaw || "{}";
