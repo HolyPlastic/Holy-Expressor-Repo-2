@@ -108,13 +108,6 @@ if (window.HX_LOG_MODE === "verbose") {
 function HE_applyByStrictSearch(expr, searchVal) {
 var q = String(searchVal || "").trim();
   if (!q) { Holy.UI.toast("Enter a Custom Name to search"); return; }
-console.log(
-  "🔍 TYPE CHECK searchVal:",
-  typeof searchVal,
-  Object.prototype.toString.call(searchVal),
-  searchVal
-);
-
   // Build and escape JSON for evalScript
 var payload = JSON.stringify({
   expressionText: String(expr + ""),
@@ -127,14 +120,12 @@ var payload = JSON.stringify({
 Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', function (report) {
 
     // 🌶️ V4 DEBUG: dump raw + parsed result to DevTools
-    console.log("🔎 [STRICT RESULT RAW]", report);
 
     var parsed = null;
     try { parsed = JSON.parse(report || "{}"); }
     catch (e) {
       console.warn("⚠️ [STRICT RESULT PARSE ERROR]", e, report);
     }
-    console.log("🔎 [STRICT RESULT PARSED]", parsed);
 
     // ⬇️ Existing UI/log mechanism stays, but soon we’ll improve it
     Holy.BUTTONS.updateApplyReport("Blue Apply by Custom Search", report);
