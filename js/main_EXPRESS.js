@@ -106,38 +106,40 @@ if (window.HX_LOG_MODE === "verbose") {
 
 // V3 - apply expression by strict search within selection scope (used by Blue when Custom Search is active)
 function HE_applyByStrictSearch(expr, searchVal) {
-  var q = (searchVal || "").trim();
+var q = String(searchVal || "").trim();
   if (!q) { Holy.UI.toast("Enter a Custom Name to search"); return; }
+console.log(
+  "🔍 TYPE CHECK searchVal:",
+  typeof searchVal,
+  Object.prototype.toString.call(searchVal),
+  searchVal
+);
 
   // Build and escape JSON for evalScript
-  var payload = JSON.stringify({ expressionText: String(expr), searchTerm: q, strictMode: true });
+var payload = JSON.stringify({
+  expressionText: String(expr + ""),
+  searchTerm: String(q + ""),
+  strictMode: true
+});
+
   var escaped = payload.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
-console.warn("📡 CALLING JSX → he_P_SC_applyExpressionBySearch", escaped);
-  Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', function (reportRaw) {
-    // Always guarantee a non-empty report
-    var report = reportRaw || "{}";
+Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', function (report) {
 
-    var parsed = {};
-    try { parsed = JSON.parse(report) || {}; }
-    catch (e) { parsed = { raw: report }; }
+    // 🌶️ V4 DEBUG: dump raw + parsed result to DevTools
+    console.log("🔎 [STRICT RESULT RAW]", report);
 
-    // Guarantee minimal meaningful entry
-    if (!parsed.ok && !parsed.applied && !parsed.skipped) {
-        parsed.ok = false;
-        parsed.note = "No matching properties for strict search";
-        parsed.searchTerm = q;
+    var parsed = null;
+    try { parsed = JSON.parse(report || "{}"); }
+    catch (e) {
+      console.warn("⚠️ [STRICT RESULT PARSE ERROR]", e, report);
     }
+    console.log("🔎 [STRICT RESULT PARSED]", parsed);
 
-    var context = {
-        action: "Blue Apply (Custom Search)",
-        searchTerm: q,
-        expressionPreview: expr,
-        expressionLength: String(expr || "").length
-    };
+    // ⬇️ Existing UI/log mechanism stays, but soon we’ll improve it
+    Holy.BUTTONS.updateApplyReport("Blue Apply by Custom Search", report);
+});
 
-    Holy.BUTTONS.updateApplyReport("Blue Apply (Strict Search)", report, context);
-  });
 }
 
 
@@ -302,29 +304,6 @@ function cy_deleteExpressions() {
           return;
         }
 
-        if (typeof Holy === "object" && Holy && Holy.UTILS && typeof Holy.UTILS.NEW_forCustomer_emit === "function") {
-          var NEW_forCustomer_parts = [];
-          if (typeof result.clearedProperties === "number") {
-            var NEW_forCustomer_propLabel = result.clearedProperties === 1 ? "property" : "properties";
-            NEW_forCustomer_parts.push(result.clearedProperties + " " + NEW_forCustomer_propLabel + " cleared");
-          }
-          if (typeof result.clearedLayers === "number" && result.clearedLayers > 0) {
-            var NEW_forCustomer_layerLabel = result.clearedLayers === 1 ? "layer" : "layers";
-            NEW_forCustomer_parts.push(result.clearedLayers + " " + NEW_forCustomer_layerLabel);
-          }
-          if (result.selectionType) {
-            NEW_forCustomer_parts.push("Selection: " + result.selectionType);
-          }
-          if (result.toastMessage && !NEW_forCustomer_parts.length) {
-            NEW_forCustomer_parts.push(result.toastMessage);
-          }
-          var NEW_forCustomer_message = "Expressions deleted";
-          if (NEW_forCustomer_parts.length) {
-            NEW_forCustomer_message += " – " + NEW_forCustomer_parts.join(", ");
-          }
-          Holy.UTILS.NEW_forCustomer_emit(NEW_forCustomer_message);
-        }
-
         resolve(result || {});
       });
     } catch (err) {
@@ -459,13 +438,6 @@ function cy_replaceInExpressions(searchStr, replaceStr, options) {
         var msg = '[Holy.SEARCH] ' + totalReplacements + ' replacements made across ' + affectedLayers + ' layer(s).';
         msg += ' (matchCase=' + matchCase + ')';
         console.log(msg);
-        if (typeof Holy === "object" && Holy && Holy.UTILS && typeof Holy.UTILS.NEW_forCustomer_emit === "function") {
-          var NEW_forCustomer_summary = 'Search & Replace – ' + totalReplacements + ' replacement' + (totalReplacements === 1 ? '' : 's');
-          if (affectedLayers) {
-            NEW_forCustomer_summary += ' across ' + affectedLayers + ' layer' + (affectedLayers === 1 ? '' : 's');
-          }
-          Holy.UTILS.NEW_forCustomer_emit(NEW_forCustomer_summary);
-        }
         var categorizedErrors = categorizeApplyErrors(applyReport && applyReport.errors);
         if (categorizedErrors.critical.length) {
           console.warn('[Holy.SEARCH] Apply errors', categorizedErrors.critical);

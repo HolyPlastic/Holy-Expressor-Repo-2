@@ -355,11 +355,20 @@ try {
     if (!search) return JSON.stringify({ ok:false, err:"No search term" });
 
 // V2 Minimal Fix – guard against non-string tokens
-var rawTokens = search.split(">"), tokens = [];
+// V5 – tokenise searchTerm safely (ExtendScript has no String.trim)
+var rawTokens = String(search || "").split(">"),
+    tokens    = [];
+
 for (var ti = 0; ti < rawTokens.length; ti++) {
     var rt = rawTokens[ti];
-    var t = (typeof rt === "string") ? rt.trim() : "";
-    if (t && t.length) tokens.push(t);
+    if (!rt) continue;
+
+    // manual whitespace trim: remove leading / trailing spaces and tabs
+    var t = rt.replace(/^\s+|\s+$/g, "");
+
+    if (t && t.length) {
+        tokens.push(t);
+    }
 }
 
 

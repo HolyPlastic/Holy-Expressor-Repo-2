@@ -14,136 +14,7 @@ if (typeof Holy !== "object") Holy = {};
   var APPLY_LOG_MAX_ENTRIES = 250;
   var applyLogEntries = [];
 
-  function truncateForLog(str, max) {
-    if (typeof str !== "string") return "";
-    if (str.length <= max) return str;
-    return str.slice(0, max - 1) + "…";
-  }
-
-  function pushList(lines, label, items) {
-    if (!Array.isArray(items) || !items.length) {
-      return;
-    }
-    lines.push(label);
-    for (var i = 0; i < items.length; i++) {
-      if (items[i] == null) continue;
-      lines.push("- " + String(items[i]));
-    }
-  }
-
-  function NEW_forCustomer_emitIfAvailable(message) {
-    if (!message) return;
-    if (typeof Holy !== "object" || !Holy || !Holy.UTILS) return;
-    if (typeof Holy.UTILS.NEW_forCustomer_emit !== "function") return;
-    Holy.UTILS.NEW_forCustomer_emit(message);
-  }
-
-  function NEW_forCustomer_emitPathSummary(builtString) {
-    if (!builtString) return;
-    var NEW_forCustomer_lines = String(builtString).split(/\r?\n/);
-    var NEW_forCustomer_preview = (NEW_forCustomer_lines[0] || builtString || "").trim();
-    if (!NEW_forCustomer_preview && builtString) {
-      NEW_forCustomer_preview = String(builtString).trim();
-    }
-    if (NEW_forCustomer_preview.length > 120) {
-      NEW_forCustomer_preview = NEW_forCustomer_preview.slice(0, 117) + "…";
-    }
-    var NEW_forCustomer_lineCount = 0;
-    for (var NEW_forCustomer_i = 0; NEW_forCustomer_i < NEW_forCustomer_lines.length; NEW_forCustomer_i++) {
-      if (NEW_forCustomer_lines[NEW_forCustomer_i] && NEW_forCustomer_lines[NEW_forCustomer_i].trim()) {
-        NEW_forCustomer_lineCount++;
-      }
-    }
-    if (!NEW_forCustomer_lineCount) {
-      NEW_forCustomer_lineCount = 1;
-    }
-    var NEW_forCustomer_label = NEW_forCustomer_lineCount === 1
-      ? "Path built"
-      : "Paths built (" + NEW_forCustomer_lineCount + " entries)";
-    var NEW_forCustomer_message = NEW_forCustomer_preview
-      ? NEW_forCustomer_label + ": " + NEW_forCustomer_preview
-      : NEW_forCustomer_label;
-    NEW_forCustomer_emitIfAvailable(NEW_forCustomer_message);
-  }
-
-  function toNumberOrNull(value) {
-    if (value == null || value === "") {
-      return null;
-    }
-    var num = Number(value);
-    return isNaN(num) ? null : num;
-  }
-
-function normalizeApplyResult(payload) {
-  var normalized = { parsed: null, raw: null, text: "" };
-
-  // Helper → enforce final schema for Customer Log
-  function enforceSchema(obj) {
-    if (!obj || typeof obj !== "object") obj = {};
-
-    return {
-      ok: typeof obj.ok === "boolean" ? obj.ok : false,
-      applied: typeof obj.applied === "number" ? obj.applied : 0,
-      skipped: typeof obj.skipped === "number" ? obj.skipped : 0,
-      errors: Array.isArray(obj.errors) ? obj.errors : []
-    };
-  }
-
-  // 1) Undefined/null
-  if (payload == null) {
-    normalized.parsed = enforceSchema(null);
-    return normalized;
-  }
-
-  // 2) Payload is string
-  if (typeof payload === "string") {
-    var trimmed = payload.trim();
-    normalized.raw = trimmed;
-    normalized.text = trimmed;
-
-    if (trimmed) {
-      try {
-        var parsed = JSON.parse(trimmed);
-        normalized.parsed = enforceSchema(parsed);
-      } catch (err) {
-        normalized.parsed = enforceSchema(null);
-      }
-    } else {
-      normalized.parsed = enforceSchema(null);
-    }
-
-    return normalized;
-  }
-
-  // 3) Payload is object (already parsed)
-  if (typeof payload === "object") {
-    normalized.raw = payload;
-
-    var baseObj =
-      payload && typeof payload.parsed === "object"
-        ? payload.parsed
-        : payload;
-
-    normalized.parsed = enforceSchema(baseObj);
-
-    try {
-      normalized.text = JSON.stringify(payload);
-    } catch (err2) {
-      normalized.text = "" + payload;
-    }
-
-    return normalized;
-  }
-
-  // 4) Anything else
-  normalized.raw = payload;
-  normalized.text = String(payload);
-  normalized.parsed = enforceSchema(null);
-  return normalized;
-}
-
-
-  function formatApplyLogEntry(title, normalized, context) {
+  function formatApplyLogEntry(title, data) {
     var lines = [];
 
     try {
@@ -152,7 +23,15 @@ function normalizeApplyResult(payload) {
       var label = (title && typeof title === "string") ? title : "Apply";
       lines.push("[" + stamp + "] " + label);
 
-      var parsed = normalized && normalized.parsed;
+      var raw = data;
+      var parsed = null;
+      if (typeof raw === "string" && raw.trim()) {
+        try { parsed = JSON.parse(raw); }
+        catch (err) { parsed = null; }
+      } else if (raw && typeof raw === "object") {
+        parsed = raw;
+      }
+
       if (parsed && typeof parsed === "object") {
         if (typeof parsed.ok === "boolean") {
           lines.push("Status: " + (parsed.ok ? "ok" : "error"));
@@ -160,19 +39,13 @@ function normalizeApplyResult(payload) {
         if (parsed.applied != null) lines.push("Applied: " + parsed.applied);
         if (parsed.skipped != null) lines.push("Skipped: " + parsed.skipped);
         if (parsed.expressionName) lines.push("Expression: " + parsed.expressionName);
-        if (parsed.note) lines.push("Note: " + parsed.note);
 
         var targets = parsed.targets || parsed.paths;
-        if (!targets && Array.isArray(parsed.targetPaths)) {
-          targets = parsed.targetPaths;
-        }
         if (Array.isArray(targets) && targets.length) {
-          pushList(lines, "Targets:", targets);
-        }
-
-        var layers = parsed.layers;
-        if (Array.isArray(layers) && layers.length) {
-          pushList(lines, "Layers:", layers);
+          lines.push("Targets:");
+          for (var i = 0; i < targets.length; i++) {
+            lines.push("- " + targets[i]);
+          }
         }
 
         var errs = parsed.errors;
@@ -181,7 +54,7 @@ function normalizeApplyResult(payload) {
           lines.push("Errors:");
           for (var j = 0; j < errs.length; j++) {
             var e = errs[j] || {};
-            var path = e.path || e.target || e.layer || "?";
+            var path = e.path || e.target || "?";
             var errMsg = e.err || e.message || String(e);
             lines.push("- " + path + " -> " + errMsg);
           }
@@ -190,68 +63,13 @@ function normalizeApplyResult(payload) {
         if (parsed.details && typeof parsed.details === "string") {
           lines.push("Details: " + parsed.details);
         }
-      } else if (normalized && normalized.text) {
-        lines.push("Raw: " + normalized.text);
-      }
-
-      var ctx = (context && typeof context === "object") ? context : null;
-      if (ctx) {
-        if (ctx.action && ctx.action !== label) {
-          lines.push("Action: " + ctx.action);
-        }
-        if (ctx.selectionType) {
-          lines.push("Selection: " + ctx.selectionType);
-        }
-        if (ctx.searchTerm) {
-          lines.push("Search: " + ctx.searchTerm);
-        }
-        if (ctx.replaceValue !== undefined) {
-          lines.push("Replace: " + ctx.replaceValue);
-        }
-        if (ctx.matchCase !== undefined) {
-          lines.push("Match case: " + (ctx.matchCase ? "true" : "false"));
-        }
-        if (ctx.replacements != null) {
-          lines.push("Replacements: " + ctx.replacements);
-        }
-        if (ctx.layersChanged != null) {
-          lines.push("Layers changed: " + ctx.layersChanged);
-        }
-        if (ctx.layersCount != null && ctx.layersChanged == null) {
-          lines.push("Layers scanned: " + ctx.layersCount);
-        }
-        if (ctx.clearedProperties != null) {
-          lines.push("Cleared properties: " + ctx.clearedProperties);
-        }
-        if (ctx.clearedLayers != null) {
-          lines.push("Cleared layers: " + ctx.clearedLayers);
-        }
-        if (ctx.expressionPreview) {
-          lines.push("Expression preview: " + truncateForLog(ctx.expressionPreview, 140));
-        }
-        if (ctx.expressionLength != null) {
-          lines.push("Expression length: " + ctx.expressionLength);
-        }
-        if (ctx.snippetName) {
-          lines.push("Snippet: " + ctx.snippetName);
-        }
-        if (ctx.snippetId) {
-          lines.push("Snippet ID: " + ctx.snippetId);
-        }
-        if (ctx.controlsApplied !== undefined) {
-          lines.push("Controls applied: " + (ctx.controlsApplied ? "true" : "false"));
-        }
-        if (ctx.layers && Array.isArray(ctx.layers) && ctx.layers.length) {
-          pushList(lines, "Layers:", ctx.layers);
-        }
-        if (ctx.targetPaths && Array.isArray(ctx.targetPaths) && ctx.targetPaths.length) {
-          pushList(lines, "Target paths:", ctx.targetPaths);
-        }
-        if (ctx.note) {
-          lines.push("Note: " + ctx.note);
-        }
-        if (ctx.error) {
-          lines.push("Error: " + ctx.error);
+      } else if (typeof raw === "string" && raw.trim()) {
+        lines.push("Raw: " + raw.trim());
+      } else if (raw != null) {
+        try {
+          lines.push("Raw: " + JSON.stringify(raw));
+        } catch (err2) {
+          lines.push("Raw: [unserializable]");
         }
       }
     } catch (err3) {
@@ -259,92 +77,6 @@ function normalizeApplyResult(payload) {
     }
 
     return lines.join("\n");
-  }
-
-  function maybeToastBlueApply(title, normalized, context) {
-    if (!window.Holy || !Holy.UI || typeof Holy.UI.toast !== "function") {
-      return;
-    }
-
-    var label = (typeof title === "string") ? title : "";
-    var ctx = (context && typeof context === "object") ? context : {};
-    var action = (typeof ctx.action === "string") ? ctx.action : "";
-    var isBlue = false;
-
-    if (label.indexOf("Blue Apply") === 0) {
-      isBlue = true;
-    } else if (action.indexOf("Blue Apply") === 0) {
-      isBlue = true;
-    }
-
-    if (!isBlue) {
-      return;
-    }
-
-    var parsed = normalized && normalized.parsed;
-    var toastMsg = null;
-
-    if (parsed && typeof parsed === "object") {
-      if (parsed.toastMessage) {
-        toastMsg = parsed.toastMessage;
-      } else {
-        var appliedNum = toNumberOrNull(parsed.applied);
-        var skippedNum = toNumberOrNull(parsed.skipped);
-        var okFlag = (parsed.ok === undefined) ? (appliedNum != null && appliedNum > 0) : !!parsed.ok;
-
-        if (okFlag && appliedNum != null) {
-          toastMsg = "Applied to " + appliedNum + " " + (appliedNum === 1 ? "property" : "properties");
-        } else if (okFlag && skippedNum != null) {
-          toastMsg = "Skipped " + skippedNum + " " + (skippedNum === 1 ? "property" : "properties");
-        } else if (okFlag) {
-          toastMsg = "Apply complete";
-        } else if (parsed.note) {
-          toastMsg = parsed.note;
-        } else if (parsed.err || parsed.error) {
-          toastMsg = parsed.err || parsed.error;
-        } else if (appliedNum != null) {
-          toastMsg = "Applied to " + appliedNum + " " + (appliedNum === 1 ? "property" : "properties");
-        } else if (skippedNum != null) {
-          toastMsg = "Skipped " + skippedNum + " " + (skippedNum === 1 ? "property" : "properties");
-        }
-      }
-    } else if (normalized && typeof normalized.raw === "string" && normalized.raw) {
-      var rawTrimmed = String(normalized.raw).trim();
-      if (rawTrimmed && rawTrimmed.charAt(0) !== "{" && rawTrimmed.charAt(0) !== "[") {
-        toastMsg = rawTrimmed;
-      }
-    }
-
-    if (!toastMsg) {
-      if (parsed && parsed.ok === false) {
-        toastMsg = parsed.note || parsed.err || parsed.error || "Apply failed";
-      } else if (parsed && parsed.ok) {
-        toastMsg = "Apply complete";
-      }
-    }
-
-    if (!toastMsg) {
-      return;
-    }
-
-    Holy.UI.toast(toastMsg);
-  }
-
-  function appendLogEntry(entry, updateApplyBox) {
-    if (!entry) return;
-    applyLogEntries.push(entry);
-    if (applyLogEntries.length > APPLY_LOG_MAX_ENTRIES) {
-      applyLogEntries.shift();
-    }
-
-    if (updateApplyBox) {
-      var box = document.getElementById("applyReport");
-      if (box) {
-        box.textContent = entry;
-      }
-    }
-
-    broadcastApplyLogEntries();
   }
 
   function broadcastApplyLogEntries(targetExtensionId) {
@@ -452,23 +184,12 @@ function normalizeApplyResult(payload) {
             V4 – use editor expression for Custom Search; fallback to builder only if editor is empty
             ============================ */
           function onApply() {
-            var modePanelEl = document.getElementById("modePanel");
-            var isRewriteMode = modePanelEl && modePanelEl.dataset.mode === "rewrite";
-
-            if (isRewriteMode) {
-              if (Holy.SEARCH && typeof Holy.SEARCH.runSearchReplace === "function") {
-                var rewriteBtn = document.getElementById("applyBtn");
-                Holy.SEARCH.runSearchReplace(rewriteBtn);
-              } else {
-                console.warn("[Holy.BUTTONS] Search & Replace helper unavailable in rewrite mode");
-                if (Holy.UI && typeof Holy.UI.toast === "function") {
-                  Holy.UI.toast("Search & Replace unavailable");
-                }
-              }
-              return;
-            }
+            console.log("🔎 [DIAGNOSTIC] DOM useCustomSearch =", document.querySelector("#useCustomSearch")?.checked);
+console.log("🔎 [DIAGNOSTIC] State useCustomSearch =", Holy.State.get("useCustomSearch"));
+console.log("🔎 [DIAGNOSTIC] customSearch field =", document.querySelector("#customSearch")?.value);
 
             console.log("Blue Apply button clicked");
+            
 
             var expr = Holy.EXPRESS.PORTAL_getCurrentExpression();
             var hasEditorExpr = !!(expr && String(expr).trim().length);
@@ -487,26 +208,11 @@ function normalizeApplyResult(payload) {
             if (!useSearch && csInput && csInput.value && csInput.value.trim().length > 0) useSearch = true;
 
             if (useSearch) {
-             // V1 – Fallback for Custom Search sync delays
-var searchVal = csInput ? String(csInput.value || "").trim() : "";
-
-// If nothing from DOM, pull from saved state
-if (!searchVal && Holy.State && typeof Holy.State.getState === "function") {
-    try {
-        var ss = Holy.State.getState() || {};
-        if (ss.customSearch) {
-            searchVal = String(ss.customSearch || "").trim();
-        }
-    } catch (e) {
-        console.warn("Custom Search fallback error:", e);
-    }
-}
-
+              var searchVal = csInput ? csInput.value.trim() : "";
               if (!searchVal) { Holy.UI.toast("Enter a Custom Name to search"); return; }
 
               if (hasEditorExpr) {
                 // Use the editor text exactly as authored
-                console.warn("📤 DISPATCH → Strict Search:", { expr, searchVal });
                 Holy.EXPRESS.HE_applyByStrictSearch(expr, searchVal);
               } else if (typeof Holy.EXPRESS.buildExpressionForSearch === "function") {
                 // Fallback: build from preset if user has not typed anything yet
@@ -527,20 +233,7 @@ if (!searchVal && Holy.State && typeof Holy.State.getState === "function") {
               var payload = JSON.stringify({ expressionText: exprDirect });
               var escaped = payload.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
               Holy.UI.cs.evalScript('he_S_SS_applyExpressionToSelection("' + escaped + '")', function (report) {
-                var context = {
-                  action: "Blue Apply (Selection)",
-                  selectionType: "selection",
-                  expressionPreview: exprDirect,
-                  expressionLength: exprDirect.length
-                };
-var parsed = null;
-try {
-    parsed = JSON.parse(report || "{}");
-} catch (e) {
-    console.warn("Apply report JSON parse failed:", e, report);
-    parsed = { applied: 0, errors: ["JSON parse failed"] };
-}
-updateApplyReport("Blue Apply", parsed, context);
+                updateApplyReport("Blue Apply", report);
               });
             } catch (e) {
               console.error("Blue Apply failed:", e);
@@ -612,16 +305,6 @@ updateApplyReport("Blue Apply", parsed, context);
                     if (Holy.UI && typeof Holy.UI.toast === "function" && toastMsg) {
                       Holy.UI.toast(toastMsg);
                     }
-
-                    var context = {
-                      action: "Delete Expressions",
-                      selectionType: result && result.selectionType,
-                      clearedProperties: result && result.clearedProperties,
-                      clearedLayers: result && result.clearedLayers,
-                      hadErrors: result && result.hadErrors,
-                      errorsCount: result && Array.isArray(result.errors) ? result.errors.length : 0
-                    };
-                    logPanelEvent("Delete Expressions", context, result);
                   })
                   .catch(function (err) {
                     release();
@@ -630,11 +313,6 @@ updateApplyReport("Blue Apply", parsed, context);
                     if (Holy.UI && typeof Holy.UI.toast === "function") {
                       Holy.UI.toast(msg);
                     }
-                    var errorContext = {
-                      action: "Delete Expressions",
-                      error: msg
-                    };
-                    logPanelEvent("Delete Expressions (Error)", errorContext, err);
                   });
               });
             }
@@ -665,13 +343,7 @@ updateApplyReport("Blue Apply", parsed, context);
                         return;
                       }
                       Holy.UI.toast("Applied to " + r.applied + " properties");
-                      var context = {
-                        action: "Orange Apply (Custom Search)",
-                        searchTerm: searchVal,
-                        expressionPreview: expr,
-                        expressionLength: String(expr || "").length
-                      };
-                      updateApplyReport("Orange Apply (Custom Search)", raw, context);
+                      updateApplyReport("Orange Apply (Custom Search)", r);
                     });
                   });
                 } else {
@@ -701,13 +373,7 @@ updateApplyReport("Blue Apply", parsed, context);
                         return;
                       }
                       Holy.UI.toast("Applied to " + r.applied + " properties");
-                      var context = {
-                        action: "Orange Apply (Target List)",
-                        targetPaths: paths.slice(),
-                        expressionPreview: expr,
-                        expressionLength: String(expr || "").length
-                      };
-                      updateApplyReport("Orange Apply (Target List)", raw, context);
+                      updateApplyReport("Orange Apply (Target List)", r);
                     });
                   }
 
@@ -935,7 +601,6 @@ updateApplyReport("Blue Apply", parsed, context);
                     if (parsed.built) {
                       Holy.EXPRESS.EDITOR_insertText(parsed.built);
                       Holy.UI.toast("Lean builder path inserted");
-                      NEW_forCustomer_emitPathSummary(parsed.built);
                     } else Holy.UI.toast("No path returned from lean builder");
                   } catch (err) {
                     console.error("Lean builder parse error:", err, raw);
@@ -965,7 +630,6 @@ updateApplyReport("Blue Apply", parsed, context);
                         "color:#9C27B0;font-weight:bold;",
                         builtStr
                       );
-                      NEW_forCustomer_emitPathSummary(builtStr);
                     } else Holy.UI.toast("No built string returned");
                   } catch (e) {
                     console.error("Parse fail:", e, raw);
@@ -1038,112 +702,26 @@ updateApplyReport("Blue Apply", parsed, context);
 
 // ======================================
 //  Apply Report Helper (backward-compatible)
-// Accepts updateApplyReport(result)  or  updateApplyReport(title, result[, context])
+// Accepts updateApplyReport(result)  or  updateApplyReport(title, result)
 // ======================================
-function updateApplyReport(arg1, arg2, arg3) {
-  var title;
-  var data;
-  var context;
+function updateApplyReport(arg1, arg2) {
+  var title = (arguments.length === 2 && typeof arg1 === "string") ? arg1 : "";
+  var data  = (arguments.length === 2 && typeof arg1 === "string") ? arg2 : arg1;
 
-  if (arguments.length === 1) {
-    title = "";
-    data = arg1;
-    context = undefined;
-  } else if (arguments.length === 2) {
-    title = (typeof arg1 === "string") ? arg1 : "";
-    data = (typeof arg1 === "string") ? arg2 : arg1;
-    context = (typeof arg1 === "string") ? undefined : arg2;
-  } else {
-    title = (typeof arg1 === "string") ? arg1 : "";
-    data = arg2;
-    context = arg3;
+  var entry = formatApplyLogEntry(title, data);
+  if (!entry) entry = "[No apply data]";
+
+  applyLogEntries.push(entry);
+  if (applyLogEntries.length > APPLY_LOG_MAX_ENTRIES) {
+    applyLogEntries.shift();
   }
 
-  var normalized = normalizeApplyResult(data);
-  // DEBUG: detect missing applied count
-if (normalized.parsed && normalized.parsed.applied === undefined) {
-    console.warn("⚠ Host returned apply payload WITHOUT 'applied' field:", normalized.parsed);
-}
-
-  var entry = formatApplyLogEntry(title, normalized, context);
-  if (!entry) {
-    entry = "[No apply data]";
+  var box = document.getElementById("applyReport");
+  if (box) {
+    box.textContent = entry;
   }
 
-  appendLogEntry(entry, true);
-  maybeToastBlueApply(title, normalized, context);
-
-  var NEW_forCustomer_parsed = (normalized && typeof normalized === "object") ? normalized.parsed : null;
-  var NEW_forCustomer_isObject = NEW_forCustomer_parsed && typeof NEW_forCustomer_parsed === "object";
-  if (NEW_forCustomer_isObject) {
-    var NEW_forCustomer_success = false;
-    if (NEW_forCustomer_parsed.ok === false) {
-      NEW_forCustomer_success = false;
-    } else if (NEW_forCustomer_parsed.ok === true) {
-      NEW_forCustomer_success = true;
-    } else if (typeof NEW_forCustomer_parsed.applied === "number" || NEW_forCustomer_parsed.toastMessage || NEW_forCustomer_parsed.note) {
-      NEW_forCustomer_success = true;
-    }
-
-    if (NEW_forCustomer_success) {
-      var NEW_forCustomer_label = "";
-      if (context && context.snippetName) {
-        NEW_forCustomer_label = 'Snippet "' + context.snippetName + '"';
-      } else if (context && context.action) {
-        NEW_forCustomer_label = context.action;
-      } else if (title) {
-        NEW_forCustomer_label = title;
-      } else {
-        NEW_forCustomer_label = "Apply";
-      }
-
-      var NEW_forCustomer_details = [];
-      if (typeof NEW_forCustomer_parsed.applied === "number") {
-        var NEW_forCustomer_applyLabel = NEW_forCustomer_parsed.applied === 1 ? "property" : "properties";
-        NEW_forCustomer_details.push(NEW_forCustomer_parsed.applied + " " + NEW_forCustomer_applyLabel + " updated");
-      }
-      if (typeof NEW_forCustomer_parsed.skipped === "number" && NEW_forCustomer_parsed.skipped > 0) {
-        var NEW_forCustomer_skipLabel = NEW_forCustomer_parsed.skipped === 1 ? "property" : "properties";
-        NEW_forCustomer_details.push(NEW_forCustomer_parsed.skipped + " " + NEW_forCustomer_skipLabel + " skipped");
-      }
-      if (context && context.controlsApplied) {
-        NEW_forCustomer_details.push("Controls applied");
-      }
-      if (context && context.searchTerm) {
-        NEW_forCustomer_details.push('Search: ' + context.searchTerm);
-      }
-      if (context && context.selectionType && !context.snippetName) {
-        NEW_forCustomer_details.push('Selection: ' + context.selectionType);
-      }
-      if (context && Array.isArray(context.targetPaths) && context.targetPaths.length) {
-        NEW_forCustomer_details.push('Targets: ' + context.targetPaths.length);
-      }
-      if (!NEW_forCustomer_details.length && NEW_forCustomer_parsed.toastMessage) {
-        NEW_forCustomer_details.push(NEW_forCustomer_parsed.toastMessage);
-      }
-      if (!NEW_forCustomer_details.length && NEW_forCustomer_parsed.note) {
-        NEW_forCustomer_details.push(NEW_forCustomer_parsed.note);
-      }
-      if (!NEW_forCustomer_details.length && NEW_forCustomer_parsed.ok) {
-        NEW_forCustomer_details.push("Apply complete");
-      }
-
-      var NEW_forCustomer_message = NEW_forCustomer_label;
-      if (NEW_forCustomer_details.length) {
-        NEW_forCustomer_message += " – " + NEW_forCustomer_details.join(", ");
-      }
-
-      NEW_forCustomer_emitIfAvailable(NEW_forCustomer_message);
-    }
-  }
-  return normalized.parsed || normalized.raw;
-}
-
-function logPanelEvent(title, context, data) {
-  var normalized = normalizeApplyResult(data);
-  var entry = formatApplyLogEntry(title, normalized, context || {});
-  appendLogEntry(entry, false);
-  return normalized.parsed || normalized.raw;
+  broadcastApplyLogEntries();
 }
 
 
@@ -1158,7 +736,6 @@ Holy.BUTTONS = {
   HX_LOG_MODE: HX_LOG_MODE,
   wirePanelButtons: wirePanelButtons,
   updateApplyReport: updateApplyReport,
-  logPanelEvent: logPanelEvent,
   openApplyLogWindow: openApplyLogWindow
 };
 
