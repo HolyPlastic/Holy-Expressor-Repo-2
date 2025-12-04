@@ -6,6 +6,7 @@ C:.
 |   2025-11-16 22-42-34.txt
 |   colorpicker.html
 |   electron_entry.js
+|   ENVIRONMENT.md
 |   fulleditor.html
 |   index.html
 |   log.html
@@ -129,6 +130,9 @@ C:.
 |           host_MAPS.jsx
 |           host_UTILS.jsx
 |           
++---scripts
+|       setup-cep-environment.sh
+|       
 \---well-known
     \---appspecific
             com.chrome.devtools.json
