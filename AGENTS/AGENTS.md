@@ -617,6 +617,8 @@ If conflicts arise, assume this file overrides individual code comments.
 
 * 2025-11-17 – lead-dev: Added CSS dev-exchange watcher workflow notes. Design Intent: document the new DevTools→raw-downloads→hotfile autosync pipeline enabling live CSS iteration inside CEP panels. Risks / Concerns: watcher uses brute-force change detection; monitor for duplicate events on fast file systems.
 
+* 2025-12-04 – lead-dev: Removed illegal `.trim()` usage in ExtendScript that silently aborted Custom Search before execution. Design Intent: restore strict scoped property matching by preventing token exceptions. Risks / Concerns: token handling must continue to guard non-string values moving forward.
+
 
 🧱 Verified Architectural Notes (2025-11)
 
