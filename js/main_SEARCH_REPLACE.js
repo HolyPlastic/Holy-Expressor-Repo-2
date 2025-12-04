@@ -21,15 +21,35 @@ if (typeof Holy !== "object") Holy = {};
   }
 
   function runSearchReplace(triggerButton) {
-    var searchVal = getFieldValue("#searchField");
+    var searchValRaw = getFieldValue("#searchField");
     var replaceVal = getFieldValue("#replaceField");
     var matchCase = getCheckboxState("#matchCase", true);
     var button = triggerButton || document.querySelector("#applyBtn");
 
+    var searchVal = (searchValRaw != null) ? String(searchValRaw) : "";
+    var normalizedSearch = searchVal.trim();
+
+    var customToggle = document.querySelector("#useCustomSearch");
+    var customInput = document.querySelector("#customSearch");
+    var customSearchTerm = customInput ? String(customInput.value || "").trim() : "";
+    var useCustomSearch = false;
+    if (customToggle && customToggle.checked) useCustomSearch = true;
+    if (!useCustomSearch && customSearchTerm) useCustomSearch = true;
+    if (!customSearchTerm) useCustomSearch = false;
+
+    if (!normalizedSearch.length) {
+      if (Holy.UI && typeof Holy.UI.toast === "function") {
+        Holy.UI.toast("Enter text to search for replacement");
+      }
+      setButtonState(button, false);
+      return Promise.resolve();
+    }
+
     setButtonState(button, true);
 
     return Holy.EXPRESS.cy_replaceInExpressions(searchVal, replaceVal, {
-      matchCase: matchCase
+      matchCase: matchCase,
+      customSearchTerm: useCustomSearch ? customSearchTerm : ""
     })
       .then(function (summary) {
         setButtonState(button, false);
@@ -41,7 +61,11 @@ if (typeof Holy !== "object") Holy = {};
             Holy.UI.toast("Search & Replace complete");
           }
         } else if (Holy.UI && typeof Holy.UI.toast === "function") {
-          Holy.UI.toast("No matches found");
+          if (summary && summary.customSearchUsed && summary.customSearchMatches > 0) {
+            Holy.UI.toast("No replacements found in filtered properties");
+          } else {
+            Holy.UI.toast("No matches found");
+          }
         }
         if (Holy.BUTTONS && typeof Holy.BUTTONS.logPanelEvent === "function") {
           var context = {
@@ -49,6 +73,7 @@ if (typeof Holy !== "object") Holy = {};
             searchTerm: searchVal,
             replaceValue: replaceVal,
             matchCase: matchCase,
+            customSearch: useCustomSearch ? customSearchTerm : "",
             replacements: summary && summary.replacements,
             layersChanged: summary && summary.layersChanged,
             layersCount: summary && summary.layersCount,
