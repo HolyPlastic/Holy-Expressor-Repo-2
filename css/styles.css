@@ -1095,26 +1095,6 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 6px;
-<<<<<<< Updated upstream
-  flex: 1 1 auto;
-=======
-
-  /* 👇 Top bar stays visible forever */
-  position: sticky;
-  top: 0;
-  z-index: 50;
-
-  /* 👇 This is the only required height constraint */
-  height: 22px;
-  flex: 0 0 22px;
-
-  /* 👇 Presentation stays the same */
-  margin: 6px 0 0 0;
-  user-select: none;
-  font-size: 8px;
-  transform: translateY(3px);
-  background: var(--panel-bg, #0a0f12);
->>>>>>> Stashed changes
 }
 
 
@@ -1143,7 +1123,7 @@ textarea {
   border: none !important;
 }
 
-<<<<<<< Updated upstream
+
 .modeSwitchBar .mode-utility-btn {
   margin-left: auto;
   display: inline-flex;
@@ -1152,9 +1132,9 @@ textarea {
 }
 
 /* Diamond SVG sizing */
-=======
+
 /* === Diamond SVG sizing ========================================= */
->>>>>>> Stashed changes
+
 .modeSwitchBar .mode-switch-svg {
   width: 14px;
   height: auto;
@@ -1214,13 +1194,7 @@ textarea {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-<<<<<<< Updated upstream
-  min-height: 0;
-=======
-      flex: 1 1 auto;    /* 👈 NEW */
->>>>>>> Stashed changes
 }
-
 /* Optional inner padding for spacing inside the box */
 #modePanel .he-mode-views {
   padding: 0px;
@@ -1238,22 +1212,6 @@ textarea {
 }
 
 
-#modeViewExpress {
-<<<<<<< Updated upstream
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  gap: 4px;
-=======
-  position: relative !important;   /* not sticky */
-  flex: 0 0 auto;
-  min-height: auto;                /* let internal content size it */
->>>>>>> Stashed changes
-  background: transparent !important;
-  width: 100%;
-  overflow: visible;
-}
 
 
 #modeViewExpress.panel {
@@ -1925,25 +1883,7 @@ textarea {
 /* Container */
 #codeEditor {
   flex: 1 1 auto;
-<<<<<<< Updated upstream
-  min-height: 240px;
-=======
-   overflow: auto;
->>>>>>> Stashed changes
-  min-width: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-<<<<<<< Updated upstream
-  height: clamp(240px, 55vh, 720px);
-  overflow: hidden;
-=======
-    min-height: 0;         /* let it grow with panel */
-  height: 100%;          /* <-- the missing piece */
->>>>>>> Stashed changes
 }
-
 body.editor-maximized {
   height: 100vh;
   overflow: hidden;
@@ -1978,12 +1918,6 @@ body.editor-maximized #bankSelectMenu {
 
 body.editor-maximized #codeEditor {
   flex: 1 1 auto;
-<<<<<<< Updated upstream
-  min-height: 0;
-  height: auto;
-=======
-  min-height: 0 !important; /* allow full stretch */
->>>>>>> Stashed changes
 }
 
 body.editor-maximized #expressApplyRow {
@@ -2019,18 +1953,6 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
   height: 100%;          /* instead of auto */
   min-height: 0;         /* allow calculations */
 
-<<<<<<< Updated upstream
-  min-height: 120px;
-  min-width: 0;
-  /* ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ allows flex child to shrink */
-  flex: 1 1 auto;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-
-=======
-  min-width: 0;        /* allows flex container to shrink properly */
->>>>>>> Stashed changes
 
   /* Visual styling */
   border: 0px solid #444;
