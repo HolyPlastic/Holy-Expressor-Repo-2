@@ -1054,14 +1054,25 @@ textarea {
 
 /* ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ Mode Switch ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ old visual style, adapted to current HTML */
 .modeSwitchBar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin: 0;
+  user-select: none;
+  font-size: 8px;
+  background: #0d0d0d;
+}
+
+.mode-switch-cluster {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin: 6px;
-  user-select: none;
-  font-size: 8px;
-  transform: translate(0px, 3px);
+  flex: 1 1 auto;
 }
 
 /* Tab buttons (Express | Rewrite) */
@@ -1087,6 +1098,13 @@ textarea {
   justify-content: center;
   background: none !important;
   border: none !important;
+}
+
+.modeSwitchBar .mode-utility-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Diamond SVG sizing */
@@ -1150,11 +1168,15 @@ textarea {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 /* Optional inner padding for spacing inside the box */
 #modePanel .he-mode-views {
   padding: 0px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* Remove redundant borders/radius from the inner panels */
@@ -1170,6 +1192,7 @@ textarea {
   width: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   gap: 4px;
   background: transparent !important;
   position: relative;
@@ -1183,14 +1206,6 @@ textarea {
 #modeViewExpress.panel {
   margin: 0px;
   padding: 0px 0px 0px;
-}
-
-#modeViewExpress .express-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-  margin-bottom: 4px;
 }
 
 /* Remove container spacing */
@@ -1224,13 +1239,6 @@ textarea {
 
 
 
-
-
-.express-panel-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
 
 /* Overlay button group that floats on the panel border */
@@ -1281,48 +1289,6 @@ textarea {
 
 
 
-
-/* ========================larger container just for the maximise button */
-.express-editor-top-overlay {
-  position: absolute;
-  right: 12px;
-  top: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
-  border-radius: 999px;
-  background: none;
-  border: none;
-  transform: translateY(-26.4%) translateX(17px) scale(0.7);
-  pointer-events: none;
-  /* allow editor interactions beneath the wrapper */
-  z-index: 6;
-}
-
-.express-editor-top-overlay>* {
-  pointer-events: auto;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ================================
-   REWRITE MODE ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ NEW UI CLASSES
-   ================================ */
 
 #modeViewRewrite {
   position: relative;
@@ -1902,12 +1868,14 @@ textarea {
 /* Container */
 #codeEditor {
   flex: 1 1 auto;
-  min-height: 120px;
+  min-height: 240px;
   min-width: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  height: clamp(240px, 55vh, 720px);
+  overflow: hidden;
 }
 
 body.editor-maximized {
@@ -1939,13 +1907,10 @@ body.editor-maximized #bankSelectMenu {
   display: none !important;
 }
 
-body.editor-maximized #modeViewExpress .express-panel-header .heading-1 {
-  display: none;
-}
-
 body.editor-maximized #codeEditor {
   flex: 1 1 auto;
   min-height: 0;
+  height: auto;
 }
 
 body.editor-maximized #expressApplyRow {
@@ -1972,6 +1937,9 @@ body.editor-maximized #toast {
   min-width: 0;
   /* ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ allows flex child to shrink */
   flex: 1 1 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
 
   border: 0px solid #444;
@@ -2002,6 +1970,8 @@ body.editor-maximized #toast {
 
 /* style the scroll container and reduce its thickness */
 #codeEditor .cm-scroller {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
 }
 
@@ -2492,7 +2462,6 @@ button.btn-discreet.is-active .icon-collapse {
 
 #editorMaximizeBtn:hover {
   border-radius: 6px;
-  margin-left: auto;
 }
 
 
