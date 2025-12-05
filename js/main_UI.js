@@ -129,6 +129,9 @@ ensureHostReady(() => {
       function applyMaximizeState(isMaximized) {
         var label = isMaximized ? "Restore editor size" : "Maximize editor";
         document.body.classList.toggle("editor-maximized", isMaximized);
+        if (modePanel) {
+          modePanel.classList.toggle("editor-maximized", isMaximized);
+        }
         editorMaxBtn.classList.toggle("is-active", isMaximized);
         editorMaxBtn.setAttribute("aria-pressed", String(isMaximized));
         editorMaxBtn.setAttribute("aria-label", label);
