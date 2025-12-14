@@ -138,7 +138,6 @@ Agents may add new events under the same namespace.
 * Exports only to `Holy`.
 * Preserve `index.html` script order.
 * Wrap risk operations in `try/catch`.
-* the "css-devEx" folder is purely developer workflow utility stuff and can generally be ignored. Do not treat any css documents found within it (or within any of it's child folders such as "raw-downloads") as important or canonic.
 
 ### Logging Rules
 

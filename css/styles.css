@@ -1902,7 +1902,14 @@ body.editor-maximized #modeViewExpress {
   margin-bottom: 12px;
 }
 
-body.editor-maximized .hide-when-editor-maximized {
+body.editor-maximized .hdr,
+body.editor-maximized .tabs,
+body.editor-maximized #snippetsBar,
+body.editor-maximized #snippetContextMenu,
+body.editor-maximized #expressions,
+body.editor-maximized #expressControls,
+body.editor-maximized #expressMisc,
+body.editor-maximized #bankSelectMenu {
   display: none !important;
 }
 /* ================================
@@ -1928,24 +1935,6 @@ body.editor-maximized #expressApplyRow .apply-row {
 
 body.editor-maximized #toast {
   display: block;
-}
-
-#bottomControls {
-  position: sticky;
-  bottom: 0;
-  background: inherit;
-  z-index: 6;
-}
-#modePanel.editor-maximized .modePanel-inner {
-  display: flex;
-  flex-direction: column;
-}
-#modePanel.editor-maximized {
-  overflow: hidden;
-}
-#modePanel.editor-maximized .CodeMirror {
-  flex: 1 1 auto;
-  overflow-y: auto;
 }
 
 
