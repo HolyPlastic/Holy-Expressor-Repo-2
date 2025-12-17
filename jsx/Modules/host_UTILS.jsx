@@ -769,6 +769,76 @@ function cy_deleteExpressions() {
     consoleMessage: ""
   };
   var undoOpen = false;
+  var layerStates = [];
+  var visibilityRestored = false;
+
+  function findLayerForNode(node) {
+    if (!node) return null;
+
+    try {
+      if (node instanceof AVLayer) return node;
+    } catch (_) {}
+
+    var depth = 0;
+    try { depth = node.propertyDepth || 0; } catch (_) { depth = 0; }
+
+    for (var d = depth; d >= 1; d--) {
+      var owner = null;
+      try { owner = node.propertyGroup(d); }
+      catch (_) { owner = null; }
+      if (!owner) continue;
+
+      try {
+        if (owner instanceof AVLayer) return owner;
+      } catch (_) {}
+
+      try {
+        if (typeof owner.enabled !== "undefined" && typeof owner.index === "number") return owner;
+      } catch (_) {}
+    }
+
+    return null;
+  }
+
+  function trackLayerState(layer) {
+    if (!layer) return;
+    for (var i = 0; i < layerStates.length; i++) {
+      if (layerStates[i].layer === layer) return;
+    }
+
+    var canToggle = false;
+    var wasEnabled = false;
+    try {
+      if (typeof layer.enabled !== "undefined") {
+        wasEnabled = (layer.enabled === true);
+        canToggle = true;
+      }
+    } catch (_) {
+      canToggle = false;
+    }
+
+    layerStates.push({ layer: layer, canToggle: canToggle, wasEnabled: wasEnabled });
+  }
+
+  function enableTrackedLayers() {
+    for (var i = 0; i < layerStates.length; i++) {
+      var state = layerStates[i];
+      if (!state || !state.canToggle) continue;
+      try { state.layer.enabled = true; }
+      catch (_) {}
+    }
+  }
+
+  function restoreLayerVisibility() {
+    if (visibilityRestored) return;
+    visibilityRestored = true;
+    for (var i = 0; i < layerStates.length; i++) {
+      var state = layerStates[i];
+      if (!state || !state.canToggle) continue;
+      try { state.layer.enabled = state.wasEnabled; }
+      catch (_) {}
+    }
+  }
 
   function trackLayer(target, map) {
     if (!target || !map) return;
@@ -841,6 +911,7 @@ function cy_deleteExpressions() {
       catch (_) { owner = null; }
     }
     if (owner) trackLayer(owner, map);
+    if (owner) trackLayerState(owner);
   }
 
   function disableExpressionOnProperty(prop, state, layerMap) {
@@ -905,8 +976,16 @@ function cy_deleteExpressions() {
 
     if (selectedProps && selectedProps.length) {
       result.selectionType = "properties";
+
+      for (var prep = 0; prep < selectedProps.length; prep++) {
+        var preTarget = selectedProps[prep];
+        trackLayerState(findLayerForNode(preTarget));
+        trackLayerFromProperty(preTarget, layerMap);
+      }
+
       app.beginUndoGroup("Holy Delete Expressions");
       undoOpen = true;
+      enableTrackedLayers();
 
       for (var i = 0; i < selectedProps.length; i++) {
         var candidate = selectedProps[i];
@@ -929,8 +1008,14 @@ function cy_deleteExpressions() {
       }
     } else if (selectedLayers && selectedLayers.length) {
       result.selectionType = "layers";
+
+      for (var liTrack = 0; liTrack < selectedLayers.length; liTrack++) {
+        trackLayerState(selectedLayers[liTrack]);
+      }
+
       app.beginUndoGroup("Holy Delete Expressions");
       undoOpen = true;
+      enableTrackedLayers();
 
       for (var li = 0; li < selectedLayers.length; li++) {
         var layer = selectedLayers[li];
@@ -1043,6 +1128,7 @@ function cy_deleteExpressions() {
     result.ok = true;
 
     if (undoOpen) {
+      restoreLayerVisibility();
       try { app.endUndoGroup(); }
       catch (_) {}
       undoOpen = false;
@@ -1059,6 +1145,7 @@ function cy_deleteExpressions() {
     result.err = String(err);
   } finally {
     if (undoOpen) {
+      restoreLayerVisibility();
       try { app.endUndoGroup(); }
       catch (_) {}
     }

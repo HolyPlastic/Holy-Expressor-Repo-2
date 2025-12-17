@@ -116,6 +116,78 @@ function he_U_TS_peekSelectionType() {
 
 // SELECTION STRIKER: Apply expression to the current selection
 function he_S_SS_applyExpressionToSelection(jsonStr) {
+  var undoOpen = false;
+  var visibilityRestored = false;
+  var layerStates = [];
+
+  function owningLayer(node) {
+    if (!node) return null;
+
+    try {
+      if (node instanceof AVLayer) return node;
+    } catch (_) {}
+
+    var depth = 0;
+    try { depth = node.propertyDepth || 0; } catch (_) { depth = 0; }
+
+    for (var d = depth; d >= 1; d--) {
+      var owner = null;
+      try { owner = node.propertyGroup(d); }
+      catch (_) { owner = null; }
+      if (!owner) continue;
+
+      try {
+        if (owner instanceof AVLayer) return owner;
+      } catch (_) {}
+
+      try {
+        if (typeof owner.enabled !== "undefined" && typeof owner.index === "number") return owner;
+      } catch (_) {}
+    }
+
+    return null;
+  }
+
+  function trackLayerState(layer) {
+    if (!layer) return;
+    for (var i = 0; i < layerStates.length; i++) {
+      if (layerStates[i].layer === layer) return;
+    }
+
+    var canToggle = false;
+    var wasEnabled = false;
+    try {
+      if (typeof layer.enabled !== "undefined") {
+        wasEnabled = (layer.enabled === true);
+        canToggle = true;
+      }
+    } catch (_) {
+      canToggle = false;
+    }
+
+    layerStates.push({ layer: layer, canToggle: canToggle, wasEnabled: wasEnabled });
+  }
+
+  function enableTrackedLayers() {
+    for (var i = 0; i < layerStates.length; i++) {
+      var state = layerStates[i];
+      if (!state || !state.canToggle) continue;
+      try { state.layer.enabled = true; }
+      catch (_) {}
+    }
+  }
+
+  function restoreLayerVisibility() {
+    if (visibilityRestored) return;
+    visibilityRestored = true;
+    for (var i = 0; i < layerStates.length; i++) {
+      var state = layerStates[i];
+      if (!state || !state.canToggle) continue;
+      try { state.layer.enabled = state.wasEnabled; }
+      catch (_) {}
+    }
+  }
+
   try {
     var data = JSON.parse(jsonStr || "{}");
     var expr = data.expressionText || "";
@@ -130,7 +202,16 @@ function he_S_SS_applyExpressionToSelection(jsonStr) {
       return JSON.stringify({ ok:false, err:"No properties selected" });
     }
 
+    for (var t = 0; t < sel.length; t++) {
+      var target = sel[t];
+      if (!target) continue;
+      var ownerLayer = owningLayer(target);
+      if (ownerLayer) trackLayerState(ownerLayer);
+    }
+
     app.beginUndoGroup("HolyExpressor Apply");
+    undoOpen = true;
+    enableTrackedLayers();
 
     var applied = 0, skipped = 0, errors = [];
     var visited = {}; // track already-processed properties
@@ -187,10 +268,18 @@ function he_S_SS_applyExpressionToSelection(jsonStr) {
       }
     }
 
+    restoreLayerVisibility();
     app.endUndoGroup();
+    undoOpen = false;
     return JSON.stringify({ ok:true, applied: applied, skipped: skipped, errors: errors });
   } catch (e) {
     return JSON.stringify({ ok:false, err:"SelectionStriker error: " + String(e) });
+  } finally {
+    if (undoOpen) {
+      restoreLayerVisibility();
+      try { app.endUndoGroup(); }
+      catch (_) {}
+    }
   }
 }
 
