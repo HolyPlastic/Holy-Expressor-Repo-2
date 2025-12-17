@@ -333,6 +333,30 @@ function he_S_TS_collectAndApply(group, token, expr, state, strict) {
 // SEARCH CAPTAIN: Apply expression by scanning for a property name/matchName across layers (with token support)
 function he_P_SC_applyExpressionBySearch(jsonStr) {
 
+  var visibilityRecords = [];
+  var undoOpen = false;
+  function he_SC_trackLayerVisibility(layer) {
+    if (!layer) return;
+
+    var hasEnabledFlag = false;
+    try { hasEnabledFlag = (typeof layer.enabled !== "undefined"); } catch (_) { hasEnabledFlag = false; }
+    if (!hasEnabledFlag) return;
+
+    for (var li = 0; li < visibilityRecords.length; li++) {
+      if (visibilityRecords[li] && visibilityRecords[li].layer === layer) {
+        return;
+      }
+    }
+
+    var wasEnabled = true;
+    try { wasEnabled = !!layer.enabled; } catch (_) { wasEnabled = true; }
+    visibilityRecords.push({ layer: layer, wasEnabled: wasEnabled });
+
+    if (!wasEnabled) {
+      try { layer.enabled = true; } catch (_) {}
+    }
+  }
+
 // V3 – Force AE to refresh viewer focus so selection is valid
 try {
     if (app.activeViewer && typeof app.activeViewer.setActive === "function") {
@@ -389,7 +413,12 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
     }
 
     app.beginUndoGroup("HolyExpressor Apply By Search (Tokens)");
+    undoOpen = true;
     he_U_L_log("tokens: " + tokens.join(", "));
+
+    for (var li=0; li<scopeLayers.length; li++){
+      he_SC_trackLayerVisibility(scopeLayers[li]);
+    }
 
     var state = { applied:0, skipped:0, errors:[] };
     for (var li=0; li<scopeLayers.length; li++){
@@ -425,7 +454,6 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
         he_S_TS_collectAndApply(layer, tokens[0], expr, state, strict);
       }
     }
-    app.endUndoGroup();
 
     if (state.applied===0 && state.errors.length===0){
       return JSON.stringify({ ok:true, applied:0, skipped:0, errors:[], note:"No matching properties" });
@@ -433,6 +461,21 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
     return JSON.stringify({ ok:true, applied:state.applied, skipped:state.skipped, errors:state.errors });
   } catch (e) {
     return JSON.stringify({ ok:false, err:"SearchCaptain error: " + String(e) });
+  } finally {
+    for (var vr = 0; vr < visibilityRecords.length; vr++) {
+      var record = visibilityRecords[vr];
+      if (!record || !record.layer) continue;
+      try {
+        if (typeof record.layer.enabled !== "undefined") {
+          record.layer.enabled = record.wasEnabled;
+        }
+      } catch (_) {}
+    }
+
+    if (undoOpen) {
+      try { app.endUndoGroup(); } catch (_) {}
+      undoOpen = false;
+    }
   }
 }
 
