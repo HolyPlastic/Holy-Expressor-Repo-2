@@ -50,8 +50,8 @@ width:100%
 
 }
 #codeEditor  {
-min-height: 50px !important;
-    max-height: 1000px !important;
+min-height: 1000px !important;
+    max-height: 2000px !important;
 }
 
 /* 🧩 Gutters container */

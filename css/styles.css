@@ -622,7 +622,7 @@ h4 {
   align-items: center;
   gap: 6px;
   margin-left: auto !important;
-  transform: translateX(-4px) translateY(2px) translateZ(0);
+  transform: translateX(-10px) translateY(2px) translateZ(0);
 }
 
 
@@ -1129,6 +1129,8 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  scale:10px;
+  transform: translate(7px, -2px);
 }
 
 /* Diamond SVG sizing */
@@ -1258,20 +1260,30 @@ textarea {
 /* Overlay button group that floats on the panel border */
 .express-editor-overlay {
 
-  padding: 4px 6px;
-  border-radius: 999px;
-  background: none;
-  border: none;
+padding: 4px 6px;
 
-  position: absolute;
-  right: 12px;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transform: translateY(64%) translateX(17px);
+border-radius: 999px;
+
+background: none;
+
+border: none;
+
+position: absolute;
+
+right: 12px;
+
+bottom: 0;
+
+display: flex;
+
+align-items: center;
+
+gap: 6px;
+
+transform: translateY(39%) translateX(17px);
   /* required */
-  z-index: 100;
+
+z-index: 100;
   /* overlay above the document UI */
 }
 
@@ -1367,7 +1379,7 @@ textarea {
  
 #rewriteOverlay {
   position: absolute;
-  right: 12px;
+  right: 20px;
   top: 0;
   display: flex;
   align-items: center;
@@ -1710,8 +1722,10 @@ textarea {
 
 .customSearch-Master {
   position: relative;
-  transform: translateY(-3px);
+  transform: translateY(-30px);
+
   /* move the entire system down */
+
 }
 
 .customSearch-checkbox {
@@ -1728,14 +1742,14 @@ textarea {
   align-items: center;
   justify-content: center;
   padding: 0;
-  margin: 0;
+  margin-top: -12px;
   line-height: 0;
   /* removes inline spacing */
   width: auto;
   height: auto;
   flex: 0 0 auto;
   /* prevent stretch */
-  transform: translate(1.5px, 17.7px);
+  transform: translate(3.5px, 17.7px);
 }
 
 /* SVG inherits exact intrinsic size */
@@ -1758,6 +1772,8 @@ textarea {
   width: 100%;
   height: 19px;
   /* lock vertical */
+  margin-left: 1px;
+  margin-right: 1px;
   line-height: 19px;
   color: var(--hx-accent, #043542);
   display: block;
@@ -1865,7 +1881,7 @@ textarea {
 .express-apply {
   margin-top: 10px;
   padding-bottom: 6px;
-  margin-top: 12px;
+  margin-top: -3px;
 }
 
 .express-misc {
@@ -1907,7 +1923,7 @@ body.editor-maximized .tabs,
 body.editor-maximized #snippetsBar,
 body.editor-maximized #snippetContextMenu,
 body.editor-maximized #expressions,
-body.editor-maximized #expressControls,
+
 body.editor-maximized #expressMisc,
 body.editor-maximized #bankSelectMenu {
   display: none !important;
@@ -2042,9 +2058,9 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
   align-items: center;
   gap: 0px;
   /* minimal space between text and dropdown */
-  margin-top: -2px;
-  margin-left: 0px;
-  margin-bottom: 0px;
+  margin-top: 0px;
+  margin-left: 2px;
+  margin-bottom: 5px;
 }
 
 /* ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â·ÃƒÂ¯Ã‚Â¸Ã‚Â Static label + editable input share same styling */
@@ -2052,14 +2068,16 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
 #bankHeader input[type="text"] {
   display: inline-block;
   font-family: var(--f-pixel-c);
-  font-size: 10px;
+  font-size: 15px;
   text-transform: uppercase;
-  color: var(--G-color-1-offwhite);
+  transform: translate(1px, 2px);
+  color: var(--G-color-1-mid-4);
   background: transparent;
   border: none;
   outline: none;
   padding: 0;
-  margin: 0;
+  /* margin: 0; */
+  margin-top: 1px;
   width: 120px;
   /* compact fixed width */
   text-overflow: ellipsis;
@@ -2357,6 +2375,12 @@ button:disabled {
 
 }
 
+.btn-clearSVG #bankSelectBtn {
+
+  transform: scale(10px) translateZ(0);
+
+
+}
 
 
 .btn-clearSVG svg:hover {
@@ -2411,7 +2435,7 @@ button:disabled {
 
 
 #bankSelectBtn {
-  --size: 16px;
+  --size: 12px;
   margin-top: 4px;
   margin-right: 2px;
 }
@@ -2465,7 +2489,7 @@ button.btn-discreet:focus-visible {
 }
 
 button.btn-discreet svg {
-  width: 16px;
+  width: 12px;
   height: 16px;
   fill: var(--G-color-1);
   stroke: var(--G-color-1);
@@ -2479,6 +2503,13 @@ button.btn-discreet .icon-collapse {
 
 button.btn-discreet.is-active .icon-expand {
   display: none;
+  scale:0.5
+}
+
+
+button.btn-discreet .icon-expand {
+
+  scale:0.5
 }
 
 button.btn-discreet.is-active .icon-collapse {

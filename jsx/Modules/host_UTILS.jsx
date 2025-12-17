@@ -769,43 +769,6 @@ function cy_deleteExpressions() {
     consoleMessage: ""
   };
   var undoOpen = false;
-  var visibilityRecords = [];
-
-  function trackLayerVisibility(layer) {
-    if (!layer) return;
-
-    var hasEnabledFlag = false;
-    try { hasEnabledFlag = (typeof layer.enabled !== "undefined"); }
-    catch (_) { hasEnabledFlag = false; }
-    if (!hasEnabledFlag) return;
-
-    for (var i = 0; i < visibilityRecords.length; i++) {
-      if (visibilityRecords[i] && visibilityRecords[i].layer === layer) {
-        return;
-      }
-    }
-
-    var wasEnabled = true;
-    try { wasEnabled = !!layer.enabled; } catch (_) { wasEnabled = true; }
-    visibilityRecords.push({ layer: layer, wasEnabled: wasEnabled });
-
-    if (!wasEnabled) {
-      try { layer.enabled = true; } catch (_) {}
-    }
-  }
-
-  function resolveOwnerLayer(prop) {
-    if (!prop) return null;
-
-    var owner = null;
-    try { owner = prop.propertyGroup(prop.propertyDepth); }
-    catch (_) { owner = null; }
-    if (!owner) {
-      try { owner = prop.propertyGroup(prop.propertyDepth - 1); }
-      catch (_) { owner = null; }
-    }
-    return owner;
-  }
 
   function trackLayer(target, map) {
     if (!target || !map) return;
@@ -870,7 +833,13 @@ function cy_deleteExpressions() {
 
   function trackLayerFromProperty(prop, map) {
     if (!prop || !map) return;
-    var owner = resolveOwnerLayer(prop);
+    var owner = null;
+    try { owner = prop.propertyGroup(prop.propertyDepth); }
+    catch (_) { owner = null; }
+    if (!owner) {
+      try { owner = prop.propertyGroup(prop.propertyDepth - 1); }
+      catch (_) { owner = null; }
+    }
     if (owner) trackLayer(owner, map);
   }
 
@@ -953,9 +922,6 @@ function cy_deleteExpressions() {
         }
         if (!leaf) continue;
 
-        var ownerLayer = resolveOwnerLayer(leaf);
-        trackLayerVisibility(ownerLayer);
-
         var cleared = disableExpressionOnProperty(leaf, result, layerMap);
         if (!cleared) {
           trackLayerFromProperty(leaf, layerMap);
@@ -969,8 +935,6 @@ function cy_deleteExpressions() {
       for (var li = 0; li < selectedLayers.length; li++) {
         var layer = selectedLayers[li];
         if (!layer) continue;
-
-        trackLayerVisibility(layer);
 
         var payload = JSON.stringify({ layerIndex: layer.index, layerId: layer.id });
         var raw = "";
@@ -1094,16 +1058,6 @@ function cy_deleteExpressions() {
   } catch (err) {
     result.err = String(err);
   } finally {
-    for (var vr = 0; vr < visibilityRecords.length; vr++) {
-      var record = visibilityRecords[vr];
-      if (!record || !record.layer) continue;
-      try {
-        if (typeof record.layer.enabled !== "undefined") {
-          record.layer.enabled = record.wasEnabled;
-        }
-      } catch (_) {}
-    }
-
     if (undoOpen) {
       try { app.endUndoGroup(); }
       catch (_) {}
