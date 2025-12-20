@@ -619,6 +619,8 @@ If conflicts arise, assume this file overrides individual code comments.
 
 * 2025-12-04 – lead-dev: Removed illegal `.trim()` usage in ExtendScript that silently aborted Custom Search before execution. Design Intent: restore strict scoped property matching by preventing token exceptions. Risks / Concerns: token handling must continue to guard non-string values moving forward.
 
+* 2025-11-16 – gpt-5.1-codex: Restored Custom Search Apply on hidden layers by collecting targets, toggling owning layers safely, and stabilizing dedupe keys. Design Intent: ensure hidden layers receive expressions without altering final visibility. Risks / Concerns: Layers without an exposed `enabled` flag remain skipped; monitor for any missed scopes.
+
 
 🧱 Verified Architectural Notes (2025-11)
 
@@ -640,4 +642,3 @@ he_U_ → Utility layer functions
 This naming structure is consistent across all JSX host modules (host_APPLY.jsx, host_UTILS.jsx, host_GET.jsx, etc.).
 
 These points are deductively verified from the codebase and reflect core structural truths of the project.
-
