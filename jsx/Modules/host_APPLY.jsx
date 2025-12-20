@@ -369,7 +369,7 @@ function he_S_LS_applyExpressionToTargetList(jsonStr) {
 
 
 // TOKEN STRIKER: one-token fallback (used by Search Captain when tokens.length===1)
-function he_S_TS_collectAndApply(group, token, expr, state, strict) {
+function he_S_TS_collectAndApply(group, token, expr, state, strict, collector) {
   for (var j = 1; j <= group.numProperties; j++) {
     var pr = group.property(j);
     if (!pr) continue;
@@ -391,26 +391,11 @@ function he_S_TS_collectAndApply(group, token, expr, state, strict) {
         //  filter before apply to avoid hidden Layer Style noise on one-token searches
         // Silent ignore for LS styles that aren't enabled
         if (he_U_Ls_1_isLayerStyleProp(pr) && !he_U_Ls_2_styleEnabledForLeaf(pr)) { continue; }
-        if (!pr.canSetExpression
-            || !pr.enabled
-            || !pr.active
-            || he_U_PB_isPhantomLayerStyleProp(pr)
-            || he_U_VS_isTrulyHidden(pr)) {
-          state.skipped++;
-          state.errors.push({ path: he_P_MM_getExprPath(pr), err:"Property not valid (hidden/inactive/phantom LayerStyle / parent disabled)" });
-        } else {
-          try {
-            pr.expression = expr;
-            state.applied++;
-          } catch (e) {
-            state.errors.push({ path: he_P_MM_getExprPath(pr), err:String(e) });
-            state.skipped++;
-          }
-        }
+        if (typeof collector === "function") collector(pr);
       }
     } else if (pr.propertyType === PropertyType.INDEXED_GROUP || pr.propertyType === PropertyType.NAMED_GROUP) {
       // recurse into sub-groups using Token Striker itself
-      he_S_TS_collectAndApply(pr, token, expr, state, strict);
+      he_S_TS_collectAndApply(pr, token, expr, state, strict, collector);
     }
   }
 }
@@ -442,6 +427,86 @@ try {
     var comp = app.project.activeItem;
     if (!comp || !(comp instanceof CompItem)) return JSON.stringify({ ok:false, err:"No active comp" });
     if (!search) return JSON.stringify({ ok:false, err:"No search term" });
+
+    var layerStates = [];
+    var visibilityRestored = false;
+    var targets = [];
+    var undoOpen = false;
+
+    function owningLayer(node) {
+      if (!node) return null;
+
+      try {
+        if (node instanceof AVLayer) return node;
+      } catch (_) {}
+
+      var depth = 0;
+      try { depth = node.propertyDepth || 0; } catch (_) { depth = 0; }
+
+      for (var d = depth; d >= 1; d--) {
+        var owner = null;
+        try { owner = node.propertyGroup(d); }
+        catch (_) { owner = null; }
+        if (!owner) continue;
+
+        try {
+          if (owner instanceof AVLayer) return owner;
+        } catch (_) {}
+
+        try {
+          if (typeof owner.enabled !== "undefined" && typeof owner.index === "number") return owner;
+        } catch (_) {}
+      }
+
+      return null;
+    }
+
+    function trackLayerState(layer) {
+      if (!layer) return;
+      for (var i = 0; i < layerStates.length; i++) {
+        if (layerStates[i].layer === layer) return;
+      }
+
+      var canToggle = false;
+      var wasEnabled = false;
+      try {
+        if (typeof layer.enabled !== "undefined") {
+          wasEnabled = (layer.enabled === true);
+          canToggle = true;
+        }
+      } catch (_) {
+        canToggle = false;
+      }
+
+      layerStates.push({ layer: layer, canToggle: canToggle, wasEnabled: wasEnabled });
+    }
+
+    function enableTrackedLayers() {
+      for (var i = 0; i < layerStates.length; i++) {
+        var state = layerStates[i];
+        if (!state || !state.canToggle) continue;
+        try { state.layer.enabled = true; }
+        catch (_) {}
+      }
+    }
+
+    function restoreLayerVisibility() {
+      if (visibilityRestored) return;
+      visibilityRestored = true;
+      for (var i = 0; i < layerStates.length; i++) {
+        var state = layerStates[i];
+        if (!state || !state.canToggle) continue;
+        try { state.layer.enabled = state.wasEnabled; }
+        catch (_) {}
+      }
+    }
+
+    function collectTarget(prop) {
+      if (!prop) return;
+      targets.push(prop);
+      var ownerLayer = owningLayer(prop);
+      if (ownerLayer) trackLayerState(ownerLayer);
+    }
 
 // V2 Minimal Fix – guard against non-string tokens
 // V5 – tokenise searchTerm safely (ExtendScript has no String.trim)
@@ -477,9 +542,6 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
       return JSON.stringify({ ok:false, err:"Select a layer or property to scope search" });
     }
 
-    app.beginUndoGroup("HolyExpressor Apply By Search (Tokens)");
-    he_U_L_log("tokens: " + tokens.join(", "));
-
     var state = { applied:0, skipped:0, errors:[] };
     for (var li=0; li<scopeLayers.length; li++){
       var layer = scopeLayers[li];
@@ -496,31 +558,63 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
           if ((strict && !matchExact) || (!strict && !(matchExact || matchLoose))) continue;
 
           if (he_U_Ls_1_isLayerStyleProp(pr) && !he_U_Ls_2_styleEnabledForLeaf(pr)) { continue; }
-          if (!pr.canSetExpression || !pr.enabled || !pr.active || he_U_PB_isPhantomLayerStyleProp(pr) || he_U_VS_isTrulyHidden(pr)) {
-            state.skipped++;
-            state.errors.push({ path: he_P_MM_getExprPath(pr), err:"Property not valid (hidden/inactive/phantom LayerStyle / parent disabled)" });
-            continue;
-          }
-
-          try {
-            pr.expression = expr;
-            state.applied++;
-          } catch(e) {
-            state.errors.push({ path: he_P_MM_getExprPath(pr), err:String(e) });
-            state.skipped++;
-          }
+          collectTarget(pr);
         }
       } else {
-        he_S_TS_collectAndApply(layer, tokens[0], expr, state, strict);
+        he_S_TS_collectAndApply(layer, tokens[0], expr, state, strict, collectTarget);
       }
     }
+
+    app.beginUndoGroup("HolyExpressor Apply By Search (Tokens)");
+    undoOpen = true;
+    he_U_L_log("tokens: " + tokens.join(", "));
+    enableTrackedLayers();
+
+    var visited = {};
+    for (var ti = 0; ti < targets.length; ti++) {
+      var targetProp = targets[ti];
+      if (!targetProp) continue;
+
+      var path = "";
+      try { path = he_P_MM_getExprPath(targetProp); } catch (_) { path = ""; }
+      if (visited[path]) continue;
+      visited[path] = true;
+
+      if (he_U_Ls_1_isLayerStyleProp(targetProp) && !he_U_Ls_2_styleEnabledForLeaf(targetProp)) { continue; }
+
+      if (!targetProp.canSetExpression) {
+        state.skipped++;
+        state.errors.push({ path: path, err: "Property does not support expressions" });
+        continue;
+      }
+
+      try {
+        targetProp.expression = expr;
+        if (targetProp.expressionError && targetProp.expressionError.length) {
+          state.errors.push({ path: path, err: targetProp.expressionError });
+          state.skipped++;
+        } else {
+          state.applied++;
+        }
+      } catch (e) {
+        state.errors.push({ path: path, err: String(e) });
+        state.skipped++;
+      }
+    }
+
+    restoreLayerVisibility();
     app.endUndoGroup();
+    undoOpen = false;
 
     if (state.applied===0 && state.errors.length===0){
       return JSON.stringify({ ok:true, applied:0, skipped:0, errors:[], note:"No matching properties" });
     }
     return JSON.stringify({ ok:true, applied:state.applied, skipped:state.skipped, errors:state.errors });
   } catch (e) {
+    try { restoreLayerVisibility(); } catch (_) {}
+    if (undoOpen) {
+      try { app.endUndoGroup(); } catch (_) {}
+    }
     return JSON.stringify({ ok:false, err:"SearchCaptain error: " + String(e) });
   }
 }
