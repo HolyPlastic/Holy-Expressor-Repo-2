@@ -535,7 +535,7 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
       for (var j=0;j<comp.selectedProperties.length;j++){
         var sp = comp.selectedProperties[j];
         if (!sp) continue;
-        var owner = sp.propertyGroup(sp.propertyDepth);
+        var owner = owningLayer(sp);
         if (owner) pushUniqueLayer(owner);
       }
     } else {
@@ -569,42 +569,66 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
     undoOpen = true;
     he_U_L_log("tokens: " + tokens.join(", "));
     enableTrackedLayers();
+    he_U_L_log("targets collected: " + targets.length);
 
     var visited = {};
-    for (var ti = 0; ti < targets.length; ti++) {
-      var targetProp = targets[ti];
-      if (!targetProp) continue;
-
+    function visitedKey(prop) {
       var path = "";
-      try { path = he_P_MM_getExprPath(targetProp); } catch (_) { path = ""; }
-      if (visited[path]) continue;
-      visited[path] = true;
+      try { path = he_P_MM_getExprPath(prop) || ""; } catch (_) { path = ""; }
+      if (path) return path;
 
-      if (he_U_Ls_1_isLayerStyleProp(targetProp) && !he_U_Ls_2_styleEnabledForLeaf(targetProp)) { continue; }
+      var owner = owningLayer(prop);
+      var ownerIndex = "";
+      try { ownerIndex = owner ? String(owner.index) : ""; } catch (_) { ownerIndex = ""; }
+      var depth = "";
+      try { depth = String(prop.propertyDepth); } catch (_) { depth = ""; }
+      var matchName = "";
+      try { matchName = String(prop.matchName || ""); } catch (_) { matchName = ""; }
+      var propIndex = "";
+      try { propIndex = String(prop.propertyIndex || ""); } catch (_) { propIndex = ""; }
 
-      if (!targetProp.canSetExpression) {
-        state.skipped++;
-        state.errors.push({ path: path, err: "Property does not support expressions" });
-        continue;
-      }
-
-      try {
-        targetProp.expression = expr;
-        if (targetProp.expressionError && targetProp.expressionError.length) {
-          state.errors.push({ path: path, err: targetProp.expressionError });
-          state.skipped++;
-        } else {
-          state.applied++;
-        }
-      } catch (e) {
-        state.errors.push({ path: path, err: String(e) });
-        state.skipped++;
-      }
+      return [ownerIndex, matchName, propIndex, depth].join("|");
     }
 
-    restoreLayerVisibility();
-    app.endUndoGroup();
-    undoOpen = false;
+    try {
+      for (var ti = 0; ti < targets.length; ti++) {
+        var targetProp = targets[ti];
+        if (!targetProp) continue;
+
+        var key = visitedKey(targetProp);
+        if (visited[key]) continue;
+        visited[key] = true;
+
+        if (he_U_PB_isPhantomLayerStyleProp(targetProp)) { continue; }
+        if (he_U_VS_isTrulyHidden(targetProp)) { continue; }
+        if (he_U_Ls_1_isLayerStyleProp(targetProp) && !he_U_Ls_2_styleEnabledForLeaf(targetProp)) { continue; }
+
+        if (!targetProp.canSetExpression) {
+          state.skipped++;
+          state.errors.push({ path: key, err: "Property does not support expressions" });
+          continue;
+        }
+
+        try {
+          targetProp.expression = expr;
+          if (targetProp.expressionError && targetProp.expressionError.length) {
+            state.errors.push({ path: key, err: targetProp.expressionError });
+            state.skipped++;
+          } else {
+            state.applied++;
+          }
+        } catch (e) {
+          state.errors.push({ path: key, err: String(e) });
+          state.skipped++;
+        }
+      }
+    } finally {
+      try { restoreLayerVisibility(); } catch (_) {}
+      if (undoOpen) {
+        try { app.endUndoGroup(); } catch (_) {}
+        undoOpen = false;
+      }
+    }
 
     if (state.applied===0 && state.errors.length===0){
       return JSON.stringify({ ok:true, applied:0, skipped:0, errors:[], note:"No matching properties" });
