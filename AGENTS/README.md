@@ -1,179 +1,202 @@
 # 🕸️ Holy Expressor — CEP Extension
 
-## 🧭 Project Overview
-Holy Expressor is a modular **After Effects CEP extension** that enables building, editing, and applying expressions directly inside AE’s interface.  
-It uses a structured **JS ↔ JSX bridge** via Adobe **CSInterface**, and a **CodeMirror-based editor** for inline expression editing, snippet management, and property targeting.
+### Internal Agent README (Developer-Facing)
+
+This repository contains the **Holy Expressor** After Effects CEP extension.
+This README is intended **exclusively for agents and contributors working on the codebase**, not for end users.
+
+The goal of this document is to provide a **FAST, ACCURATE MENTAL MODEL** of how the plugin actually works today.
 
 ---
 
-## 🎯 Primary Goals
-- Simplify complex expression workflows  
-- Consolidate expression logic and UI in one system  
-- Replace repetitive scripting with reusable modular functions  
+## 🎯 High-Level Architecture (Truth Model)
 
+Holy Expressor is a **CEP panel** that consists of:
 
----
+* 🖥️ **HTML/CSS UI** (panel layouts, editor containers)
+* 🧠 **JavaScript runtime logic** (UI, state, CodeMirror, targeting, orchestration)
+* 🎛️ **ExtendScript (JSX) host modules** (After Effects API access)
 
-## 📚 Project Documentation Map
-
-This repository separates rules, history, and knowledge intentionally.
-
-- **AGENTS.md**  
-  Canonical rules, invariants, and agent directives.  
-  Includes short **DevNotes** for recent, non-authoritative changes.
-
-- **DEV_ARCHIVE.md**  
-  Detailed chronological development history and forensic reconstruction.  
-  This is the source of historical truth.
-
-- **KNOWLEDGE_BASE.md**  
-  Distilled patterns, issue → mechanism ledgers, architectural truths, and risk registers.  
-  This is the best place to understand *how problems tend to be solved*.
-
-Agents and contributors should read **AGENTS.md first**, then consult the other documents as needed.
+There is **NO single “root controller” file**.
+Behavior emerges from **cooperating modules**, not a monolithic entry point.
 
 ---
 
-## ⚙️ Current Focus
-- ✅ Stable CEP + ExtendScript stack  
-- ⚙️ Modular JS↔JSX communication fully operational  
-- 💾 Electron & SDK layers archived  
-- 🧱 Active development focused on the CEP runtime and expression modules  
+## 📂 Root Entry Points
 
-🔗 **For full module rules, load order logic, and export structure, see [`AGENTS.md`](./AGENTS.md)**  
+* `index.html`
+  Main Holy Expressor panel (primary development target)
 
+Additional panels exist and may load subsets of logic:
 
----
+* `quickpanel.html`
+* `fulleditor.html`
+* `colorpicker.html`
+* `log.html`
 
-## 🗂️ Core Folder & File Map
-
-### 📄 Root
-| Path / Folder | Description |
-|----------------|-------------|
-| `index.html` | Main CEP panel container (loads all CSS/JS modules and defines DOM). |
-| `.debug/` | Dev flags and test data. |
-| `.vscode/` | VS Code config. |
-| `assets/` | Icons, SVGs, and UI graphics. |
-| `css/` | Layout, glow, and theme variables. |
-| `fonts/` | Typefaces for UI and CodeMirror. |
-| `CSXS/` | CEP manifest folder (`manifest.xml`). |
-| `jsx/` | ExtendScript layer running in AE. |
-| `js/` | CEP-side logic and UI modules. |
+Do **NOT** assume everything runs exclusively through `index.html`.
 
 ---
 
-### 🎨 `/css/`
-| File | Description |
-|------|-------------|
-| `styles.css` | Core layout and theme styling. |
-| `codemirror_styles.css` | CodeMirror syntax and gutter overrides. |
+## 🧠 JavaScript Runtime (`/js/`)
+
+### 🔗 Core Bridge
+
+* `libs/CSInterface.js`
+  CEP bridge between JS and ExtendScript
+
+### 🧠 State + Utilities
+
+* `main_UTILS.js`
+* `main_STATE.js`
+  Centralized state and bindings
+* `persistent-store.js`
+  Persistent storage adapter
+* `panel_state.js`
+
+### 🎨 UI + Interaction
+
+* `main_UI.js`
+* `main_MENU.js`
+* `main_BUTTON_LOGIC_1.js`
+* `apply-log-view.js`
+
+### ✍️ Expression & Logic Systems
+
+* `main_EXPRESS.js`
+* `main_SNIPPETS.js`
+* `main_SEARCH_REPLACE.js`
+
+### 🧪 Dev / Init
+
+* `main_DEV_INIT.js`
+  **CRITICAL FILE**
+
+  * Loads JSX host modules via `evalScript`
+  * Initializes CodeMirror
+  * Performs startup wiring
+* `main.js`
+  Final bootstrap glue
 
 ---
 
-### 🧠 `/CSXS/`
-| File | Description |
-|------|-------------|
-| `manifest.xml` | CEP configuration defining host apps and extension ID. |
+## 🧠 CodeMirror (Expression Editor)
+
+* `js/codemirror/codemirror-bundle.js`
+  Fully bundled CodeMirror 6 build
+
+⚠️ Important:
+
+* CodeMirror is **mounted and initialized inside `main_DEV_INIT.js`**
+* `js/codemirror-init.js` exists but is **NOT currently loaded by any HTML**
+* Treat `codemirror-init.js` as **legacy or unused unless reintroduced explicitly**
 
 ---
 
-### ⚙️ `/js/`
-| File | Description |
-|------|-------------|
-| `json2.js` | JSON polyfill for legacy AE engines. |
-| `main_UTILS.js` | Core utilities and file/variable helpers. |
-| `main_FLYO.js` | Deprecated Electron bridge (reference only). |
-| `main_MENU.js` | Context menu and right-click logic. |
-| `main_UI.js` | DOM wiring and CSInterface creation. |
-| `main_EXPRESS.js` | Expression and CodeMirror operations. |
-| `main_BUTTON_LOGIC_1.js` | Button interaction logic. |
-| `main_SNIPPETS.js` | Snippet button and preset system. |
-| `main_DEV_INIT.js` | Bootstrapper: loads JSX modules, initializes UI, activates CodeMirror. |
-| `main.js` | Legacy placeholder, unused. |
+## 🎛️ ExtendScript (JSX) (`/jsx/`)
+
+### ⚠️ `host.jsx`
+
+* **NOT a root controller**
+* Currently contains mostly **comments and legacy scaffolding**
+* Loaded last, but performs no orchestration
+
+Think of `host.jsx` as:
+
+> A historical stub / optional shell, not the active runtime brain.
+
+### 🧩 Actual Host Logic Lives Here
+
+`/jsx/Modules/`
+
+Active ExtendScript modules include:
+
+* `host_UTILS.jsx`
+* `host_GET.jsx`
+* `host_APPLY.jsx`
+* `host_MAPS.jsx`
+* `host_FLYO.jsx`
+* `host_DEV.jsx`
+
+These are the **real After Effects API interface layers**.
+
+They are loaded dynamically by `main_DEV_INIT.js`.
 
 ---
 
-### 🧩 `/js/codemirror/`
-| File | Description |
-|------|-------------|
-| `codemirror-bundle.js` | CodeMirror core build. |
-| `codemirror-init.js` | Initialization and DOM mount. |
+## 🔄 JS ⇄ JSX Communication
+
+* JS calls ExtendScript via `CSInterface.evalScript()`
+* JSX modules attach functionality to the global `Holy` namespace
+* No JSX file should assume it is the “entry point”
 
 ---
 
-### 🧱 `/js/libs/`
-| File | Description |
-|------|-------------|
-| `CSInterface.js` | Adobe CEP bridge for JS↔AE communication. |
+## 🎨 CSS (`/css/`)
+
+* `styles.css`
+  Core panel styling
+* `codemirror_styles.css`
+  CodeMirror theming
+* `log.css`
+  Apply/log UI
+
+Additional experimental styles may exist in:
+
+* `/css-devEx/`
 
 ---
 
-### 🧩 `/jsx/`
-| File | Description |
-|------|-------------|
-| `host.jsx` | Root ExtendScript controller for all AE commands. |
-| `/Modules/` | Modular host scripts for utilities, mapping, property retrieval, apply actions, and dev tools. |
+## 🧰 Dev / Infrastructure
+
+* `scripts/setup-cep-environment.sh`
+  Local CEP setup helper
+* `well-known/appspecific/com.chrome.devtools.json`
+  DevTools attachment config
+
+⚠️ `.debug/` may exist locally during development but is **not guaranteed to be present in repo exports**.
 
 ---
 
-## 🔄 Execution Flow
-1. `index.html` loads all JS modules sequentially  
-2. `main_DEV_INIT.js` initializes the JSX bridge via `CSInterface.evalScript()`  
-3. UI and CodeMirror activate once all modules register under the global `Holy` namespace  
+## 📦 Load Order (Actual, As of This Repo)
+
+From `index.html`:
+
+1. `CSInterface.js`
+2. `persistent-store.js`
+3. `json2.js`
+4. `codemirror-bundle.js`
+5. `main_UTILS.js`
+6. `main_STATE.js`
+7. `main_FLYO.js`
+8. `main_MENU.js`
+9. `main_UI.js`
+10. `main_EXPRESS.js`
+11. `main_BUTTON_LOGIC_1.js`
+12. `main_SNIPPETS.js`
+13. `main_SEARCH_REPLACE.js`
+14. `main_DEV_INIT.js`
+15. `main.js`
+
+⚠️ Any new modules must respect this order or be explicitly inserted.
 
 ---
 
-## 🔧 Verified Load Order (2025)
-```
+## 🧠 Mental Model Summary (Read This Once)
 
-json2.js
-main_UTILS.js
-main_FLYO.js
-main_MENU.js
-main_UI.js
-main_EXPRESS.js
-main_BUTTON_LOGIC_1.js
-main_SNIPPETS.js
-main_DEV_INIT.js
-main.js
-
-```
+* There is **NO monolithic controller**
+* `main_DEV_INIT.js` is the **true startup orchestrator**
+* JSX logic lives in `/jsx/Modules/`, not `host.jsx`
+* CodeMirror is initialized in JS, not JSX
+* README accuracy matters because **agents use it to reason about architecture**
 
 ---
 
-## 🧱 Deprecated Components
+## 🚨 Rules for Agents
 
-| Folder / File | Status | Notes |
-|----------------|---------|-------|
-| `/flyo/` | ❌ Archived | Early Electron prototype |
-| `main_FLYO.js` | ❌ Obsolete | Reference only |
-| `helpers/` | ❌ Legacy | Dev scripts not used in CEP |
-| `main.js` | ⚠️ Placeholder | Retained for compatibility |
+* Do NOT assume legacy intent equals current behavior
+* Do NOT treat filenames as authoritative without checking load paths
+* If you add or change architecture, **UPDATE THIS README**
+* If unsure, trace from `index.html` → `main_DEV_INIT.js`
 
 ---
-
-## 🧭 Summary
-Holy Expressor is a modular **CEP-based After Effects extension** centered on maintainable, expression-driven workflows.  
-Electron, SDK, and legacy components are retired.  
-
-🧱 Verified Architectural Notes (2025-11)
-
-The entire codebase operates under a single global namespace:
-Holy.<MODULE> (e.g., Holy.SNIPPETS, Holy.EXPRESS, Holy.UTILS).
-
-Each main_*.js file is wrapped in an IIFE that attaches exports to this global namespace.
-
-The front-end (CEP) communicates with the host side (ExtendScript) exclusively through cs.evalScript().
-
-No ESModules, imports, or bundlers are used anywhere in the runtime.
-
-Host-side scripts follow a strict naming convention:
-
-he_P_ → Apply layer functions
-
-he_U_ → Utility layer functions
-
-This naming structure is consistent across all JSX host modules (host_APPLY.jsx, host_UTILS.jsx, host_GET.jsx, etc.).
-
-These points are deductively verified from the codebase and reflect core structural truths of the project.
-
