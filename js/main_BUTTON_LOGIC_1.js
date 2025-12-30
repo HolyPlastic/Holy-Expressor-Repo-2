@@ -257,6 +257,23 @@ if (typeof Holy !== "object") Holy = {};
                 var parsed = null;
                 try { parsed = JSON.parse(report || "{}"); } catch (_) {}
 
+                try {
+                  if (Holy && Holy.UTILS && typeof Holy.UTILS.NEW_forCustomer_emit === "function") {
+                    if (parsed && parsed.ok !== false) {
+                      var count = (typeof parsed.written === "number")
+                        ? parsed.written
+                        : (typeof parsed.applied === "number")
+                          ? parsed.applied
+                          : null;
+                      var msg = "Apply";
+                      if (count !== null) {
+                        msg += ": " + count + (count === 1 ? " property" : " properties");
+                      }
+                      Holy.UTILS.NEW_forCustomer_emit(msg);
+                    }
+                  }
+                } catch (e) {}
+
                 if (Holy.UI && typeof Holy.UI.toast === "function") {
                   if (parsed && parsed.ok === false) {
                     Holy.UI.toast(parsed.err || "Blue Apply failed");

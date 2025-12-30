@@ -12,10 +12,15 @@ if (typeof Holy !== "object") Holy = {};
   function NEW_forCustomer_emit(txt) {
     try {
       if (!txt) return;
-      const timestamp = new Date().toISOString();
-      const entry = "[" + timestamp + "] " + txt;
+      // custom human-readable timestamp: [MM/DD ❖ HH:MM]
+      var d = new Date();
+      var mm = String(d.getMonth() + 1).padStart(2, "0");
+      var dd = String(d.getDate()).padStart(2, "0");
+      var hh = String(d.getHours()).padStart(2, "0");
+      var mi = String(d.getMinutes()).padStart(2, "0");
+      var ts = "[" + mm + "/" + dd + " ❖ " + hh + ":" + mi + "]";
       if (!window.NEW_forCustomer_history) window.NEW_forCustomer_history = [];
-      window.NEW_forCustomer_history.push(entry);
+      window.NEW_forCustomer_history.push(ts + " " + txt);
     } catch (err) {
       // Never throw – Customer log must never break app
     }

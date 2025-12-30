@@ -57,6 +57,12 @@ if (typeof Holy !== "object") Holy = {};
           console.log(summary.message);
         }
         var replacementCount = (summary && typeof summary.replacements === "number") ? summary.replacements : 0;
+        try {
+          if (Holy && Holy.UTILS && typeof Holy.UTILS.NEW_forCustomer_emit === "function") {
+            var msg = "Rewrite: " + replacementCount + (replacementCount === 1 ? " expression" : " expressions");
+            Holy.UTILS.NEW_forCustomer_emit(msg);
+          }
+        } catch (e) {}
         if (replacementCount > 0) {
           if (Holy.UI && typeof Holy.UI.toast === "function") {
             var rewriteMsg = replacementCount === 1
