@@ -213,7 +213,7 @@ function he_S_SS_applyExpressionToSelection(jsonStr) {
     undoOpen = true;
     enableTrackedLayers();
 
-    var applied = 0, skipped = 0, errors = [];
+    var applied = 0, written = 0, skipped = 0, errors = [];
     var visited = {}; // track already-processed properties
 
     function applyToProperty(prop) {
@@ -231,6 +231,7 @@ function he_S_SS_applyExpressionToSelection(jsonStr) {
       }
       try {
         prop.expression = expr;
+        written++; // count writes even if AE reports expressionError
         if (prop.expressionError && prop.expressionError.length) {
           errors.push({ path: path, err: prop.expressionError });
         } else {
@@ -271,7 +272,7 @@ function he_S_SS_applyExpressionToSelection(jsonStr) {
     restoreLayerVisibility();
     app.endUndoGroup();
     undoOpen = false;
-    return JSON.stringify({ ok:true, applied: applied, skipped: skipped, errors: errors });
+    return JSON.stringify({ ok:true, applied: applied, written: written, skipped: skipped, errors: errors });
   } catch (e) {
     return JSON.stringify({ ok:false, err:"SelectionStriker error: " + String(e) });
   } finally {

@@ -602,7 +602,7 @@ Holy.SNIPPETS.banks = [
           if (res && res.ok) {
             Holy.UI.toast(`Applied: ${snippet.name}`);
             if (typeof Holy === "object" && Holy && Holy.UTILS && typeof Holy.UTILS.NEW_forCustomer_emit === "function") {
-              var NEW_forCustomer_appliedCount = typeof res.applied === "number" ? res.applied : null;
+              var NEW_forCustomer_appliedCount = (typeof res.written === "number") ? res.written : (typeof res.applied === "number") ? res.applied : null;
               var NEW_forCustomer_snippetMessage = 'Snippet applied: ' + snippet.name;
               if (NEW_forCustomer_appliedCount !== null) {
                 NEW_forCustomer_snippetMessage += ' (' + NEW_forCustomer_appliedCount + (NEW_forCustomer_appliedCount === 1 ? ' property' : ' properties') + ')';

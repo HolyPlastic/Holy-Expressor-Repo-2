@@ -127,6 +127,29 @@ Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', func
       console.warn("⚠️ [STRICT RESULT PARSE ERROR]", e, report);
     }
 
+    try {
+      if (Holy && Holy.UTILS && typeof Holy.UTILS.NEW_forCustomer_emit === "function") {
+        if (parsed && parsed.ok !== false) {
+          var count = (typeof parsed.applied === "number")
+            ? parsed.applied
+            : (typeof parsed.written === "number")
+              ? parsed.written
+              : null;
+          var label = "Custom Search Apply";
+          if (searchVal && typeof searchVal === "string") {
+            var trimmed = searchVal.trim();
+            if (trimmed.length) {
+              label = '"' + trimmed + '"';
+            }
+          }
+          if (count !== null) {
+            label += ": " + count + (count === 1 ? " property" : " properties");
+          }
+          Holy.UTILS.NEW_forCustomer_emit(label);
+        }
+      }
+    } catch (e) {}
+
     // ⬇️ Existing UI/log mechanism stays, but soon we’ll improve it
     Holy.BUTTONS.updateApplyReport("Blue Apply by Custom Search", report);
 
@@ -311,6 +334,23 @@ function cy_deleteExpressions() {
           reject({ err: parseErr, userMessage: "Failed to parse delete result" });
           return;
         }
+
+        try {
+          if (Holy && Holy.UTILS && typeof Holy.UTILS.NEW_forCustomer_emit === "function") {
+            if (result && result.ok !== false) {
+              var count = (typeof result.deleted === "number")
+                ? result.deleted
+                : (typeof result.applied === "number")
+                  ? result.applied
+                  : null;
+              var msg = "Delete Expressions";
+              if (count !== null) {
+                msg += ": " + count + (count === 1 ? " expression" : " expressions");
+              }
+              Holy.UTILS.NEW_forCustomer_emit(msg);
+            }
+          }
+        } catch (e) {}
 
         if (!result || result.ok === false) {
           var err = (result && result.err) ? result.err : "Delete expressions failed";
