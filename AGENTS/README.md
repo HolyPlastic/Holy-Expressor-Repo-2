@@ -11,6 +11,27 @@ It uses a structured **JS ↔ JSX bridge** via Adobe **CSInterface**, and a **Co
 - Consolidate expression logic and UI in one system  
 - Replace repetitive scripting with reusable modular functions  
 
+
+---
+
+## 📚 Project Documentation Map
+
+This repository separates rules, history, and knowledge intentionally.
+
+- **AGENTS.md**  
+  Canonical rules, invariants, and agent directives.  
+  Includes short **DevNotes** for recent, non-authoritative changes.
+
+- **DEV_ARCHIVE.md**  
+  Detailed chronological development history and forensic reconstruction.  
+  This is the source of historical truth.
+
+- **KNOWLEDGE_BASE.md**  
+  Distilled patterns, issue → mechanism ledgers, architectural truths, and risk registers.  
+  This is the best place to understand *how problems tend to be solved*.
+
+Agents and contributors should read **AGENTS.md first**, then consult the other documents as needed.
+
 ---
 
 ## ⚙️ Current Focus
@@ -20,6 +41,7 @@ It uses a structured **JS ↔ JSX bridge** via Adobe **CSInterface**, and a **Co
 - 🧱 Active development focused on the CEP runtime and expression modules  
 
 🔗 **For full module rules, load order logic, and export structure, see [`AGENTS.md`](./AGENTS.md)**  
+
 
 ---
 
