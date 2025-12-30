@@ -253,6 +253,25 @@ if (typeof Holy !== "object") Holy = {};
               var escaped = payload.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
               Holy.UI.cs.evalScript('he_S_SS_applyExpressionToSelection("' + escaped + '")', function (report) {
                 updateApplyReport("Blue Apply", report);
+
+                var parsed = null;
+                try { parsed = JSON.parse(report || "{}"); } catch (_) {}
+
+                if (Holy.UI && typeof Holy.UI.toast === "function") {
+                  if (parsed && parsed.ok === false) {
+                    Holy.UI.toast(parsed.err || "Blue Apply failed");
+                    return;
+                  }
+
+                  var appliedCount = (parsed && typeof parsed.applied === "number") ? parsed.applied : 0;
+                  if (appliedCount > 0) {
+                    Holy.UI.toast("Expressed to selected properties");
+                    return;
+                  }
+
+                  var fallbackMsg = (parsed && (parsed.note || parsed.err)) || "Blue Apply failed";
+                  Holy.UI.toast(fallbackMsg);
+                }
               });
             } catch (e) {
               console.error("Blue Apply failed:", e);
@@ -361,7 +380,16 @@ if (typeof Holy !== "object") Holy = {};
                         Holy.UI.toast(r.err || "Custom search failed");
                         return;
                       }
-                      Holy.UI.toast("Applied to " + r.applied + " properties");
+
+                      var appliedCount = (typeof r.applied === "number") ? r.applied : 0;
+                      if (appliedCount > 0) {
+                        var csToast = appliedCount === 1
+                          ? "Found and expressed, 1 instance"
+                          : "Found and expressed, " + appliedCount + " instances";
+                        Holy.UI.toast(csToast);
+                      } else {
+                        Holy.UI.toast("Nothing found matching the search, ensure characters match exactly");
+                      }
                       updateApplyReport("Orange Apply (Custom Search)", r);
                     });
                   });
