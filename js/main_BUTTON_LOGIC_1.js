@@ -382,35 +382,9 @@ Holy.UI.toast("Expressed to selected properties");
 
                   Holy.EXPRESS.buildExpressionForSearch(searchVal, function (expr) {
                     var payload = JSON.stringify({ expressionText: expr, searchTerm: searchVal });
-                  var escaped = payload.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+                    var escaped = payload.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
                     Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', function (raw) {
-                     var r = {};
-try { r = JSON.parse(raw || "{}"); } catch (e) {}
-
-// Explicit failure only
-if (r && r.ok === false) {
-  Holy.UI.toast(r.err || "Custom search failed");
-  return;
-}
-
-// If count is present, respect it
-if (typeof r.applied === "number") {
-  if (r.applied > 0) {
-    Holy.UI.toast(
-      r.applied === 1
-        ? "Found and expressed, 1 instance"
-        : "Found and expressed, " + r.applied + " instances"
-    );
-  } else {
-    Holy.UI.toast("Nothing found matching the search, ensure characters match exactly");
-  }
-} else {
-  // No explicit failure + no count = assume success
-  Holy.UI.toast("Found and expressed");
-}
-
-updateApplyReport("Orange Apply (Custom Search)", r);
-
+                      handleSearchApplyResult(raw, "Orange Apply (Custom Search)");
                     });
                   });
                 } else {
@@ -771,25 +745,60 @@ updateApplyReport("Orange Apply (Custom Search)", r);
 //  Apply Report Helper (backward-compatible)
 // Accepts updateApplyReport(result)  or  updateApplyReport(title, result)
 // ======================================
-function updateApplyReport(arg1, arg2) {
-  var title = (arguments.length === 2 && typeof arg1 === "string") ? arg1 : "";
-  var data  = (arguments.length === 2 && typeof arg1 === "string") ? arg2 : arg1;
+  function updateApplyReport(arg1, arg2) {
+    var title = (arguments.length === 2 && typeof arg1 === "string") ? arg1 : "";
+    var data  = (arguments.length === 2 && typeof arg1 === "string") ? arg2 : arg1;
 
-  var entry = formatApplyLogEntry(title, data);
-  if (!entry) entry = "[No apply data]";
+    var entry = formatApplyLogEntry(title, data);
+    if (!entry) entry = "[No apply data]";
 
-  applyLogEntries.push(entry);
-  if (applyLogEntries.length > APPLY_LOG_MAX_ENTRIES) {
-    applyLogEntries.shift();
+    applyLogEntries.push(entry);
+    if (applyLogEntries.length > APPLY_LOG_MAX_ENTRIES) {
+      applyLogEntries.shift();
+    }
+
+    var box = document.getElementById("applyReport");
+    if (box) {
+      box.textContent = entry;
+    }
+
+    broadcastApplyLogEntries();
   }
 
-  var box = document.getElementById("applyReport");
-  if (box) {
-    box.textContent = entry;
-  }
+  // Result handler for Search Captain apply responses (custom search)
+  function handleSearchApplyResult(raw, logLabel) {
+    var parsed = null;
+    try { parsed = JSON.parse(raw || "{}"); }
+    catch (err) { parsed = null; }
 
-  broadcastApplyLogEntries();
-}
+    // Always log the raw payload for transparency
+    updateApplyReport(logLabel || "Apply by Search", parsed || raw || {});
+
+    if (!Holy.UI || typeof Holy.UI.toast !== "function") return;
+
+    if (!parsed) {
+      Holy.UI.toast("Custom search failed");
+      return;
+    }
+
+    if (parsed.ok === false) {
+      Holy.UI.toast(parsed.err || "Custom search failed");
+      return;
+    }
+
+    var appliedCount = (typeof parsed.applied === "number") ? parsed.applied : 0;
+
+    if (appliedCount > 0) {
+      Holy.UI.toast(
+        appliedCount === 1
+          ? "Found and expressed, 1 instance"
+          : "Found and expressed, " + appliedCount + " instances"
+      );
+      return;
+    }
+
+    Holy.UI.toast("Nothing found matching the search, ensure characters match exactly");
+  }
 
 
 
