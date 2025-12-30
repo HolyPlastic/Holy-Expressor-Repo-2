@@ -13,6 +13,1093 @@ Only agents explicitly authorized as Archival Agents may modify anything outside
 ---
 ---
 
+## PRE-GITHUB ARCHIVES
+
+## SECTION A: EARLY DEVELOPMENT RECONSTRUCTION 
+
+### INITIAL ASSUMPTIONS
+
+#### 1) Initial “Pick Expression” concept (experimental)
+
+* **Problem Trigger**
+
+  * Goal was pick-whip style interaction from CEP panel into AE property selection; early assumption that panel could directly intercept AE canvas/property clicks.
+* **Initial Hypothesis**
+
+  * “Button → overlay (PickVeil) → user clicks AE property → host extracts expression → panel injects into editor” was treated as feasible.
+* **Experiments / Attempts**
+
+  * Implemented PickVeil overlay + click-to-cancel mechanics on the panel side as part of the flow scaffolding.
+* **Failure Modes Observed**
+
+  * Direct click interception outside the panel was not reliable/possible in CEP (stated as limitation driving pivot to polling).
+* **Constraint(s) Identified**
+
+  * CEP inability to trap AE canvas clicks reliably.
+* **Final Mechanism Implemented**
+
+  * Replaced “click interception” with a host-side polling scanner (app.scheduleTask) that reads selection changes.
+* **Known Side Effects**
+
+  * Polling introduces loop/leak risks if disarm/cancel paths fail.
+* **Explicitly Unresolved Aspects**
+
+  * The full pick-whip UX remained costly/brittle and later marked for retirement in V2 pivot.
+
+---
+
+### FIRST ARCHITECTURAL ATTEMPTS
+
+#### 2) Polling architecture introduced (host-side)
+
+* **Problem Trigger**
+
+  * Need to detect “picked” AE property without reliable direct click capture from CEP.
+* **Initial Hypothesis**
+
+  * Use `app.scheduleTask` to poll the host environment and infer pick via selection changes.
+* **Experiments / Attempts**
+
+  * Added “arm → poll → stop” structure with arm flags and scheduled scanner.
+  * Snapshot of initial selection path `_initialPath` at arm-time to avoid immediately treating pre-armed selection as the pick.
+* **Failure Modes Observed**
+
+  * Poll spam / repeated dispatches when disarm/stop logic did not trigger correctly (especially on groups/containers).
+* **Constraint(s) Identified**
+
+  * Must cancel scheduled task and clear state reliably to avoid CPU churn and repeated events.
+* **Final Mechanism Implemented**
+
+  * One-shot dispatch: cancel the schedule task AFTER any dispatch, zero the polling id, clear picking flags/snapshots.
+* **Known Side Effects**
+
+  * If dispatch never occurs, system may rely on manual cancel/veil cancel for cleanup (noted as risk).
+* **Explicitly Unresolved Aspects**
+
+  * Multi-pick-per-engage was explicitly treated as “separate feature” (not implemented in the one-shot model).
+
+---
+
+#### 3) File structure stabilized (mentioned briefly)
+
+* **Problem Trigger**
+
+  * Need stable DOM anchors and predictable JS/JSX responsibilities for the pick pipeline.
+* **Initial Hypothesis**
+
+  * Keep `index.html` as a static container with required IDs; keep logic in `main.js` (HQ) and `host.jsx` (ISO).
+* **Experiments / Attempts**
+
+  * Defined expectations for DOM nodes: `#appRoot`, `#codeEditor`, `#pickVeil`, `#exprPickBtn`.
+* **Failure Modes Observed**
+
+  * Some HTML expectations were marked “Unverified”; missing elements were treated as a potential blocker requiring confirmation.
+* **Constraint(s) Identified**
+
+  * CEP runtime binds at load; inline handlers avoided; runtime binding depends on IDs existing.
+* **Final Mechanism Implemented**
+
+  * Responsibilities documented as: `index.html` structure only; `main.js` UI + listeners + injection; `host.jsx` polling + payload + dispatch.
+* **Known Side Effects**
+
+  * None explicitly stated.
+* **Explicitly Unresolved Aspects**
+
+  * Exact line ranges / true DOM presence was explicitly left as “confirm elements exist.”
+
+---
+
+### FIRST CONSTRAINTS DISCOVERED
+
+#### ISSUE: External SVG Assets Failing to Load in CEP (ERR_FILE_NOT_FOUND)
+
+* **Problem Trigger**
+
+  * External SVGs referenced via `<img src="...">` failed to load inside the CEP panel.
+  * AE console reported `ERR_FILE_NOT_FOUND`.
+* **Initial Hypothesis**
+
+  * Relative paths might be incorrect in CEP context.
+  * CEP CEF might restrict local file access by default. *inferred but not explicit*
+* **Experiments / Attempts**
+
+  * Verified paths relative to `index.html`.
+  * Added CEF flags in `CSXS/manifest.xml` to allow file access and devtools.
+
+    * `--allow-file-access`
+    * `--allow-file-access-from-files`
+    * `--enable-devtools`
+    * `--remote-debugging-port=6904`
+* **Failure Modes Observed**
+
+  * Without flags, SVG assets consistently failed to load.
+  * CSS could not style strokes/fills on externally loaded SVGs.
+* **Constraint(s) Identified**
+
+  * CEP CEF sandboxing limits file access.
+  * `<img>` SVGs do not expose internal geometry to CSS.
+* **Final Mechanism Implemented**
+
+  * Abandoned external SVG loading.
+  * Transitioned to inline SVG markup embedded directly in HTML.
+* **Known Side Effects**
+
+  * Increased HTML verbosity.
+  * Geometry now maintained manually inside markup.
+* **Explicitly Unresolved Aspects**
+
+  * Whether production builds should retain permissive CEF flags.
+
+---
+
+#### ISSUE: Script Load Order Causing CEP Bridge Race Risk
+
+* **Problem Trigger**
+
+  * Proposal to defer all scripts to avoid render blocking.
+* **Initial Hypothesis**
+
+  * `defer` preserves order and DOM readiness, so safe globally.
+* **Experiments / Attempts**
+
+  * Evaluated deferring all `<script>` tags.
+  * Identified dependency on synchronous `CSInterface.js`.
+* **Failure Modes Observed**
+
+  * Risk of `CSInterface is not defined`.
+  * Potential dropped `evalScript` calls.
+* **Constraint(s) Identified**
+
+  * CEP host readiness is not tied to `DOMContentLoaded`.
+  * Some scripts must execute before any app logic.
+* **Final Mechanism Implemented**
+
+  * **Hybrid load order**:
+
+    * CSS first.
+    * Inline style bootstrap.
+    * `CSInterface.js` + `json2.js` synchronous.
+    * All app modules deferred.
+* **Known Side Effects**
+
+  * Head ordering becomes fragile.
+  * Requires documentation to prevent accidental reordering.
+* **Explicitly Unresolved Aspects**
+
+  * Whether `main_DEV_INIT.js` can be safely deferred in all cases.
+
+---
+
+## SECTION B: ITERATIVE PROBLEM-SOLVING RECORD 
+
+### FIX / PROBLEM INSTANCE: CodeMirror integration issues (dead plugin / duplicate init)
+
+* **Problem Trigger**
+
+  * CodeMirror was “invisible” or panel went “dead” due to init failures.
+* **Trigger or discovery context**
+
+  * CEP boot failures and non-responsive panel behavior during editor mounting attempts.
+* **Hypotheses considered**
+
+  * Mount CodeMirror via direct `EditorState` / `EditorView` style initialization.
+* **Experiments attempted**
+
+  * Attempted “broken version” using direct imports-style objects (EditorState.create + EditorView).
+  * Replaced with `window.codemirror.*` initialization inside `DOMContentLoaded`.
+  * Added guard clause: log “❌ CodeMirror not available” and abort init if globals missing.
+* **What failed and why**
+
+  * Bundle didn’t expose EditorState globally, causing script crash and plugin “dead” state.
+  * Duplicate initialization blocks caused clashes and “plugin broke”; removal of duplicate init described as the fix.
+* **What was implemented**
+
+  * Single guarded init via `window.codemirror.*` inside `DOMContentLoaded`, with positive mount log (“✅ CodeMirror editor mounted”).
+* **Immediate side effects**
+
+  * None explicitly stated (beyond earlier crash behavior).
+* **What remained unresolved**
+
+  * Bundle mismatch risk noted as an ongoing hazard requiring validation of bundle export.
+
+---
+
+### FIX / PROBLEM INSTANCE: PickVeil lifecycle problems (instant dismiss due to bubbling)
+
+* **Problem description**
+
+  * Veil dismissed instantly after activation due to click bubbling.
+* **Trigger or discovery context**
+
+  * “Same click” used to activate the mode also triggered cancellation immediately (veil “flashed”).
+* **Hypotheses considered**
+
+  * Simple “show veil + add click listener once” would allow cancel and maintain pick mode.
+* **Experiments attempted**
+
+  * Patch attempt: bind appRoot click listener with `{ once:true }`.
+  * Added delay (`setTimeout`) before registering listener to avoid same-click cancellation.
+  * Used CAPTURE-PHASE listener to catch events even if bubbling interfered.
+  * Ignored activator button (`exprPickBtn`) inside handler.
+  * Explicit removal of capture listener + nulling handler reference on exit/hide.
+* **What failed and why**
+
+  * Immediate cancel due to activation click bubbling into cancel handler.
+* **What was implemented**
+
+  * Delayed arm + capture-phase listener + activator ignore + strict cleanup on hide.
+* **Immediate side effects**
+
+  * Capture listeners are inherently risky if not removed; this was called out explicitly.
+* **What remained unresolved**
+
+  * Cancel scope: tradeoff noted that cancel logic worked “within panel” and not globally (as described).
+
+---
+
+### FIX / PROBLEM INSTANCE: Event channel normalization (canonical ISO_ReportLine_dispatch)
+
+* **Problem description**
+
+  * Multiple event channels created ambiguity; partial renames introduced channel drift.
+* **Trigger or discovery context**
+
+  * Earlier listener referenced `com.holyexpressor.pickResult` (older channel).
+* **Hypotheses considered**
+
+  * Standardize on ONE dispatch type and ONE listener path.
+* **Experiments attempted**
+
+  * Transition to canonical `ISO_ReportLine_dispatch` and a single panel listener that parses JSON payload.
+  * Introduced dispatch helper `ISO_ReportLine_dispatch(payload)` to centralize JSON encoding and dispatch.
+* **What failed and why**
+
+  * Ambiguity and misrouting due to multiple channels (explicitly stated).
+* **What was implemented**
+
+  * Canonical channel established: host dispatches `ISO_ReportLine_dispatch` with JSON payload; panel listens only to that channel and routes to handler.
+* **Immediate side effects**
+
+  * None explicitly stated.
+* **What remained unresolved**
+
+  * Older channel references remain as historical; exact moment of full switchover is *partially documented*.
+
+---
+
+### FIX / PROBLEM INSTANCE: Sentinel design introduced (**NO_EXPRESSION**) + empty-string handling
+
+* **Problem description**
+
+  * Host sometimes returned empty string; panel treated it as valid and wiped/blanked editor content.
+* **Trigger or discovery context**
+
+  * Empty string treated as “valid but blank”, causing injection of nothing / editor clearing.
+* **Hypotheses considered**
+
+  * Use a sentinel string to represent “no expression” distinctly from real expression text.
+* **Experiments attempted**
+
+  * Host normalized null/undefined/"" expression values to `__NO_EXPRESSION__`.
+  * Panel added guard to treat empty string as sentinel too (`trim() === ""`).
+* **What failed and why**
+
+  * Lack of distinction between empty string and “no expression.”
+* **What was implemented**
+
+  * Dual-sided normalization: host emits sentinel; panel treats sentinel OR empty string as non-injectable, then always disengages UI.
+* **Immediate side effects**
+
+  * “Magic strings” risk acknowledged; mitigation described as centralizing constant and guarding insertion.
+* **What remained unresolved**
+
+  * None stated, beyond general “magic sentinel strings” risk.
+
+---
+
+### FIX / PROBLEM INSTANCE: Host polling refinements (guards + ordering + anti-spam)
+
+* **Problem description**
+
+  * Stale pre-arm selection logged/treated as pick; log spam during polling; repeated payloads.
+* **Trigger or discovery context**
+
+  * Guards became overly strict and blocked intentional re-pick of same property (across sessions).
+* **Hypotheses considered**
+
+  * Add state flags + dedupe guards to reduce spam and prevent stale selection interpretation.
+* **Experiments attempted**
+
+  * Introduced guards: `he__resultDispatched`, `he__lastLoggedPath` or `he__lastLoggedKey`, `_initialPath` snapshot.
+  * Moved logging AFTER `_initialPath` check to suppress stale selection logs.
+  * Hardened dedupe key `(pickedPath :: pickedMatchName :: propertyIndex)` and clarified it should suppress LOG spam only, not dispatch.
+* **What failed and why**
+
+  * Guards became overly strict and blocked deliberate re-pick across sessions.
+* **What was implemented**
+
+  * Initial snapshot used to suppress stale logging/dispatch; dedupeKey used to suppress repeated logs only; do NOT early-return from dispatch based on dedupeKey.
+* **Immediate side effects**
+
+  * Key collision risk mentioned (“may still collide in rare cases”) for earlier guard designs.
+* **What remained unresolved**
+
+  * Exact final guard set across all versions is *partially documented* (multiple iterations referenced).
+
+---
+
+### FIX / PROBLEM INSTANCE: Group-selection pathology (repeated dispatches on containers)
+
+* **Problem description**
+
+  * Selecting shape layer containers/groups (Stroke 1, Fill 1, shape groups) caused repeat dispatch loops.
+* **Trigger or discovery context**
+
+  * Repeat dispatch loops and CPU churn observed when selections remained on containers.
+* **Hypotheses considered**
+
+  * Loop exists because scanner only stops for expression-capable leaf properties; group selections never satisfy stop condition.
+* **Experiments attempted**
+
+  * Modified stop logic to cancel polling AFTER ANY dispatch (not only when leaf property found).
+  * Added structural skip maps for known containers (Contents, Vector Group, graphics containers, Transform groups) to bail early or gate recursion.
+* **What failed and why**
+
+  * Without one-shot stop, groups keep redispatching, creating CPU churn and repeated payloads.
+* **What was implemented**
+
+  * One-shot stop after dispatch + clear state flags + reset snapshots.
+* **Immediate side effects**
+
+  * Prevents multiple picks per engage; noted explicitly as separate feature.
+* **What remained unresolved**
+
+  * Container-to-leaf PROMOTION became a parallel approach (DFS promotion) but carried mis-target risks; priority/scoping needed refinement.
+
+---
+
+### FIX / PROBLEM INSTANCE: Shape layer complexity discovery (“Clive” knowledge set formation)
+
+* **Problem description**
+
+  * Shape layer internals brittle; needed reliable identification/classification while still generating valid expression paths.
+* **Trigger or discovery context**
+
+  * Shape layer internals and pathing were repeatedly fragile and inconsistent.
+* **Hypotheses considered**
+
+  * Hybrid approach: use `.name` chain for expression paths and `.matchName` chain for classification/type detection.
+* **Experiments attempted**
+
+  * Implemented/expanded:
+
+    * `he_P_MM_getExprPathHybrid` returning `{exprPath, metaPath}` with `.name` and `.matchName`.
+    * `he_P_MM_classifyProperty(metaPath)` for classification.
+    * `HE_STRUCTURAL_MATCHNAMES` map to skip/gate non-leaf structural groups.
+* **What failed and why**
+
+  * Over-broad structural skip could hide leaves unless promoted (explicit risk).
+* **What was implemented**
+
+  * Hybrid MapMaker persisted as the mechanism: `.name` for `exprPath`; `.matchName` for metadata/classification; dual logging of both fields.
+* **Immediate side effects**
+
+  * Misclassification risk on shape layers marked as medium; fallback/targeted rules favored.
+* **What remained unresolved**
+
+  * Leaf promotion priority errors (wrong leaf chosen) were observed later; refinement needed but not fully documented here.
+
+---
+
+### FIX / PROBLEM INSTANCE: “Promotion to leaf” DFS (container → preferred leaf) (host-side)
+
+* **Problem description**
+
+  * Users often select containers like Stroke/Fill groups; code needed to resolve to expression-capable leaves (Width/Opacity/Color etc.).
+* **Trigger or discovery context**
+
+  * Container selections in shape hierarchies repeatedly collided with leaf-only assumptions.
+* **Hypotheses considered**
+
+  * Walk down from selected container to first preferred leaf using bounded DFS and a priority order.
+* **Experiments attempted**
+
+  * Expanded `he_P_leafReader` table to recognize more leaf types (Fill/Stroke Color/Opacity/Width, gradients, Trim Paths, Path leaf, Dashes, Taper, Round Corners Radius).
+  * Added `he_U_findFirstLeaf(rootProp, depthCap, priority)` to promote containers to a leaf using depth cap and priority list.
+* **What failed and why**
+
+  * Over-eager promotion: priority rules sometimes selected the “wrong” leaf (Path or Stroke Width) versus user intent; scoping/priority needed tuning.
+* **What was implemented**
+
+  * Implemented bounded DFS + expanded leafReader tables, with risks explicitly logged.
+* **Immediate side effects**
+
+  * “Table drift with AE versions” risk noted (leaf detection tables may need updates).
+* **What remained unresolved**
+
+  * Promotion mis-targeting remained a known risk; refinement described as needed but not fully resolved in this fragment.
+
+---
+
+### FIX / PROBLEM INSTANCE: APPLY FAILURES ON GROUPED PROPERTIES (e.g. SHAPE LAYERS)
+
+* **Problem description**
+
+  * Selecting Shape Layer groups or grouped properties produced “Select a property” errors during Apply.
+  * Common reproduction involved Stroke Width inside Shape Layer contents.
+* **Trigger or discovery context**
+
+  * Apply errors when clicking grouped properties / container selections.
+* **Hypotheses considered**
+
+  * Selected items were groups, not leaf properties that support expressions.
+  * `selectedProperties` sometimes returns container groups even when clicking a child stopwatch.
+* **Experiments attempted**
+
+  * Checked `canSetExpression` directly on selected items.
+  * Logged `propertyType`, `matchName`, and child properties during Apply.
+  * Attempted flat iteration over selection without recursion.
+* **What failed and why**
+
+  * Groups rejected as non-animatable.
+  * Valid child properties never reached.
+  * Apply aborted early with generic messaging.
+* **What was implemented**
+
+  * Recursive descent into selected groups to locate the first animatable child.
+  * Implemented in a Type Peeker function that scans children until a supported value type is found.
+  * Apply logic updated to accept group selection as an entry point.
+* **Immediate side effects**
+
+  * Initial recursion applied expressions to all children in a group (over-application).
+* **What remained unresolved**
+
+  * Depth control was coarse initially.
+  * Reliance on display names during traversal remained.
+
+---
+
+### FIX / PROBLEM INSTANCE: BLUE APPLY OVER-APPLICATION (RECURSION TOO BROAD)
+
+* **Problem description**
+
+  * After enabling recursion, Apply affected every animatable property within a group.
+* **Trigger or discovery context**
+
+  * Expressions applied far beyond intended targets; user could not predict affected properties.
+* **Hypotheses considered**
+
+  * Recursion lacked scoping to the explicitly selected group context.
+* **Experiments attempted**
+
+  * Logged recursion entry points.
+  * Compared behavior when selecting leaf vs group.
+  * Tested limiting recursion flags.
+* **What failed and why**
+
+  * Expressions applied far beyond intended targets.
+* **What was implemented**
+
+  * Recursion gated to only descend into explicitly selected groups.
+  * Leaf properties outside that scope ignored.
+  * Blue Apply restricted to selected items or their immediate valid children.
+* **Immediate side effects**
+
+  * Some deeply nested properties may still be unreachable without direct selection.
+* **What remained unresolved**
+
+  * No user control over recursion depth beyond this guard.
+
+---
+
+### FIX / PROBLEM INSTANCE: TARGET LIST FLOODING (SUMMARIZER RECURSION)
+
+* **Problem description**
+
+  * Using Target Selected caused Target list to populate with dozens of properties when groups were selected.
+* **Trigger or discovery context**
+
+  * Recursive mode flooded Target list; non-recursive mode missed properties like Stroke Width.
+* **Hypotheses considered**
+
+  * Summarizer recursion mirrored Apply recursion too aggressively.
+* **Experiments attempted**
+
+  * Disabled recursion entirely.
+  * Compared recursive vs non-recursive `getSelectionSummary`.
+  * Logged counts of collected properties.
+* **What failed and why**
+
+  * Recursive mode flooded Target list.
+  * Non-recursive mode missed properties like Stroke Width.
+* **What was implemented**
+
+  * No final mechanism yet.
+  * Explicit proposal: one-level-deep recursion only.
+* **Immediate side effects**
+
+  * Current implementation oscillates between flooding and omission.
+* **What remained unresolved**
+
+  * One-level recursion not yet implemented.
+  * Deduplication strategy not finalized.
+
+---
+
+### FIX / PROBLEM INSTANCE: ORANGE APPLY “NO TARGET PATHS DEFINED”
+
+* **Problem description**
+
+  * Clicking Apply to Target produced error even when Target list visually populated.
+* **Trigger or discovery context**
+
+  * Target list rendered as raw text nodes; Apply handler searched for structured elements that did not exist.
+* **Hypotheses considered**
+
+  * Orange Apply expected structured data, not plain text.
+* **Experiments attempted**
+
+  * Logged DOM reads from Target list.
+  * Inspected collected payload before `evalScript`.
+* **What failed and why**
+
+  * Target list rendered as raw text nodes; handler expected structured elements.
+* **What was implemented**
+
+  * Target entries rendered as `<div class="target-item" data-path="...">`.
+  * Orange Apply collects `data-path` attributes into payload.
+* **Immediate side effects**
+
+  * Path strings based on display names, not matchNames.
+* **What remained unresolved**
+
+  * Path resolution fragile if user renames groups.
+
+---
+
+### FIX / PROBLEM INSTANCE: CUSTOM SEARCH “FAILED” (TOKEN SEARCH REGRESSION)
+
+* **Problem description**
+
+  * All Custom Search attempts returned “Custom search failed”.
+* **Trigger or discovery context**
+
+  * Execution reached missing helper calls; errors collapsed into generic failure message.
+* **Hypotheses considered**
+
+  * Token walker logic incorrect or incomplete.
+* **Experiments attempted**
+
+  * Added hierarchical token splitting (`>`).
+  * Implemented deep token walkers in GroupScout.
+  * Added logging for tokens and scope layers.
+* **What failed and why**
+
+  * Several core helpers were removed or out of sync:
+
+    * MapMaker
+    * Translator
+    * Explorer
+    * Collect&Apply
+* **What was implemented**
+
+  * None yet.
+  * Added graceful no-match returns to avoid hard failure when zero hits.
+* **Immediate side effects**
+
+  * Search still non-functional despite graceful handling.
+* **What remained unresolved**
+
+  * Helpers must be restored or reconstructed before Custom Search works.
+
+---
+
+### FIX / PROBLEM INSTANCE: PROPERTY IDENTIFICATION VIA DISPLAY NAMES
+
+* **Problem description**
+
+  * Renamed groups broke Target resolution and Search reliability.
+* **Trigger or discovery context**
+
+  * Display-name paths fail when user renames groups; localization risk acknowledged.
+* **Hypotheses considered**
+
+  * Display-name-based paths are inherently fragile.
+* **Experiments attempted**
+
+  * Logged `matchName` alongside display names.
+  * Prototyped matchName traversal snippets.
+* **What failed and why**
+
+  * Display-name paths fail when user renames groups.
+* **What was implemented**
+
+  * Deferred.
+  * Decision recorded to migrate later once workflows stabilize.
+* **Immediate side effects**
+
+  * Current system remains rename-sensitive.
+* **What remained unresolved**
+
+  * Full matchName migration not started.
+
+---
+
+### FIX / PROBLEM INSTANCE: LAYER STYLES NOISE IN APPLY REPORTS
+
+* **Problem description**
+
+  * Disabled or phantom Layer Styles generated excessive “skipped” entries.
+* **Trigger or discovery context**
+
+  * Reports cluttered with non-actionable skips.
+* **Hypotheses considered**
+
+  * Layer Styles exist even when disabled and should be ignored.
+* **Experiments attempted**
+
+  * Checked enabled state of Layer Style properties.
+  * Logged phantom properties.
+* **What failed and why**
+
+  * Reports cluttered with non-actionable skips.
+* **What was implemented**
+
+  * Disabled/phantom Layer Styles silently ignored.
+  * Enabled Layer Styles still processed.
+* **Immediate side effects**
+
+  * Reduced visibility into why certain properties were ignored.
+* **What remained unresolved**
+
+  * No toggle to show hidden Layer Style skips.
+
+---
+
+### FIX / PROBLEM INSTANCE: STRICT VS FUZZY SEARCH EXPLORATION
+
+* **Problem description**
+
+  * Desire to support relaxed matching for property searches.
+* **Trigger or discovery context**
+
+  * Encountered ExtendScript limitations (`Array.map` unsupported).
+* **Hypotheses considered**
+
+  * Strict and fuzzy modes could coexist with filters.
+* **Experiments attempted**
+
+  * Built ScriptUI runners to iterate property walkers.
+  * Tested:
+
+    * Token splitting
+    * Name contains logic
+    * Depth skipping of “Contents”
+* **What failed and why**
+
+  * Increased complexity with limited UX payoff.
+  * Maintenance burden high.
+* **What was implemented**
+
+  * Development put on ice, not deleted.
+* **Immediate side effects**
+
+  * Partial code retained but dormant.
+* **What remained unresolved**
+
+  * Whether Strict/Fuzzy returns as a surfaced feature.
+
+---
+
+### FIX / PROBLEM INSTANCE: TARGET BUTTON “ARM / POLL” EXPANSION
+
+* **Problem description**
+
+  * Desire for persistent targeting modes.
+* **Trigger or discovery context**
+
+  * Conceptual ARM sentinel logic discussed; cancel/cleanup flows partially sketched.
+* **Hypotheses considered**
+
+  * ARM state could allow polling or sticky targeting.
+* **Experiments attempted**
+
+  * Conceptual ARM sentinel logic discussed.
+  * Cancel/cleanup flows partially sketched.
+* **What failed and why**
+
+  * No complete lifecycle for ARM state.
+  * Risk of stale targets.
+* **What was implemented**
+
+  * None.
+  * Explicitly marked mid-development.
+* **Immediate side effects**
+
+  * None explicitly stated.
+* **What remained unresolved**
+
+  * ARM cleanup, cancel semantics, polling cadence.
+
+---
+
+### FIX / PROBLEM INSTANCE: SVG Stroke Color Inheriting Unintended `button { color }`
+
+* **Problem description**
+
+  * Inline SVG strokes rendered red due to inheriting `currentColor`.
+  * Global CSS defined `button { color: #ff0000; }`.
+* **Trigger or discovery context**
+
+  * Inline SVG inheritance collided with global button styles.
+* **Hypotheses considered**
+
+  * SVG stroke defaults were binding to `currentColor`.
+* **Experiments attempted**
+
+  * Removed reliance on `currentColor`.
+  * Introduced explicit CSS variables for SVG styling:
+
+    * `--btn-stroke`
+    * `--btn-fill`
+    * `--btn-text`
+* **What failed and why**
+
+  * Inline SVG attributes caused conflicts when mixed with CSS.
+  * Stroke values hardcoded in SVG prevented theming.
+* **What was implemented**
+
+  * All SVG `path` and `line` elements styled via CSS:
+
+    * `stroke: var(--btn-stroke)`
+  * Removed inline `stroke` and `stroke-width` attributes from SVG markup.
+* **Immediate side effects**
+
+  * SVG appearance now fully dependent on CSS availability.
+* **What remained unresolved**
+
+  * Naming inconsistency between `color` vs `colour` variables noted as risk.
+
+---
+
+### FIX / PROBLEM INSTANCE: Middle Section Rendering Unwanted Side Strokes
+
+* **Problem description**
+
+  * Middle section of rhombus rendered vertical strokes when scaled.
+* **Trigger or discovery context**
+
+  * Using a single path for the middle caused unintended side edges.
+* **Hypotheses considered**
+
+  * Using a single path for the middle caused unintended side edges.
+* **Experiments attempted**
+
+  * Rebuilt middle geometry as:
+
+    * `<rect>` for fill only.
+    * Two `<line>` elements for top and bottom strokes.
+* **What failed and why**
+
+  * Rectangles with strokes produced left/right edges.
+  * Inline strokes conflicted with CSS overrides.
+* **What was implemented**
+
+  * `rect` set to `stroke: none`.
+  * Top and bottom strokes drawn as separate `<line>` elements.
+* **Immediate side effects**
+
+  * Geometry more verbose.
+  * Stroke alignment must be manually maintained.
+* **What remained unresolved**
+
+  * No automated geometry generation; manual SVG edits required.
+
+---
+
+### FIX / PROBLEM INSTANCE: SVG Stroke Clipping at Corners
+
+* **Problem description**
+
+  * Top-left and bottom-right corners clipped at certain zoom levels.
+* **Trigger or discovery context**
+
+  * Stroke extends beyond original SVG bounds; CEP zoom levels vary.
+* **Hypotheses considered**
+
+  * Stroke extends beyond original SVG bounds.
+* **Experiments attempted**
+
+  * Expanded SVG `viewBox` by approximately half the stroke width on all sides.
+
+    * Example: `-0.75 -0.75` padding for `1.5px` stroke.
+* **What failed and why**
+
+  * Without padding, clipping persisted.
+  * Excess padding altered perceived proportions.
+* **What was implemented**
+
+  * Standardized rule: expand `viewBox` by ~½ stroke width.
+* **Immediate side effects**
+
+  * SVG dimensions slightly inflated.
+  * Padding value tied to stroke width.
+* **What remained unresolved**
+
+  * Exact padding values may need retuning per shape.
+
+---
+
+### FIX / PROBLEM INSTANCE: CSS HSL Math Failing in Target CEF Runtime
+
+* **Problem description**
+
+  * Dark/light variants collapsed to black or white.
+* **Trigger or discovery context**
+
+  * CEF parser rejected `calc()` with unitless values inside `hsl()`.
+* **Hypotheses considered**
+
+  * Unitless HSL math should be valid per spec.
+* **Experiments attempted**
+
+  * Attempted unitless `S` and `L` variables with `%` appended post-`calc()`.
+  * Tested across derived tokens.
+* **What failed and why**
+
+  * Target CEP Chromium version has stricter parsing.
+  * Behavior differed from modern browsers.
+* **What was implemented**
+
+  * JS writes `S` and `L` as percent strings.
+  * CSS multiplies percent values directly inside `calc()`.
+  * Lightness allowed to scale `0 → 2` to reach 100%.
+* **Immediate side effects**
+
+  * Lightness math is non-standard.
+  * Requires documentation to avoid misuse.
+* **What remained unresolved**
+
+  * Cross-CEF version variability remains a risk.
+
+---
+
+### FIX / PROBLEM INSTANCE: Runtime Color Derivation for RGBA and HSL Variants
+
+* **Problem description**
+
+  * Need to derive semi-transparent and tonal variants from a single hex color.
+* **Trigger or discovery context**
+
+  * CSS alone insufficient for hex → RGB/HSL conversion; bootstrap ordering mattered.
+* **Hypotheses considered**
+
+  * CSS alone insufficient for hex → RGB/HSL conversion.
+* **Experiments attempted**
+
+  * Implemented inline JS style bootstrap (`cy_styleBoot`) to:
+
+    * Read `--G-color-1`.
+    * Compute RGB + HSL.
+    * Write runtime CSS variables.
+* **What failed and why**
+
+  * Missing or malformed hex caused silent failures.
+* **What was implemented**
+
+  * Inline IIFE in `<head>` wrapped in `try/catch`.
+  * Writes:
+
+    * `--G-colour-1-RGB`
+    * `--G-color-1-H/S/L`
+* **Immediate side effects**
+
+  * Styling depends on JS execution.
+  * Requires fallback behavior if bootstrap fails.
+* **What remained unresolved**
+
+  * Support for 3-digit or 8-digit hex marked as future work.
+
+---
+
+## SECTION C: TRANSITION POINTS 
+
+### EXPLICIT PIVOTS
+
+#### Pivot: Abandoned direct click interception → host-side polling
+
+* Abandoned direct click interception.
+* Pivot to host-side polling via ExtendScript.
+
+(Referenced in: “Initial Pick Expression concept (experimental)” and “Polling architecture introduced (host-side)”.)
+
+---
+
+#### Pivot: Abandoned external SVG loading → inline SVG markup
+
+* Abandoned external SVG loading.
+* Transitioned to inline SVG markup embedded directly in HTML.
+
+(Referenced in: “External SVG Assets Failing to Load in CEP (ERR_FILE_NOT_FOUND)”.)
+
+---
+
+### ABANDONMENTS / SCOPE REDUCTIONS / STRATEGIC REFRAMES
+
+#### Codex-assisted refactor incident (bulk renames / mojibake / mismatched callsites)
+
+* **Problem Trigger**
+
+  * Bulk rename/refactor introduced inconsistencies across files and log corruption artifacts.
+* **Initial Hypothesis**
+
+  * Codex can accelerate mechanical changes like bulk renames and boilerplate generation.
+* **Experiments / Attempts**
+
+  * Applied Codex-assisted bulk renames across multiple files; later proceeded with “patch forward” rather than rollback.
+  * Identified specific issues introduced: mismatched callsites, channel drift, missing eval parentheses, stray code outside functions, mojibake in logs.
+* **Failure Modes Observed**
+
+  * Partial renames left broken paths/channels; Unicode artifacts appeared in logs; host parse errors could silently break loading.
+* **Constraint(s) Identified**
+
+  * Rolling back was treated as costly; chosen approach was surgical fixes on latest files.
+* **Final Mechanism Implemented**
+
+  * “Proceed with latest files” policy + a series of surgical patches (dispatch unification, one-shot stop, sentinel normalization, evalScript parentheses fix, stray return removal).
+* **Known Side Effects**
+
+  * Mojibake described as cosmetic; cleanup optional.
+* **Explicitly Unresolved Aspects**
+
+  * Exact chronology of “rollback considered then abandoned” is *inferred but not explicit* in this fragment; the decision is explicit, the timeline is not.
+
+---
+
+#### Panel/host responsibility split (avoid re-entrant stop calls)
+
+* **Problem Trigger**
+
+  * Need to prevent race conditions between UI cleanup and host scan lifecycle, and avoid re-entrant stop calls across boundary.
+* **Initial Hypothesis**
+
+  * Host should own arm/poll/stop/dispatch; panel should own veil/UI only.
+* **Experiments / Attempts**
+
+  * Panel handler: ALWAYS disengage UI in finally block after handling pick payload.
+  * Host: cancel scheduled task and clear flags before/around dispatch; centralized dispatch helper introduced.
+* **Failure Modes Observed**
+
+  * If host never dispatches, panel could remain “armed” unless veil click cancels; described as residual risk.
+* **Constraint(s) Identified**
+
+  * Cleanup must be robust even on errors; host task cancellation must run on stop/error/dispatch paths.
+* **Final Mechanism Implemented**
+
+  * Host owns stop; panel performs UI cleanup only; handler ensures veil hidden regardless of payload validity.
+* **Known Side Effects**
+
+  * None explicitly stated.
+* **Explicitly Unresolved Aspects**
+
+  * “If host never dispatches” scenario remained as a known residual behavior.
+
+---
+
+#### Strategic pivot to Holy Expressor V2 (pick-whip retired)
+
+* **Problem Trigger**
+
+  * Pick-whip style UX deemed too costly; interactive picking loop + shape brittleness created sustained complexity.
+* **Initial Hypothesis**
+
+  * V2 should be “editor-first”, with a single Apply button, reducing dependence on interactive pick scanning.
+* **Experiments / Attempts**
+
+  * Codex addendum assessed what parts of V1 remained useful vs redundant under V2:
+
+    * Still useful: leaf/DFS logic, classification, Layer Styles guards.
+    * Potentially redundant: polling loop, sentinel dispatch, Soft Pick retargeting, priority scoring for ambiguous picks.
+* **Failure Modes Observed**
+
+  * Not framed as a single failure; framed as COST and redundancy relative to V2 objectives.
+* **Constraint(s) Identified**
+
+  * V2 removes need for interactive click capture; V1 subsystems become optional/legacy unless interactive picking returns.
+* **Final Mechanism Implemented**
+
+  * Pivot declared and archived: retire pick-whip workflow as critical path; preserve scanner/leaf/classifier logic as archival safety net.
+* **Known Side Effects**
+
+  * Some V1 logic becomes dormant/legacy; explicit note “don’t throw away Codex patch, archive it.”
+* **Explicitly Unresolved Aspects**
+
+  * Exact V2 implementation steps are not in this fragment; only the transition intent and component triage is documented.
+
+---
+
+## SECTION D: KNOWN INCOMPLETE AREAS AT THIS STAGE 
+
+### EXPLICITLY UNRESOLVED ISSUES AS OF THIS PERIOD
+
+* TARGET LIST FLOODING (SUMMARIZER RECURSION)
+
+  * No final mechanism yet.
+  * Explicit proposal: one-level-deep recursion only.
+  * One-level recursion not yet implemented.
+  * Deduplication strategy not finalized.
+
+* CUSTOM SEARCH “FAILED” (TOKEN SEARCH REGRESSION)
+
+  * Search still non-functional despite graceful handling.
+  * Helpers must be restored or reconstructed before Custom Search works.
+  * Several core helpers were removed or out of sync: MapMaker, Translator, Explorer, Collect&Apply.
+
+* PROPERTY IDENTIFICATION VIA DISPLAY NAMES
+
+  * Current system remains rename-sensitive.
+  * Full matchName migration not started.
+  * Locale-safe resolution strategy is explicitly unresolved.
+
+* PICK/POLL LIFECYCLE RESIDUAL RISKS
+
+  * If dispatch never occurs, system may rely on manual cancel/veil cancel for cleanup (noted as risk).
+  * “If host never dispatches” scenario remained as a known residual behavior.
+  * Multi-pick-per-engage treated as “separate feature” (not implemented in one-shot model).
+  * Exact final guard set across all versions is *partially documented*.
+
+* CONTAINER-TO-LEAF PROMOTION REFINEMENT
+
+  * Container-to-leaf PROMOTION carried mis-target risks; priority/scoping needed refinement.
+  * Promotion mis-targeting remained a known risk; refinement described as needed but not fully resolved in this fragment.
+  * “Table drift with AE versions” risk noted (leaf detection tables may need updates).
+
+* BLUE APPLY RECURSION DEPTH CONTROL
+
+  * No user control over recursion depth beyond guard that only descends into explicitly selected groups.
+  * Some deeply nested properties may still be unreachable without direct selection.
+
+* ORANGE APPLY TARGET PATH ROBUSTNESS
+
+  * Path strings based on display names, not matchNames.
+  * Path resolution fragile if user renames groups.
+
+* SVG / CEF / STYLING TECH DEBT
+
+  * Whether production builds should retain permissive CEF flags.
+  * Naming inconsistency between `color` vs `colour` variables noted as risk.
+  * Exact `viewBox` padding values may need retuning per shape.
+  * Cross-CEF version variability remains a risk.
+  * Support for 3-digit or 8-digit hex marked as future work.
+
+### ASSUMPTIONS CARRIED FORWARD
+
+* AE expressions require display `.name` segments for expression address; `.matchName` is classification only.
+* CEP cannot capture AE canvas clicks reliably; polling is used to infer property pick via selection changes.
+* One-shot dispatch is used as a guardrail against loops on containers/groups, with multi-pick treated as a separate feature.
+
+## END OF PRE-GITHUB ARCHIVE
+---
 
 ## ⚗️ QUICK PANEL LOAD ISSUE ERA
 
