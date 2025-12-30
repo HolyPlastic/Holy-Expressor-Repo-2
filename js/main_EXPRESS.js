@@ -129,6 +129,29 @@ Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', func
 
     // ⬇️ Existing UI/log mechanism stays, but soon we’ll improve it
     Holy.BUTTONS.updateApplyReport("Blue Apply by Custom Search", report);
+
+    if (Holy.UI && typeof Holy.UI.toast === "function") {
+      if (!parsed) {
+        Holy.UI.toast("Custom search failed");
+        return;
+      }
+
+      if (parsed && parsed.ok === false) {
+        Holy.UI.toast(parsed.err || "Custom search failed");
+        return;
+      }
+
+      var appliedCount = (parsed && typeof parsed.applied === "number") ? parsed.applied : 0;
+      if (appliedCount > 0) {
+        var toastMsg = appliedCount === 1
+          ? "Found and expressed, 1 instance"
+          : "Found and expressed, " + appliedCount + " instances";
+        Holy.UI.toast(toastMsg);
+        return;
+      }
+
+      Holy.UI.toast("Nothing found matching the search, ensure characters match exactly");
+    }
 });
 
 }

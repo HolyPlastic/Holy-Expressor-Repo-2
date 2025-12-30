@@ -56,9 +56,13 @@ if (typeof Holy !== "object") Holy = {};
         if (summary && summary.message) {
           console.log(summary.message);
         }
-        if (summary && summary.replacements > 0) {
+        var replacementCount = (summary && typeof summary.replacements === "number") ? summary.replacements : 0;
+        if (replacementCount > 0) {
           if (Holy.UI && typeof Holy.UI.toast === "function") {
-            Holy.UI.toast("Search & Replace complete");
+            var rewriteMsg = replacementCount === 1
+              ? "1 Expression is Rewritten"
+              : replacementCount + " Expressions are Rewritten";
+            Holy.UI.toast(rewriteMsg);
           }
         } else if (Holy.UI && typeof Holy.UI.toast === "function") {
           if (summary && summary.customSearchUsed && summary.customSearchMatches > 0) {
