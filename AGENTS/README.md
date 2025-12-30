@@ -54,6 +54,14 @@ Do **NOT** assume everything runs exclusively through `index.html`.
   Persistent storage adapter
 * `panel_state.js`
 
+### 💾 Persistence Layer
+- **Holy.PERSIST**
+  - Central persistence interface used for theme, color, and panel state.
+  - Defined in `js/persistent-store.js`.
+  - Read by UI bootstrap code (e.g. `index.html`) and feature modules such as the color picker.
+  - This is an active, intentional system — not legacy or defunct code.
+
+
 ### 🎨 UI + Interaction
 
 * `main_UI.js`
