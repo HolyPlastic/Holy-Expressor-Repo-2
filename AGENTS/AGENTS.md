@@ -531,13 +531,7 @@ Three-segment architecture is mandatory for future text-box frames.
 
 ---
 
-# END OF UPDATED SECTION 13
-
-You can paste this into **AGENTS.md**, replacing the entire previous Section 13.
-
-
-
-
+# END OF SECTION 13
 
 
 
@@ -545,16 +539,27 @@ You can paste this into **AGENTS.md**, replacing the entire previous Section 13.
 
 ## 🪶 Agent Notes Directive
 
-* Every agent must add a short, factual entry to the **🪶⛓️ Dev Notes** section of `AGENTS.md` when finishing a task.
-* Each note should summarise what changed or was discovered — **1 to 3 sentences max**.
-* Include the **date** and **agent ID** (e.g. `2025-10-30 – gpt-5-codex:`).
-* If **no functional change** occurred, record: “no functional change – analysis only.”
-* If a **functional change** occurred, also include:
+All agents must append a short, factual entry to the **DevNotes** section of this file when finishing a task.
 
-  * **Design Intent:** One sentence describing the goal of the change.
-  * **Risks / Concerns:** One line noting any potential issues or trade-offs (only if applicable).
-* Notes are **append-only** — never edit or remove earlier entries.
-* These notes serve as the **active working log**. Once a change is approved or merged, maintainers or Archival Agents may migrate the entry into the official development timeline file.
+### Entry Requirements
+- **Length:** 1–3 sentences maximum
+- **Include:** date and agent ID (e.g. `2025-10-30 | gpt-5-codex`)
+- If **no functional change** occurred, explicitly note:
+  - `No functional change — analysis only`
+
+### If a Functional Change Occurred, Also Include
+- **Design Intent:** one sentence describing the goal of the change
+- **Risks / Concerns:** one line noting any potential issues or trade-offs (only if applicable)
+
+### DevNotes Rules
+- DevNotes are **append-only**. Do not edit or remove earlier entries.
+- DevNotes are **NOT invariants** and may be superseded or contradicted later.
+- DevNotes exist to provide **recent context**, not authoritative rules.
+- Canonical historical records live in **DEV_ARCHIVE.md**.
+- Stable patterns may later be promoted to **KNOWLEDGE_BASE.md** or formal **AGENTS rules**.
+
+DevNotes function as an **active working log**.  
+Once changes are approved or merged, maintainers or archival agents may migrate relevant entries into the long-term archive.
 
 ---
 
@@ -583,8 +588,7 @@ You can paste this into **AGENTS.md**, replacing the entire previous Section 13.
 
 ---
 
-✅ **Agents.md is the single source of truth** for module behavior and load rules.
-If conflicts arise, assume this file overrides individual code comments.
+
 
 ---
 
