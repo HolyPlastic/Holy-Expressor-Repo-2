@@ -645,6 +645,8 @@ Holy.UI.toast("Expressed to selected properties");
           const loadPathBtn = document.getElementById("loadPathFromSelectionBtn");
           if (loadPathBtn) {
             loadPathBtn.addEventListener("click", function () {
+              Holy.UI.toast("Load Path from Selection (rebuild in progress)");
+              return; // 🚧 Legacy JSX path builder quarantined
               const useAbs = document.getElementById("useAbsoluteComp")?.checked || false;
 
               if (!window.USE_FALLBACK_DYNAMIC_PATH) {
