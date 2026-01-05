@@ -2,8 +2,8 @@
 # Holy Expressor CSS Watcher V0 (Brute Force)
 # =====================================
 
-$watchPath = "C:\Users\Ben\Documents\__NEXUS\_GRID\_GRID_Ae\_SCRIPTS__Ae\HOLY EXPRESSOR X\Holy-Expressor-Repo-2\css-devEx\raw-downloads"
-$hotFile   = "C:\Users\Ben\Documents\__NEXUS\_GRID\_GRID_Ae\_SCRIPTS__Ae\HOLY EXPRESSOR X\Holy-Expressor-Repo-2\css\styles.css"
+$watchPath = "C:\Users\Ben\NEXUS\_PROJECTS\HOLY EXPRESSOR X\Holy-Expressor-Repo-2\css-devEx\raw-downloads"
+$hotFile   = "C:\Users\Ben\NEXUS\_PROJECTS\HOLY EXPRESSOR X\Holy-Expressor-Repo-2\css\styles.css"
 
 Write-Host "Holy Expressor CSS watcher active (BRUTE FORCE MODE)..."
 Write-Host "Watching: $watchPath"
