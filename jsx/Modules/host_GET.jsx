@@ -32,12 +32,30 @@ function he_GET_SelPath_Simple(useAbsoluteComp) {
       return JSON.stringify({ ok: false, error: "No active comp" });
     }
 
-    var props = comp.selectedProperties;
-    if (!props || props.length !== 1) {
-      return JSON.stringify({ ok: false, error: "Select exactly one property" });
-    }
+var props = comp.selectedProperties;
+if (!props || !props.length) {
+  return JSON.stringify({ ok: false, error: "No selection" });
+}
 
-    var leaf = props[0];
+// Filter to actual leaf properties only
+var leafProps = [];
+for (var i = 0; i < props.length; i++) {
+  try {
+    if (props[i].propertyType === PropertyType.PROPERTY) {
+      leafProps.push(props[i]);
+    }
+  } catch (_) {}
+}
+
+if (leafProps.length !== 1) {
+  return JSON.stringify({
+    ok: false,
+    error: "Select exactly one property"
+  });
+}
+
+var leaf = leafProps[0];
+
     if (!leaf || leaf.propertyType !== PropertyType.PROPERTY) {
       return JSON.stringify({ ok: false, error: "Unsupported selection (container)" });
     }
@@ -66,33 +84,47 @@ function he_GET_SelPath_Simple(useAbsoluteComp) {
       if (g) parentChain.push(g);
     }
 
-    var isShapeMode = false;
-    for (var i = 0; i < parentChain.length; i++) {
-      if (parentChain[i].matchName === "ADBE Root Vectors Group") {
-        isShapeMode = true;
-        break;
-      }
+for (var i = 0; i < parentChain.length; i++) {
+  $.writeln(i + ": " + parentChain[i].name + " | " + parentChain[i].matchName);
+}
+
+
+var isShapeMode = false;
+for (var i = 0; i < parentChain.length; i++) {
+  try {
+    if (parentChain[i].matchName && parentChain[i].matchName.indexOf("ADBE Vector") === 0) {
+      isShapeMode = true;
+      break;
     }
+  } catch (_) {}
+}
+
 
     var groupSegments = [];
 
-    if (isShapeMode) {
-      var rootIndex = -1;
-      for (var j = 0; j < parentChain.length; j++) {
-        if (parentChain[j].matchName === "ADBE Root Vectors Group") {
-          rootIndex = j;
-          break;
-        }
-      }
+ if (isShapeMode) {
+  // parentChain is leaf → root, expressions need root → leaf
+  var shapeChain = parentChain.slice().reverse();
 
-      var shapeChain = (rootIndex >= 0) ? parentChain.slice(0, rootIndex) : parentChain.slice();
-      for (var k = shapeChain.length - 1; k >= 0; k--) {
-        var sg = shapeChain[k];
-        var sgName = "";
-        try { sgName = sg.name || ""; } catch (_) {}
-        groupSegments.push('.content("' + he_escapeExprString(sgName) + '")');
-      }
-    } else {
+  for (var k = 0; k < shapeChain.length; k++) {
+    var sg = shapeChain[k];
+    var sgName = "";
+    var sgMatch = "";
+
+    try { sgName = sg.name || ""; } catch (_) {}
+    try { sgMatch = sg.matchName || ""; } catch (_) {}
+
+    // skip internal structural containers
+    if (sgName === "Contents") continue;
+    if (sgMatch === "ADBE Root Vectors Group") continue;
+
+    groupSegments.push('.content("' + he_escapeExprString(sgName) + '")');
+  }
+}
+
+
+
+     else {
       var pendingEffect = false;
       for (var m = parentChain.length - 1; m >= 0; m--) {
         var gg = parentChain[m];
