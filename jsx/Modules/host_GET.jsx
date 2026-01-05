@@ -113,8 +113,21 @@ var SHAPE_MODIFIER_ALLOW = {
   "ADBE Vector Filter - Offset": true
 };
 
+// V1 – Stroke internal subgroup handling (LEAN, deterministic)
+// 💡 CHECKER: these UI subgroups must NOT emit `.content("…")`
+// 💡 CHECKER: they are addressed syntactically via dot-access
+var DOT_GROUP_ACTION = {
+  // Stroke subgroups that must emit dot-access
+  "ADBE Vector Stroke Dashes": { mode: "DOT", token: "dash" },
+  "ADBE Vector Stroke Taper": { mode: "DOT", token: "taper" },
 
+  // Stroke wave subgroup: container must be skipped
+  // Leaf accessors already emit `.wave.*`
+  "ADBE Vector Stroke Wave": { mode: "SKIP" },
 
+  // Some AE builds expose this variant; skip for same reason
+  "ADBE Vector Taper Wave": { mode: "SKIP" }
+};
 
 
  if (isShapeMode) {
@@ -147,6 +160,23 @@ if (
     if (sgName === "Contents") continue;
     if (sgMatch === "ADBE Root Vectors Group") continue;
 
+    // V1 – Stroke subgroup handling
+    // 💡 CHECKER: prevents `.content("Wave") / .content("Dashes") / .content("Taper")`
+    var action = null;
+    try { action = DOT_GROUP_ACTION[sgMatch] || null; } catch (_) { action = null; }
+
+    if (action) {
+      if (action.mode === "SKIP") {
+        // subgroup container suppressed; leaf accessor handles dot path
+        continue;
+      }
+      if (action.mode === "DOT" && action.token) {
+        groupSegments.push("." + action.token);
+        continue;
+      }
+    }
+
+    // default behavior for normal shape groups
     groupSegments.push('.content("' + he_escapeExprString(sgName) + '")');
   }
 }
@@ -215,11 +245,21 @@ var LEAF_ACCESSORS = {
   "ADBE Vector Taper Amount": ".wave.amount",
   "ADBE Vector Taper Wave Phase": ".wave.phase",
   "ADBE Vector Taper Wavelength": ".wave.wavelength",
-  "ADBE Vector Taper Start Ease": ".taper.startEase",
-  "ADBE Vector Taper End Ease": ".taper.endEase",
-  "ADBE Vector Taper Start Width": ".taper.startWidth",
-  "ADBE Vector Taper End Width": ".taper.endWidth",
-  "ADBE Vector Taper Length Units": ".taper.lengthUnits",
+
+  // V1 – Taper leaf accessors (taper group emitted structurally)
+  // 💡 CHECKER: prevents `.taper.taper.*`
+  "ADBE Vector Taper Start Ease": ".startEase",
+  "ADBE Vector Taper End Ease": ".endEase",
+  "ADBE Vector Taper Start Width": ".startWidth",
+  "ADBE Vector Taper End Width": ".endWidth",
+  "ADBE Vector Taper Length Units": ".lengthUnits",
+
+  // V1 – Wave Amount support (fixes unsupported-property error)
+  // 💡 CHECKER: some AE builds expose these distinct matchNames
+  "ADBE Vector Taper Wave Amount": ".wave.amount",
+  "ADBE Vector Stroke Wave Amount": ".wave.amount",
+  "ADBE Vector Stroke Wave Phase": ".wave.phase",
+  "ADBE Vector Stroke Wave Wavelength": ".wave.wavelength",
 
   // ---- Transform ----
   "ADBE Position": ".position",
