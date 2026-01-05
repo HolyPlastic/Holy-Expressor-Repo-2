@@ -16,6 +16,11 @@
 // Entry point for the new lean builder system
 // Currently uses he_GET_SelPath_Build() to process selected properties
 
+// ==========================================================
+// LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
+// he_GET_SelPath_Engage
+// ==========================================================
+
 function he_GET_SelPath_Engage(useAbsoluteComp) {
   try {
     var comp = app.project.activeItem;
@@ -50,6 +55,11 @@ function he_GET_SelPath_Engage(useAbsoluteComp) {
 
 // ==========================================================
 // Core logic for lean path generation
+// ==========================================================
+
+// ==========================================================
+// LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
+// he_GET_SelPath_Build
 // ==========================================================
 
 // V4.0 — Lean chain builder with FriendlyMap + full merge logic
@@ -222,6 +232,11 @@ function he_GET_SelPath_Build(props, cy_useAbs) {
 
 
 
+
+// ==========================================================
+// LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
+// he_U_getSelectedPaths
+// ==========================================================
 
 // V9.7 - Path builder with universal Contents filter and group+leaf dedup
 function he_U_getSelectedPaths(useAbsoluteComp) {
@@ -544,6 +559,11 @@ function he_U_SS_getSelectionSummary() {
 
 
 
+
+// ==========================================================
+// LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
+// he_P_MM_getExprPathHybrid
+// ==========================================================
 
 // OLD FALLBACK OR SMT V5 – MAP MAKER HYBRID: stricter filter, no Path container in metaPath
 function he_P_MM_getExprPathHybrid(prop) {
