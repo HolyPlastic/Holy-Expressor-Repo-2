@@ -102,6 +102,21 @@ for (var i = 0; i < parentChain.length; i++) {
 
     var groupSegments = [];
 
+
+// V1 — Shape modifier allow-list (from legacy GROUP_TOKENS)
+// 💡 CHECKER: used only for validation, not rewriting
+var SHAPE_MODIFIER_ALLOW = {
+  "ADBE Vector Filter - Taper": true,
+  "ADBE Vector Filter - Trim": true,
+  "ADBE Vector Filter - RC": true,
+  "ADBE Vector Filter - Repeater": true,
+  "ADBE Vector Filter - Offset": true
+};
+
+
+
+
+
  if (isShapeMode) {
   // parentChain is leaf → root, expressions need root → leaf
   var shapeChain = parentChain.slice().reverse();
@@ -113,6 +128,20 @@ for (var i = 0; i < parentChain.length; i++) {
 
     try { sgName = sg.name || ""; } catch (_) {}
     try { sgMatch = sg.matchName || ""; } catch (_) {}
+
+// 💡 CHECKER: allow only known shape modifiers (no rewriting)
+if (
+  sgMatch.indexOf("ADBE Vector Filter") === 0 &&
+  !SHAPE_MODIFIER_ALLOW[sgMatch]
+) {
+  return JSON.stringify({
+    ok: false,
+    error: "Unsupported shape modifier",
+    matchName: sgMatch,
+    displayName: sgName
+  });
+}
+
 
     // skip internal structural containers
     if (sgName === "Contents") continue;
@@ -139,11 +168,13 @@ for (var i = 0; i < parentChain.length; i++) {
           continue;
         }
 
-        if (mm === "ADBE Layer Styles") {
-          groupSegments.push(".layerStyle");
-          pendingEffect = false;
-          continue;
-        }
+if (mm === "ADBE Layer Styles") {
+  return JSON.stringify({
+    ok: false,
+    error: "Layer Styles not supported yet"
+  });
+}
+
 
         if (mm === "ADBE Effect Parade") {
           pendingEffect = true;
@@ -160,20 +191,45 @@ for (var i = 0; i < parentChain.length; i++) {
       }
     }
 
-    var LEAF_ACCESSORS = {
-      "ADBE Vector Stroke Width": ".strokeWidth",
-      "ADBE Vector Stroke Color": ".color",
-      "ADBE Vector Stroke Opacity": ".opacity",
-      "ADBE Vector Fill Color": ".color",
-      "ADBE Vector Fill Opacity": ".opacity",
-      "ADBE Vector Shape": ".path",
-      "ADBE Position": ".position",
-      "ADBE Opacity": ".opacity",
-      "ADBE Rotate Z": ".rotation",
-      "ADBE Rotation": ".rotation",
-      "ADBE Anchor Point": ".anchorPoint",
-      "ADBE Scale": ".scale"
-    };
+// V2 — Expanded from legacy LEAF_TOKENS (no behavior change)
+// 💡 CHECKER: maps matchName → final accessor only
+var LEAF_ACCESSORS = {
+  // ---- Core Shape ----
+  "ADBE Vector Shape": ".path",
+
+  // ---- Stroke ----
+  "ADBE Vector Stroke Width": ".strokeWidth",
+  "ADBE Vector Stroke Color": ".color",
+  "ADBE Vector Stroke Opacity": ".opacity",
+  "ADBE Vector Stroke Dash 1": ".dash",
+  "ADBE Vector Stroke Dash 2": ".gap",
+  "ADBE Vector Stroke Offset": ".offset",
+
+  // ---- Fill ----
+  "ADBE Vector Fill Color": ".color",
+  "ADBE Vector Fill Opacity": ".opacity",
+
+  // ---- Taper ----
+  "ADBE Vector Taper Start Length": ".startLength",
+  "ADBE Vector Taper End Length": ".endLength",
+  "ADBE Vector Taper Amount": ".wave.amount",
+  "ADBE Vector Taper Wave Phase": ".wave.phase",
+  "ADBE Vector Taper Wavelength": ".wave.wavelength",
+  "ADBE Vector Taper Start Ease": ".taper.startEase",
+  "ADBE Vector Taper End Ease": ".taper.endEase",
+  "ADBE Vector Taper Start Width": ".taper.startWidth",
+  "ADBE Vector Taper End Width": ".taper.endWidth",
+  "ADBE Vector Taper Length Units": ".taper.lengthUnits",
+
+  // ---- Transform ----
+  "ADBE Position": ".position",
+  "ADBE Scale": ".scale",
+  "ADBE Rotation": ".rotation",
+  "ADBE Rotate Z": ".rotation",
+  "ADBE Anchor Point": ".anchorPoint",
+  "ADBE Opacity": ".opacity"
+};
+
 
     var leafMatch = "";
     try { leafMatch = leaf.matchName || ""; } catch (_) {}
@@ -195,6 +251,14 @@ for (var i = 0; i < parentChain.length; i++) {
     return JSON.stringify({ ok: false, error: "Exception", message: err.toString() });
   }
 }
+
+/*
+
+// ==========================================================
+// Legacy Load Path System
+// Removed after vX.Y – replaced by he_GET_SelPath_Simple
+// ==========================================================
+
 
 // ==========================================================
 // LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
@@ -411,8 +475,6 @@ function he_GET_SelPath_Build(props, cy_useAbs) {
 
 
 
-
-
 // ==========================================================
 // LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
 // he_U_getSelectedPaths
@@ -595,6 +657,128 @@ var NAME_ONLY_GROUPS = {
 
 
 
+// ==========================================================
+// LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
+// he_P_MM_getExprPathHybrid
+// ==========================================================
+
+// OLD FALLBACK OR SMT V5 – MAP MAKER HYBRID: stricter filter, no Path container in metaPath
+function he_P_MM_getExprPathHybrid(prop) {
+  var result = { exprPath: "", metaPath: [], _metaJSON: "[]" };
+
+  // Structural-only nodes: containers that never form valid expression segments
+  var STRUCTURAL = {
+    "ADBE Root Vectors Group": true,
+    "ADBE Vector Group": true,
+    "ADBE Vector Shape - Group": true // 🚫 treat Path container as structural
+  };
+
+                          try {
+                            if (!prop) return result;
+
+                            var names = [];
+                            var meta = [];
+
+                            // Collect parent groups
+                            var depth = prop.propertyDepth || 0;
+                            var groups = [];
+                            for (var d = 1; d <= depth; d++) {
+                              var grp = prop.propertyGroup(d);
+                              if (grp) groups.push(grp);
+                            }
+
+
+
+                            // Add group chain (root → leaf), but skip structural nodes
+                            for (var i = groups.length - 1; i >= 0; i--) {
+                              var g = groups[i];
+                              var gName = "", gMatch = "";
+                              try { gName = g.name || ""; } catch (_) {}
+                              try { gMatch = g.matchName || ""; } catch (_) {}
+
+                              if (STRUCTURAL[gMatch]) {
+                                continue; // 🚫 skip containers like Path 1 group
+
+                                // PATCH A: Skip structural/container groups at source
+                                if (MAPMAKER_SKIP[gMatch]) {
+                                  continue;
+                                }
+                                      }
+
+
+
+
+                              meta.push({
+                                name: gName,
+                                matchName: gMatch,
+                                lilName: (gName ? gName.toLowerCase().replace(/\s+/g, "") : "")
+                              });
+                              names.push(gName);
+                            }
+
+                            // Add the property itself (leaf only)
+                            var propName = "", propMatch = "";
+                            try { propName = prop.name || ""; } catch (_) {}
+                            try { propMatch = prop.matchName || ""; } catch (_) {}
+
+                            meta.push({
+                              name: propName,
+                              matchName: propMatch,
+                              lilName: (propName ? propName.toLowerCase().replace(/\s+/g, "") : "")
+                            });
+                            names.push(propName);
+
+                            // Guarantee metaPath never empty
+                            if (meta.length === 0) {
+                              meta.push({ name: "(Unknown)", matchName: "", lilName: "unknown" });
+                              names.push("(Unknown)");
+                            }
+
+                            result.exprPath = names.join(" > ");
+                            result.metaPath = meta.slice();
+                            result._metaJSON = JSON.stringify(result.metaPath);
+
+                          } 
+
+
+                        
+      
+      catch (err) {
+        var fallback = [{ name: "ERROR", matchName: "", lilName: "error" }];
+        result.exprPath = "ERROR";
+        result.metaPath = fallback;
+        result._metaJSON = JSON.stringify(fallback);
+      }
+
+/*
+      try {
+  // 🧪 DEBUG LOGGER: send pretty JSON to DevTools
+  var pretty = JSON.stringify(result.metaPath, null, 2); // adds \n and indentation
+  var payload =
+    "META TRACE >> " +
+    (prop.name || "(unnamed)") +
+    "\n" +
+    pretty +                       // line breaks included
+    "\n-----------------------------";
+
+  var evt = new CSXSEvent();
+  evt.type = "com.holyexpressor.debug";
+  evt.data = payload;
+  evt.dispatch();
+} catch (logErr) {
+  $.writeln("Logging failed: " + logErr);
+}
+
+
+
+
+return result;
+  
+}
+
+*/
+
+
 
 
 
@@ -737,127 +921,6 @@ function he_U_SS_getSelectionSummary() {
 
 
 
-
-
-
-// ==========================================================
-// LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
-// he_P_MM_getExprPathHybrid
-// ==========================================================
-
-// OLD FALLBACK OR SMT V5 – MAP MAKER HYBRID: stricter filter, no Path container in metaPath
-function he_P_MM_getExprPathHybrid(prop) {
-  var result = { exprPath: "", metaPath: [], _metaJSON: "[]" };
-
-  // Structural-only nodes: containers that never form valid expression segments
-  var STRUCTURAL = {
-    "ADBE Root Vectors Group": true,
-    "ADBE Vector Group": true,
-    "ADBE Vector Shape - Group": true // 🚫 treat Path container as structural
-  };
-
-                          try {
-                            if (!prop) return result;
-
-                            var names = [];
-                            var meta = [];
-
-                            // Collect parent groups
-                            var depth = prop.propertyDepth || 0;
-                            var groups = [];
-                            for (var d = 1; d <= depth; d++) {
-                              var grp = prop.propertyGroup(d);
-                              if (grp) groups.push(grp);
-                            }
-
-
-
-                            // Add group chain (root → leaf), but skip structural nodes
-                            for (var i = groups.length - 1; i >= 0; i--) {
-                              var g = groups[i];
-                              var gName = "", gMatch = "";
-                              try { gName = g.name || ""; } catch (_) {}
-                              try { gMatch = g.matchName || ""; } catch (_) {}
-
-                              if (STRUCTURAL[gMatch]) {
-                                continue; // 🚫 skip containers like Path 1 group
-
-                                // PATCH A: Skip structural/container groups at source
-                                if (MAPMAKER_SKIP[gMatch]) {
-                                  continue;
-                                }
-                                      }
-
-
-
-
-                              meta.push({
-                                name: gName,
-                                matchName: gMatch,
-                                lilName: (gName ? gName.toLowerCase().replace(/\s+/g, "") : "")
-                              });
-                              names.push(gName);
-                            }
-
-                            // Add the property itself (leaf only)
-                            var propName = "", propMatch = "";
-                            try { propName = prop.name || ""; } catch (_) {}
-                            try { propMatch = prop.matchName || ""; } catch (_) {}
-
-                            meta.push({
-                              name: propName,
-                              matchName: propMatch,
-                              lilName: (propName ? propName.toLowerCase().replace(/\s+/g, "") : "")
-                            });
-                            names.push(propName);
-
-                            // Guarantee metaPath never empty
-                            if (meta.length === 0) {
-                              meta.push({ name: "(Unknown)", matchName: "", lilName: "unknown" });
-                              names.push("(Unknown)");
-                            }
-
-                            result.exprPath = names.join(" > ");
-                            result.metaPath = meta.slice();
-                            result._metaJSON = JSON.stringify(result.metaPath);
-
-                          } 
-
-
-                        
-      
-      catch (err) {
-        var fallback = [{ name: "ERROR", matchName: "", lilName: "error" }];
-        result.exprPath = "ERROR";
-        result.metaPath = fallback;
-        result._metaJSON = JSON.stringify(fallback);
-      }
-
-/*
-      try {
-  // 🧪 DEBUG LOGGER: send pretty JSON to DevTools
-  var pretty = JSON.stringify(result.metaPath, null, 2); // adds \n and indentation
-  var payload =
-    "META TRACE >> " +
-    (prop.name || "(unnamed)") +
-    "\n" +
-    pretty +                       // line breaks included
-    "\n-----------------------------";
-
-  var evt = new CSXSEvent();
-  evt.type = "com.holyexpressor.debug";
-  evt.data = payload;
-  evt.dispatch();
-} catch (logErr) {
-  $.writeln("Logging failed: " + logErr);
-}
-
-*/
-
-
-return result;
-  
-}
 
 // PATCH A: Groups we never want in metaPath
 var MAPMAKER_SKIP = {

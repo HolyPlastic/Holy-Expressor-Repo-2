@@ -1294,7 +1294,7 @@ app.refreshUI()
 
 Trimmed warm-wake recovery and retry code from quickpanel.js
 Simplified to a single ensureHostReady() call + normal requestOpenExtension()
-Added early <style> background in HTML to eliminate white flash.
+Added early <[style> background in HTML to eliminate white flash.
 
 ✅ Outcome
 ✅ Quick Panel now attaches instantly on first open (no blank/white states)
@@ -1726,3 +1726,125 @@ It gives Holy Expressor **a modern live CSS editing experience inside a legacy C
 
 
 
+# **Path Resolution Simplification Pass (Lean Builder Reboot Era)**
+
+### **WHAT WAS BEING ATTEMPTED**
+
+The goal of this phase was to finally make **“Load Path from Selection”** reliable by replacing years of layered, heuristic-heavy JSX path builders with a **deterministic, minimal, single-responsibility builder**.
+
+Motivation came from a recurring UX failure:
+
+* Clicking *Load Path from Selection* often did nothing
+* Or returned vague `JSX error: exception` toasts
+* Or produced mangled / over-verbose paths
+* Or worked only in narrow cases, then silently failed elsewhere
+
+This feature had been attempted multiple times in the past (including earlier “lean” and “leaner” rewrites), but always collapsed back into complexity due to trying to support *everything* at once.
+
+This pass intentionally focused on:
+
+* One selected property only
+* Explicit allow-lists
+* No magic traversal
+* No silent fallbacks
+
+---
+
+### **PROBLEMS ENCOUNTERED**
+
+Several deep, recurring issues surfaced again during this work:
+
+* **Selection ambiguity**
+  `comp.selectedProperties` often contains *containers* as well as leaf properties. Earlier systems assumed “selection = usable,” which is false.
+
+* **Property group ordering confusion**
+  `propertyGroup(d)` is returned leaf → root, while expressions must be built root → leaf. This mismatch caused repeated reversals, double-reversals, and accidental “almost works” states.
+
+* **Shape layer internals are deceptively noisy**
+  Shape layers inject internal containers like `"Contents"` and `"ADBE Root Vectors Group"` that *must* be skipped or you end up with content spam:
+
+  ```
+  .content("Contents").content("Contents").content("...")
+  ```
+
+* **False confidence from partial success**
+  Multiple iterations produced *valid but wrong* paths (e.g. correct leaf accessor but missing groups, or correct groups in reversed order). These were misleading and slowed progress.
+
+* **Legacy gravity**
+  Old systems (`he_GET_SelPath_Engage`, `he_GET_SelPath_Build`, `he_U_getSelectedPaths`, `he_P_MM_getExprPathHybrid`) remained in the codebase, making it unclear what was still in use vs. dead weight. Their presence encouraged accidental reuse of flawed mental models.
+
+---
+
+### **WHAT ACTUALLY WORKED**
+
+The breakthrough came from **aggressively simplifying the mental model**:
+
+* **Single-leaf rule**
+  The new builder (`he_GET_SelPath_Simple`) hard-requires *exactly one leaf property*. No multi-select, no containers, no guessing.
+
+* **Explicit filtering first, not later**
+  Selection is filtered immediately to `PropertyType.PROPERTY`. Containers are rejected early with clear errors.
+
+* **Shape vs non-shape mode split**
+  Shape mode is detected purely via `matchName` prefix (`ADBE Vector*`), not by brittle structural assumptions.
+
+* **Top-down expression construction**
+  Parent chains are reversed exactly once, then emitted in strict root → leaf order. No post-hoc reordering.
+
+* **Structural skipping is minimal and explicit**
+  Only `"Contents"` and `"ADBE Root Vectors Group"` are skipped. Nothing else is silently ignored.
+
+* **Allow-lists instead of rewrite tables**
+  Old `GROUP_TOKENS`, `STRUCTURAL_SKIP`, `LIL_NAME_GROUPS`, etc. were *not* carried over wholesale.
+  Instead:
+
+  * A **leaf accessor map** defines what properties are supported.
+  * A **shape modifier allow-list** exists only for validation, not rewriting.
+  * Unsupported cases fail loudly with clear error payloads.
+
+* **Quarantining before deletion**
+  Legacy functions were explicitly marked **DEPRECATED / QUARANTINED**, and the UI button was rewired to bypass them entirely. This reduced noise while preserving rollback safety.
+
+The result:
+
+* Correct paths
+* Correct order
+* No content spam
+* Predictable failure modes
+
+---
+
+### **WHAT DID NOT WORK / REMAINS UNSOLVED**
+
+* **Trying to “salvage” legacy traversal logic**
+  Reusing old tables or traversal patterns consistently reintroduced hidden assumptions and bugs. Partial reuse was worse than a clean break.
+
+* **Universal support**
+  Not all properties are supported yet (e.g. some Layer Styles, certain effect internals). These now error clearly instead of failing silently, but coverage is incomplete by design.
+
+* **Auto-expanding support**
+  There is no dynamic fallback if a new AE property appears. This is intentional but means maintenance is required as AE evolves.
+
+---
+
+### **TAKEAWAYS FOR FUTURE AGENTS**
+
+* **DO NOT try to be clever here.**
+  Determinism beats coverage. Always.
+
+* **Assume selection is hostile.**
+  Validate aggressively. Containers lie.
+
+* **Property groups are returned leaf → root. Expressions are root → leaf.**
+  If you forget this, you will waste hours.
+
+* **Never auto-skip groups you don’t understand.**
+  If a group isn’t explicitly allowed, fail loudly.
+
+* **Do not resurrect legacy builders.**
+  If touching path logic again, start from `he_GET_SelPath_Simple` and extend via allow-lists only.
+
+* **If a path “almost works,” it is wrong.**
+  Partial correctness is the most dangerous state in this system.
+
+This era finally established a **correct mental model** for AE path resolution. Any future work should treat this as the canonical baseline and resist the temptation to generalize too early.
