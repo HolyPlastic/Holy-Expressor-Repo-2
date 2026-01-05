@@ -645,70 +645,44 @@ Holy.UI.toast("Expressed to selected properties");
           const loadPathBtn = document.getElementById("loadPathFromSelectionBtn");
           if (loadPathBtn) {
             loadPathBtn.addEventListener("click", function () {
-              Holy.UI.toast("Load Path from Selection (rebuild in progress)");
-              return; // 🚧 Legacy JSX path builder quarantined
               const useAbs = document.getElementById("useAbsoluteComp")?.checked || false;
+              Holy.UI.cs.evalScript(`he_GET_SelPath_Simple("${useAbs}")`, function (raw) {
+                if (HX_LOG_MODE === "verbose") {
+                  console.log("[LoadPath] raw result:", raw);
+                }
 
-              if (!window.USE_FALLBACK_DYNAMIC_PATH) {
-                // 💡 Lean builder mode
-                console.log("⚙️ Lean path builder will handle this call (dynamic fallback disabled).");
+                var parsed = null;
+                try {
+                  parsed = raw ? JSON.parse(raw) : null;
+                } catch (err) {
+                  console.error("[LoadPath] parse error", err, raw);
+                  return Holy.UI.toast("Load Path error: parse");
+                }
 
-                Holy.UI.cs.evalScript(`he_GET_SelPath_Engage("${useAbs}")`, function (raw) {
-                  try {
-                    const parsed = JSON.parse(raw || "{}");
-                    if (parsed.error) return Holy.UI.toast("JSX error: " + parsed.error);
+                if (HX_LOG_MODE === "verbose") {
+                  console.log("[LoadPath] parsed result:", parsed);
+                }
 
-                    if (parsed.built) {
-                      Holy.EXPRESS.EDITOR_insertText(parsed.built);
-                      Holy.UI.toast("Lean builder path inserted");
-                    } else Holy.UI.toast("No path returned from lean builder");
-                  } catch (err) {
-                    console.error("Lean builder parse error:", err, raw);
-                    Holy.UI.toast("Parse error");
-                  }
-                });
+                if (!parsed || parsed.ok !== true || !parsed.expr) {
+                  var errMsg = (parsed && parsed.error) ? parsed.error : "Unsupported selection";
+                  return Holy.UI.toast("Load Path error: " + errMsg);
+                }
 
-              } else {
-                // 💡 Fallback (MapMaker-based) mode
-                console.groupCollapsed("⚙️ Running fallback dynamic path builder");
-                Holy.UI.cs.evalScript(`he_U_getSelectedPaths("${useAbs}")`, function (raw) {
-                  try {
-                    const parsed = JSON.parse(raw);
-                    console.log("%c[interactive]", "color:#03A9F4;font-weight:bold;");
-                    console.dir(parsed);
-
-                    // --- Safe extract built paths ---
-                    let builtStr = "";
-                    if (parsed.built) builtStr = parsed.built;
-                    else if (parsed.debug?.builtPaths)
-                      builtStr = parsed.debug.builtPaths.join("\n");
-
-                    if (builtStr) {
-                      Holy.EXPRESS.EDITOR_insertText(builtStr);
-                      console.log(
-                        "%c[Inserted built string]",
-                        "color:#9C27B0;font-weight:bold;",
-                        builtStr
-                      );
-                    } else Holy.UI.toast("No built string returned");
-                  } catch (e) {
-                    console.error("Parse fail:", e, raw);
-                    Holy.UI.toast("Parse error");
-                  }
-                  console.groupEnd();
-                });
-              }
+                try {
+                  Holy.EXPRESS.EDITOR_insertText(parsed.expr);
+                  Holy.UI.toast("Path inserted");
+                } catch (err2) {
+                  console.error("[LoadPath] insert error", err2);
+                  Holy.UI.toast("Load Path error: insert failed");
+                }
+              });
             }); // ← end click handler
           }
 
 
-
-
-
-
-            /* ============================
-              TOGGLE: CUSTOM SEARCH BOX
-              ============================ */
+          /* ============================
+            TOGGLE: CUSTOM SEARCH BOX
+            ============================ */
             var customToggle = Holy.UI.DOM("#useCustomSearch");
             var customBox = Holy.UI.DOM("#customSearch");
             var targetBox = Holy.UI.DOM("#TargetBox");

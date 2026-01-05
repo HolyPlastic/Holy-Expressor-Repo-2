@@ -16,6 +16,154 @@
 // Entry point for the new lean builder system
 // Currently uses he_GET_SelPath_Build() to process selected properties
 
+function he_escapeExprString(str) {
+  if (str === undefined || str === null) return "";
+  return String(str).replace(/\\/g, "\\\\").replace(/\"/g, "\\\"");
+}
+
+// ==========================================================
+// SIMPLE LOAD PATH BUILDER (deterministic, no legacy heuristics)
+// ==========================================================
+
+function he_GET_SelPath_Simple(useAbsoluteComp) {
+  try {
+    var comp = app.project.activeItem;
+    if (!comp || !(comp instanceof CompItem)) {
+      return JSON.stringify({ ok: false, error: "No active comp" });
+    }
+
+    var props = comp.selectedProperties;
+    if (!props || props.length !== 1) {
+      return JSON.stringify({ ok: false, error: "Select exactly one property" });
+    }
+
+    var leaf = props[0];
+    if (!leaf || leaf.propertyType !== PropertyType.PROPERTY) {
+      return JSON.stringify({ ok: false, error: "Unsupported selection (container)" });
+    }
+
+    if (leaf.canSetExpression === false) {
+      return JSON.stringify({ ok: false, error: "Unsupported property (no expression access)" });
+    }
+
+    var depth = 0;
+    try { depth = leaf.propertyDepth; } catch (_) {}
+
+    if (!depth || depth < 1) {
+      return JSON.stringify({ ok: false, error: "Unable to resolve property chain" });
+    }
+
+    var layer = null;
+    try { layer = leaf.propertyGroup(depth); } catch (_) { layer = null; }
+    if (!layer || !layer.name) {
+      return JSON.stringify({ ok: false, error: "Unable to resolve layer" });
+    }
+
+    var parentChain = [];
+    for (var d = 1; d < depth; d++) {
+      var g = null;
+      try { g = leaf.propertyGroup(d); } catch (_) { g = null; }
+      if (g) parentChain.push(g);
+    }
+
+    var isShapeMode = false;
+    for (var i = 0; i < parentChain.length; i++) {
+      if (parentChain[i].matchName === "ADBE Root Vectors Group") {
+        isShapeMode = true;
+        break;
+      }
+    }
+
+    var groupSegments = [];
+
+    if (isShapeMode) {
+      var rootIndex = -1;
+      for (var j = 0; j < parentChain.length; j++) {
+        if (parentChain[j].matchName === "ADBE Root Vectors Group") {
+          rootIndex = j;
+          break;
+        }
+      }
+
+      var shapeChain = (rootIndex >= 0) ? parentChain.slice(0, rootIndex) : parentChain.slice();
+      for (var k = shapeChain.length - 1; k >= 0; k--) {
+        var sg = shapeChain[k];
+        var sgName = "";
+        try { sgName = sg.name || ""; } catch (_) {}
+        groupSegments.push('.content("' + he_escapeExprString(sgName) + '")');
+      }
+    } else {
+      var pendingEffect = false;
+      for (var m = parentChain.length - 1; m >= 0; m--) {
+        var gg = parentChain[m];
+        var mm = "";
+        var nm = "";
+        try { mm = gg.matchName || ""; } catch (_) {}
+        try { nm = gg.name || ""; } catch (_) {}
+
+        if (mm === "ADBE Transform Group") {
+          groupSegments.push(".transform");
+          pendingEffect = false;
+          continue;
+        }
+
+        if (mm === "ADBE Layer Styles") {
+          groupSegments.push(".layerStyle");
+          pendingEffect = false;
+          continue;
+        }
+
+        if (mm === "ADBE Effect Parade") {
+          pendingEffect = true;
+          continue;
+        }
+
+        if (pendingEffect) {
+          groupSegments.push('.effect("' + he_escapeExprString(nm) + '")');
+          pendingEffect = false;
+          continue;
+        }
+
+        return JSON.stringify({ ok: false, error: "Unsupported group", matchName: mm, displayName: nm });
+      }
+    }
+
+    var LEAF_ACCESSORS = {
+      "ADBE Vector Stroke Width": ".strokeWidth",
+      "ADBE Vector Stroke Color": ".color",
+      "ADBE Vector Stroke Opacity": ".opacity",
+      "ADBE Vector Fill Color": ".color",
+      "ADBE Vector Fill Opacity": ".opacity",
+      "ADBE Vector Shape": ".path",
+      "ADBE Position": ".position",
+      "ADBE Opacity": ".opacity",
+      "ADBE Rotate Z": ".rotation",
+      "ADBE Rotation": ".rotation",
+      "ADBE Anchor Point": ".anchorPoint",
+      "ADBE Scale": ".scale"
+    };
+
+    var leafMatch = "";
+    try { leafMatch = leaf.matchName || ""; } catch (_) {}
+
+    var leafAccessor = LEAF_ACCESSORS[leafMatch];
+    if (!leafAccessor) {
+      return JSON.stringify({ ok: false, error: "Unsupported property", matchName: leafMatch, displayName: leaf.name });
+    }
+
+    var useAbs = String(useAbsoluteComp) === "true";
+    var compName = he_escapeExprString(comp.name);
+    var layerName = he_escapeExprString(layer.name);
+    var base = useAbs ? 'comp("' + compName + '").layer("' + layerName + '")' : 'thisComp.layer("' + layerName + '")';
+
+    var expr = base + groupSegments.join("") + leafAccessor;
+
+    return JSON.stringify({ ok: true, expr: expr });
+  } catch (err) {
+    return JSON.stringify({ ok: false, error: "Exception", message: err.toString() });
+  }
+}
+
 // ==========================================================
 // LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
 // he_GET_SelPath_Engage
