@@ -24,10 +24,11 @@ function he_GET_SelPath_Engage(useAbsoluteComp) {
     }
 
     var props = comp.selectedProperties;
-    logToPanel("[LEAN-ENGAGE] invoked with " + props.length + " props");
+    var propCount = (props && props.length) ? props.length : 0;
+    logToPanel("[LEAN-ENGAGE] invoked with " + propCount + " props");
     var NEW_log_event = new CSXSEvent();
     NEW_log_event.type = "com.holyexpressor.NEW_log_event";
-    NEW_log_event.data = "[LEAN-ENGAGE] invoked with " + props.length + " props";
+    NEW_log_event.data = "[LEAN-ENGAGE] invoked with " + propCount + " props";
     NEW_log_event.dispatch();
     if (!props || props.length === 0) {
       return JSON.stringify({ error: "no selected properties" });
