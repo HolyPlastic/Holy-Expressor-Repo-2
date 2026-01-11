@@ -624,6 +624,7 @@ Once changes are approved or merged, maintainers or archival agents may migrate 
 * 2025-12-04 – lead-dev: Removed illegal `.trim()` usage in ExtendScript that silently aborted Custom Search before execution. Design Intent: restore strict scoped property matching by preventing token exceptions. Risks / Concerns: token handling must continue to guard non-string values moving forward.
 
 * 2025-11-16 – gpt-5.1-codex: Restored Custom Search Apply on hidden layers by collecting targets, toggling owning layers safely, and stabilizing dedupe keys. Design Intent: ensure hidden layers receive expressions without altering final visibility. Risks / Concerns: Layers without an exposed `enabled` flag remain skipped; monitor for any missed scopes.
+* 2025-11-18 – gpt-5.2-codex: Restored legacy path helper return and adjusted Express custom search feedback to count skipped/errors as activity. Design Intent: fix Express apply regressions without altering traversal or rewrite mode. Risks / Concerns: Toast counts may include warning-only applies; monitor for any misleading user messages.
 
 
 🧱 Verified Architectural Notes (2025-11)
