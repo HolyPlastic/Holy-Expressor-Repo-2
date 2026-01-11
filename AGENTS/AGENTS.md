@@ -139,12 +139,13 @@ Agents may add new events under the same namespace.
 * Preserve `index.html` script order.
 * Wrap risk operations in `try/catch`.
 
-### Logging Rules
-
 * Use `console.log()` → visible **only in Chrome DevTools**.
 * After Effects’ old JS console is deprecated / inaccessible.
 * Do not write to `$.writeln()` or AE Console targets.
 * `HX_LOG_MODE` (`"verbose"` or `"quiet"`) controls log density; read from `window.HX_LOG_MODE`.
+
+* Blue Apply” and “Orange Apply” are internal shorthand only. Blue Apply means the standard Express-mode apply from the main Apply button; Orange Apply means the alternate Express apply path (Target List and or Custom Search routing). These are not distinct user-facing features.
+### Logging Rules
 
 ### Safety
 
