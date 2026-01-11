@@ -130,11 +130,11 @@ Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', func
     try {
       if (Holy && Holy.UTILS && typeof Holy.UTILS.NEW_forCustomer_emit === "function") {
         if (parsed && parsed.ok !== false) {
-          var count = (typeof parsed.applied === "number")
-            ? parsed.applied
-            : (typeof parsed.written === "number")
-              ? parsed.written
-              : null;
+          var appliedCount = (typeof parsed.applied === "number") ? parsed.applied : 0;
+          var skippedCount = (typeof parsed.skipped === "number") ? parsed.skipped : 0;
+          var errorCount = (parsed && Array.isArray(parsed.errors)) ? parsed.errors.length : 0;
+          // Regression guard: Search Captain returns skipped/errors when expressions were set but warn.
+          var count = (appliedCount + skippedCount) || (errorCount || null);
           var label = "Custom Search Apply";
           if (searchVal && typeof searchVal === "string") {
             var trimmed = searchVal.trim();
@@ -165,10 +165,15 @@ Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', func
       }
 
       var appliedCount = (parsed && typeof parsed.applied === "number") ? parsed.applied : 0;
-      if (appliedCount > 0) {
-        var toastMsg = appliedCount === 1
+      var skippedCount = (parsed && typeof parsed.skipped === "number") ? parsed.skipped : 0;
+      var errorCount = (parsed && Array.isArray(parsed.errors)) ? parsed.errors.length : 0;
+      var totalTouched = appliedCount + skippedCount;
+      // Regression guard: expressionError warnings still indicate assignments happened.
+      if (totalTouched > 0 || errorCount > 0) {
+        var touchCount = totalTouched || errorCount;
+        var toastMsg = touchCount === 1
           ? "Found and expressed, 1 instance"
-          : "Found and expressed, " + appliedCount + " instances";
+          : "Found and expressed, " + touchCount + " instances";
         Holy.UI.toast(toastMsg);
         return;
       }

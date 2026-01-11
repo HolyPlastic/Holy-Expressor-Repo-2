@@ -818,6 +818,10 @@ return result;
 
 */
 
+  // Regression guard: ensure the legacy helper still returns for callers.
+  return result;
+}
+
 
 
 
