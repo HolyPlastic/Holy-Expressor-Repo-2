@@ -702,6 +702,7 @@ var NAME_ONLY_GROUPS = {
 // he_P_MM_getExprPathHybrid
 // ==========================================================
 
+// Refactor regression guard: this helper must remain callable at runtime
 // OLD FALLBACK OR SMT V5 – MAP MAKER HYBRID: stricter filter, no Path container in metaPath
 function he_P_MM_getExprPathHybrid(prop) {
   var result = { exprPath: "", metaPath: [], _metaJSON: "[]" };
