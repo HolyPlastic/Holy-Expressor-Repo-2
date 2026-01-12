@@ -335,6 +335,17 @@ function cy_deleteExpressions() {
   return new Promise(function (resolve, reject) {
     try {
       cs.evalScript('cy_deleteExpressions()', function (raw) {
+        // ============================================================
+        // V1 – CEP logging for delete diagnostics (Chrome DevTools)
+        // ============================================================
+        if (raw && raw.length) {
+          console.group("CY_DELETE_DIAGNOSTICS");
+          console.log(raw);
+          console.groupEnd();
+        } else {
+          console.warn("CY_DELETE_DIAGNOSTICS :: no output returned");
+        }
+
         var result = {};
         try {
           result = JSON.parse(raw || "{}");
