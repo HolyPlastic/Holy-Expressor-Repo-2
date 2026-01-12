@@ -141,10 +141,6 @@ function he_U_SC_isDescendantOfAllowedGroup(prop, allowedGroupSignatures) {
     try { t = cur.propertyType; } catch (_) { t = 0; }
 
     if (t === PropertyType.INDEXED_GROUP || t === PropertyType.NAMED_GROUP) {
-      if (he_U_SC_isContentsGroup(cur)) {
-        // 💡 CHECKER: Contents means "whole layer" scope, so accept
-        return true;
-      }
       var sig = he_U_SC_buildGroupSignature(cur);
       if (sig && allowedGroupSignatures[sig]) return true;
     }
