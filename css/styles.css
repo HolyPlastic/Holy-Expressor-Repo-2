@@ -1847,6 +1847,11 @@ z-index: 100;
   color: var(--search-disabled-text, rgba(255, 0, 0, 0.55));
 }
 
+#customSearch.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 /* disabled state tint remains while strokes keep currentColor */
 .customSearch-textBox-frame.disabled {
   opacity: .7;

@@ -348,8 +348,8 @@ if (typeof Holy !== "object") {
     function applyCustomSearchUI(isChecked) {
       var enabled = !!isChecked;
       if (customInput) {
-        customInput.toggleAttribute("disabled", !enabled);
-        customInput.disabled = !enabled;
+        customInput.readOnly = !enabled;
+        customInput.classList.toggle("is-disabled", !enabled);
         customInput.classList.toggle("enabled", enabled);
         customInput.classList.toggle("disabled", !enabled);
       }

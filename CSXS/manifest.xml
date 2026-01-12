@@ -8,7 +8,7 @@
 
   <ExtensionList>
     <Extension Id="com.holy.expressor.panel" />
-    <Extension Id="com.holy.expressor.log" />
+
     <Extension Id="com.holy.expressor.quickpanel" />
     <Extension Id="com.holy.expressor.colorpicker" />
     <Extension Id="com.holy.expressor.fulleditor"/> 
@@ -196,40 +196,6 @@
 
 
 
-
-    <Extension Id="com.holy.expressor.log">
-      <DispatchInfo>
-        <Resources>
-          <MainPath>./log.html</MainPath>
-          <CEFCommandLine>
-              <Parameter>--enable-nodejs</Parameter>
-            <Parameter>--enable-devtools</Parameter>
-            <Parameter>--remote-debugging-port=6908</Parameter>
-            <Parameter>--allow-file-access</Parameter>
-            <Parameter>--allow-file-access-from-files</Parameter>
-            <Parameter>--disable-web-security</Parameter>
-
-          </CEFCommandLine>
-        </Resources>
-
-        <Lifecycle>
-          <AutoVisible>true</AutoVisible>
-        </Lifecycle>
-
-        <UI>
-          <Type>Modeless</Type>
-          <Menu>Holy Expressor Log</Menu>
-
-          <Geometry>
-            <Size>
-              <Width>520</Width>
-              <Height>600</Height>
-            </Size>
-          </Geometry>
-        </UI>
-      </DispatchInfo>
-    </Extension>
-    
     
 
 

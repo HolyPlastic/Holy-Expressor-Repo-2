@@ -688,16 +688,13 @@ Holy.UI.toast("Expressed to selected properties");
             var targetBox = Holy.UI.DOM("#TargetBox");
             if (customToggle && customBox && targetBox) {
               customToggle.addEventListener("change", function () {
-                if (customToggle.checked) {
-                  customBox.disabled = false;
-                  targetBox.style.opacity = "0.5";
-                  targetBox.style.pointerEvents = "none";
-                } else {
-                  customBox.disabled = true;
-                  customBox.value = "";
-                  targetBox.style.opacity = "1";
-                  targetBox.style.pointerEvents = "auto";
-                }
+                                  var isActive = customToggle.checked;
+                // Do NOT use disabled — it hides value text in HTML inputs
+                customBox.readOnly = !isActive;
+                // Visual + interaction lock (fake disabled)
+                customBox.classList.toggle("is-disabled", !isActive);
+                targetBox.style.opacity = isActive ? "0.5" : "1";
+                targetBox.style.pointerEvents = isActive ? "none" : "auto";
               });
             }
 

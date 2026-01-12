@@ -694,11 +694,11 @@ var NAME_ONLY_GROUPS = {
 
 
 
-
+*/
 
 
 // ==========================================================
-// LEGACY LOAD PATH SYSTEM — DEPRECATED / QUARANTINED
+// LEGACY LOAD PATH SYSTEM — UN-DEPRECATED / UN-QUARANTINED
 // he_P_MM_getExprPathHybrid
 // ==========================================================
 
@@ -790,6 +790,10 @@ function he_P_MM_getExprPathHybrid(prop) {
         result.metaPath = fallback;
         result._metaJSON = JSON.stringify(fallback);
       }
+return result;
+  
+}
+
 
 /*
       try {
@@ -817,11 +821,7 @@ return result;
   
 }
 
-*/
 
-  // Regression guard: ensure the legacy helper still returns for callers.
-  return result;
-}
 
 
 
@@ -991,6 +991,7 @@ var HE_LEAF_ALIASES =
 
 function he_P_MM_getExprPath(prop) {
 
+    // Refactor regression guard: keep legacy wrapper for public callers.
     var hybrid = he_P_MM_getExprPathHybrid(prop);
 
     return hybrid.exprPath;
