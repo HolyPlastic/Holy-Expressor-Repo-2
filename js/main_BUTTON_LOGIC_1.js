@@ -693,7 +693,8 @@ Holy.UI.toast("Expressed to selected properties");
               customBox.value = Holy.sessionCustomSearchText || "";
 
               function applyCustomSearchToggleState(isActive) {
-                customBox.disabled = !isActive;
+                customBox.readOnly = !isActive;
+                customBox.classList.toggle("is-disabled", !isActive);
                 targetBox.style.opacity = isActive ? "0.5" : "1";
                 targetBox.style.pointerEvents = isActive ? "none" : "auto";
               }
