@@ -654,9 +654,24 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
           if (he_U_Ls_1_isLayerStyleProp(pr) && !he_U_Ls_2_styleEnabledForLeaf(pr)) { continue; }
           collectTarget(pr);
         }
-      } else {
-        he_S_TS_collectAndApply(root, tokens[0], expr, state, strict, collectTarget);
-      }
+} else {
+  // NOTE: Do not use he_S_TS_collectAndApply here; it applies during traversal and exits early per branch.
+  var props = [];
+  he_P_GS3_findPropsByTokenPath(root, [tokens[0]], 0, props);
+  for (var pi = 0; pi < props.length; pi++) {
+    var pr = props[pi];
+    if (!pr) continue;
+
+    var matchExact = (pr.name === tokens[0] || pr.matchName === tokens[0]);
+    var matchLoose = (pr.name.toLowerCase().indexOf(tokens[0].toLowerCase()) >= 0);
+
+    if ((strict && !matchExact) || (!strict && !matchLoose)) continue;
+    if (he_U_Ls_1_isLayerStyleProp(pr) && !he_U_Ls_2_styleEnabledForLeaf(pr)) continue;
+
+    collectTarget(pr);
+  }
+}
+
     }
 
     if (allowedGroupSignatures) {
@@ -676,22 +691,33 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
     he_U_L_log("targets collected: " + targets.length);
 
     var visited = {};
-    function visitedKey(prop) {
-      var path = "";
-      try { path = he_P_MM_getExprPath(prop) || ""; } catch (_) { path = ""; }
-      if (path) return path;
-
+    function buildPropSignature(prop) {
       var owner = owningLayer(prop);
       var ownerIndex = "";
       try { ownerIndex = owner ? String(owner.index) : ""; } catch (_) { ownerIndex = ""; }
-      var depth = "";
-      try { depth = String(prop.propertyDepth); } catch (_) { depth = ""; }
-      var matchName = "";
-      try { matchName = String(prop.matchName || ""); } catch (_) { matchName = ""; }
-      var propIndex = "";
-      try { propIndex = String(prop.propertyIndex || ""); } catch (_) { propIndex = ""; }
+      if (!ownerIndex) ownerIndex = "0";
 
-      return [ownerIndex, matchName, propIndex, depth].join("|");
+      var parts = [];
+      var current = prop;
+      while (current) {
+        var mn = "";
+        try { mn = String(current.matchName || current.name || ""); } catch (_) { mn = ""; }
+
+        var idx = "";
+        try {
+          if (typeof current.propertyIndex === "number") idx = String(current.propertyIndex);
+        } catch (_) { idx = ""; }
+
+        parts.push(mn + (idx ? ":" + idx : ""));
+        try { current = current.parentProperty; } catch (_) { current = null; }
+      }
+
+      parts.reverse();
+      return ownerIndex + "|" + parts.join(">");
+    }
+
+    function visitedKey(prop) {
+      return buildPropSignature(prop);
     }
 
     try {

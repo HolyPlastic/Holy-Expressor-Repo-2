@@ -1848,3 +1848,69 @@ The result:
   Partial correctness is the most dangerous state in this system.
 
 This era finally established a **correct mental model** for AE path resolution. Any future work should treat this as the canonical baseline and resist the temptation to generalize too early.
+
+
+
+
+
+
+### 🧠 2025-02-16 - Custom Search (Orange Apply) Shape Layer Traversal + Group Scoping Fix (Signature-Based)
+
+**Context / Problem**  
+Custom Search (Orange Apply / SearchCaptain) had two linked pain points during shape-layer work:
+
+- ✅ Group scoping needed to work (select Fill 1, Stroke 1, etc. and only hit descendants)
+- ❌ Selecting the whole layer (or Contents) would only apply to the first encountered branch (commonly “Rectangle 1”), missing siblings like “Rectangle 2” and also missing other valid properties like Transform Opacity
+
+During iteration, a regression also surfaced where the host attempted to call a missing helper (`he_P_GS3_findPropsByName`), producing a hard ReferenceError toast and breaking all selection modes.
+
+**Core Cause 1 (Traversal Early-Exit on Single Token)**  
+The single-token search path was using a traversal/apply helper that “applies while traversing” and can exit early per branch. Practically, this created the “only Rectangle 1 gets hit” behaviour when the search term is something broad like `Opacity`.
+
+**Fix**  
+For single-token searches, the logic was shifted to “collect first, apply later” using the same GS3 token-walker approach as multi-token mode, but with a single token. This restores full layer-root coverage across sibling shape groups (Rectangle 1, Rectangle 2, etc.) and avoids early exit behaviour.
+
+**Core Cause 2 (Group Scoping Identity Instability + Path Unreliability)**  
+Two earlier approaches were proven unreliable:
+
+- Expression-path prefix matching is not a stable hierarchy for shape layers because expression paths can omit, reorder, or normalize intermediate groups (especially around Contents and internal helpers).
+- Direct object identity checks (`current === selectedGroup`) can fail because ExtendScript/AE can hand you re-instantiated wrapper objects across calls. That makes “is this the same group?” comparisons flaky.
+
+**Fix**  
+Group scoping was reworked to use **ancestor signatures** rather than identity or expression paths.
+
+- Build an “allowed group signatures” set from the current selection.
+- Each signature is based on:
+
+    - owning layer index
+    - ancestor chain segments using `matchName` (fallback to `name`) plus `propertyIndex`
+- When filtering candidate targets, walk `parentProperty` upward and compare computed signatures. If any ancestor signature matches, the property is accepted.
+
+This made group scoping stable and predictable, including for shape Contents descendants.
+
+**Deduplication / visitedKey Upgrade (Critical for Shape Repeats)**  
+The “visitedKey” (dedupe) system previously returned `exprPath` early when available. This could cause collisions or incorrect dedupe behaviour in shape hierarchies with repeated structures (and also undermined later filtering strategies).
+
+**Fix**  
+`visitedKey` now uses an **ancestry-based property signature** (owner layer + ancestor chain) instead of returning `exprPath` early. This avoids collisions across repeated shape groups while keeping dedupe deterministic.
+
+**Files / Area Changed**
+
+- `jsx/Modules/host_APPLY.jsx`
+
+    - Group scoping: signatures-based allow-list + descendant check via `parentProperty`
+    - Single-token search: switched to “collect then apply” token walker to prevent branch early-exit
+    - Dedupe: `visitedKey` now uses ancestry signature, not `exprPath` short-circuit
+
+**Result / Verified End State**
+
+- ✅ Group-scoped Custom Search works correctly (Fill 1, Stroke 1, etc. only hits descendants)
+- ✅ Selecting entire layer or Contents now applies across all sibling shape groups (Rectangle 1 + Rectangle 2 + Transform Opacity etc.)
+- ✅ No more missing-helper ReferenceError path
+- ✅ Behaviour matches intended “SearchCaptain” ergonomics without compromising existing traversal architecture
+
+**Notes / Lessons**
+
+- DO NOT rely on expression-path strings as a hierarchy source for shape layer filtering.
+- DO NOT rely on wrapper object identity for group comparisons in ExtendScript.
+- Prefer “collect then apply” for broad searches. Helpers that apply during traversal can silently under-hit complex shape trees.
