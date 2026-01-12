@@ -163,6 +163,29 @@
 
 ### C. Group & Shape Layer Selection Pathology
 
+#### Canonical Selection & Scope Laws (Authoritative)
+
+The following rules define the non-negotiable behavior of selection-driven systems (Apply, Search, Delete):
+
+- **Selection is an entry point, not a guarantee**  
+  `selectedProperties` may include containers, groups, or structural nodes. All systems must validate and resolve to explicit, expression-capable leaf properties before acting.
+
+- **Traversal is allowed; inference is not**  
+  Systems may recurse downward from a selected container to locate valid leaves, but must never guess intent or broaden scope beyond explicitly selected ancestry.
+
+- **Scope is defined by ancestry, not paths**  
+  Display-name paths are not reliable for scoping. Group containment must be determined via parent-property ancestry, not string prefixes or partial path matching.
+
+- **Containers do not imply permission**  
+  Selecting a group does not authorize blanket operations on all descendants. Only leaves resolved within the selected group’s ancestry are valid targets.
+
+- **Failure must be loud and deterministic**  
+  If no valid leaves resolve, the operation must fail explicitly. Silent fallbacks, partial success, or “best guess” behavior are forbidden.
+
+These laws apply equally to Apply, Custom Search, and Delete-Expression systems.
+
+
+
 **Problem Signature**
 
 * “Select a property” errors.
