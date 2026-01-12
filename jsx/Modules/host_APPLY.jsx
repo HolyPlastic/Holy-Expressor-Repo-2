@@ -502,7 +502,7 @@ try {
       }
     }
 
-    var allowedGroups = null;
+    var allowedGroupSignatures = null;
     function isContentsGroup(group) {
       if (!group) return false;
       var name = "";
@@ -514,9 +514,43 @@ try {
       return false;
     }
 
-    function buildAllowedGroups() {
+    function buildGroupSignature(group) {
+      if (!group) return null;
+      var owner = owningLayer(group);
+      if (!owner) return null;
+      var ownerIndex = "";
+      try { ownerIndex = String(owner.index); } catch (_) { ownerIndex = ""; }
+      if (!ownerIndex) return null;
+
+      var nodes = [];
+      var current = group;
+      while (current) {
+        var isGroup = (current.propertyType === PropertyType.INDEXED_GROUP || current.propertyType === PropertyType.NAMED_GROUP);
+        if (!isGroup) break;
+
+        var nodeMatchName = "";
+        try { nodeMatchName = String(current.matchName || current.name || ""); } catch (_) { nodeMatchName = ""; }
+        var nodeIndex = null;
+        try {
+          if (typeof current.propertyIndex === "number") nodeIndex = current.propertyIndex;
+        } catch (_) { nodeIndex = null; }
+
+        var segment = nodeMatchName;
+        if (nodeIndex !== null) segment += ":" + String(nodeIndex);
+        nodes.push(segment);
+
+        try { current = current.parentProperty; } catch (_) { current = null; }
+      }
+
+      if (!nodes.length) return null;
+      nodes.reverse();
+      return ownerIndex + "|" + nodes.join(" > ");
+    }
+
+    function buildAllowedGroupSignatures() {
       if (!(comp.selectedProperties && comp.selectedProperties.length)) return null;
-      var groups = [];
+      var signatures = {};
+      var hasGroup = false;
       var sawContents = false;
       for (var ap = 0; ap < comp.selectedProperties.length; ap++) {
         var sel = comp.selectedProperties[ap];
@@ -526,22 +560,28 @@ try {
             sawContents = true;
             continue;
           }
-          groups.push(sel);
+          var sig = buildGroupSignature(sel);
+          if (sig) {
+            signatures[sig] = true;
+            hasGroup = true;
+          }
         }
       }
       if (sawContents) return null;
-      return groups.length ? groups : null;
+      return hasGroup ? signatures : null;
     }
 
-    allowedGroups = buildAllowedGroups();
+    allowedGroupSignatures = buildAllowedGroupSignatures();
 
     function isDescendantOfAllowedGroup(prop) {
-      if (!allowedGroups || !allowedGroups.length) return true;
+      if (!allowedGroupSignatures) return true;
       var current = null;
       try { current = prop ? prop.parentProperty : null; } catch (_) { current = null; }
       while (current) {
-        for (var gp = 0; gp < allowedGroups.length; gp++) {
-          if (current === allowedGroups[gp]) return true;
+        var isGroup = (current.propertyType === PropertyType.INDEXED_GROUP || current.propertyType === PropertyType.NAMED_GROUP);
+        if (isGroup) {
+          var sig = buildGroupSignature(current);
+          if (sig && allowedGroupSignatures[sig]) return true;
         }
         try { current = current.parentProperty; } catch (_) { current = null; }
       }
@@ -619,7 +659,7 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
       }
     }
 
-    if (allowedGroups && allowedGroups.length) {
+    if (allowedGroupSignatures) {
       var filteredTargets = [];
       for (var ft = 0; ft < targets.length; ft++) {
         var candidate = targets[ft];
