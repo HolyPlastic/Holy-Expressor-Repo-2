@@ -502,34 +502,48 @@ try {
       }
     }
 
-    var allowedGroupPaths = null;
-    function buildAllowedGroupPaths() {
+    var allowedGroups = null;
+    function isContentsGroup(group) {
+      if (!group) return false;
+      var name = "";
+      var matchName = "";
+      try { name = String(group.name || ""); } catch (_) { name = ""; }
+      try { matchName = String(group.matchName || ""); } catch (_) { matchName = ""; }
+      if (name === "Contents") return true;
+      if (matchName === "ADBE Root Vectors Group") return true;
+      return false;
+    }
+
+    function buildAllowedGroups() {
       if (!(comp.selectedProperties && comp.selectedProperties.length)) return null;
-      var paths = [];
+      var groups = [];
+      var sawContents = false;
       for (var ap = 0; ap < comp.selectedProperties.length; ap++) {
         var sel = comp.selectedProperties[ap];
         if (!sel) continue;
         if (sel.propertyType === PropertyType.INDEXED_GROUP || sel.propertyType === PropertyType.NAMED_GROUP) {
-          try {
-            var gPath = he_P_MM_getExprPath(sel);
-            if (gPath && gPath.length) paths.push(gPath);
-          } catch (_) {}
+          if (isContentsGroup(sel)) {
+            sawContents = true;
+            continue;
+          }
+          groups.push(sel);
         }
       }
-      return paths.length ? paths : null;
+      if (sawContents) return null;
+      return groups.length ? groups : null;
     }
 
-    allowedGroupPaths = buildAllowedGroupPaths();
+    allowedGroups = buildAllowedGroups();
 
-    function isAllowedByGroupPath(prop) {
-      if (!allowedGroupPaths || !allowedGroupPaths.length) return true;
-      var propPath = "";
-      try { propPath = he_P_MM_getExprPath(prop) || ""; } catch (_) { propPath = ""; }
-      if (!propPath) return false;
-      for (var gp = 0; gp < allowedGroupPaths.length; gp++) {
-        var rootPath = allowedGroupPaths[gp];
-        if (!rootPath) continue;
-        if (propPath.indexOf(rootPath) === 0) return true;
+    function isDescendantOfAllowedGroup(prop) {
+      if (!allowedGroups || !allowedGroups.length) return true;
+      var current = null;
+      try { current = prop ? prop.parentProperty : null; } catch (_) { current = null; }
+      while (current) {
+        for (var gp = 0; gp < allowedGroups.length; gp++) {
+          if (current === allowedGroups[gp]) return true;
+        }
+        try { current = current.parentProperty; } catch (_) { current = null; }
       }
       return false;
     }
@@ -575,24 +589,11 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
       return JSON.stringify({ ok:false, err:"Select a layer or property to scope search" });
     }
 
-    // Determine traversal roots before traversal begins
+    // Determine traversal roots before traversal begins (always layer roots)
     var traversalRoots = [];
     function pushUniqueRoot(r){for(var k=0;k<traversalRoots.length;k++)if(traversalRoots[k]===r)return;traversalRoots.push(r);}
-
-    if (comp.selectedProperties && comp.selectedProperties.length){
-      for (var rg=0; rg<comp.selectedProperties.length; rg++){
-        var selectedProp = comp.selectedProperties[rg];
-        if (!selectedProp) continue;
-        if (selectedProp.propertyType === PropertyType.INDEXED_GROUP || selectedProp.propertyType === PropertyType.NAMED_GROUP){
-          pushUniqueRoot(selectedProp);
-        }
-      }
-    }
-
-    if (traversalRoots.length === 0){
-      for (var sr=0; sr<scopeLayers.length; sr++){
-        pushUniqueRoot(scopeLayers[sr]);
-      }
+    for (var sr=0; sr<scopeLayers.length; sr++){
+      pushUniqueRoot(scopeLayers[sr]);
     }
 
     var state = { applied:0, skipped:0, errors:[] };
@@ -618,12 +619,12 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
       }
     }
 
-    if (allowedGroupPaths && allowedGroupPaths.length) {
+    if (allowedGroups && allowedGroups.length) {
       var filteredTargets = [];
       for (var ft = 0; ft < targets.length; ft++) {
         var candidate = targets[ft];
         if (!candidate) continue;
-        if (isAllowedByGroupPath(candidate)) filteredTargets.push(candidate);
+        if (isDescendantOfAllowedGroup(candidate)) filteredTargets.push(candidate);
       }
       targets = filteredTargets;
     }
