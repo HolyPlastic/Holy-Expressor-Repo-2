@@ -529,7 +529,7 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
 
     // Gather layer scope
     var scopeLayers = [];
-    function pushUniqueLayer(l){for(var k=0;k<scopeLayers.length;k++)if(scopeLayers[k]===l)return;scopeLayers.push(l);}    
+    function pushUniqueLayer(l){for(var k=0;k<scopeLayers.length;k++)if(scopeLayers[k]===l)return;scopeLayers.push(l);}
     if (comp.selectedLayers && comp.selectedLayers.length){
       for (var i=0;i<comp.selectedLayers.length;i++) pushUniqueLayer(comp.selectedLayers[i]);
     } else if (comp.selectedProperties && comp.selectedProperties.length){
@@ -543,12 +543,32 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
       return JSON.stringify({ ok:false, err:"Select a layer or property to scope search" });
     }
 
+    // Determine traversal roots before traversal begins
+    var traversalRoots = [];
+    function pushUniqueRoot(r){for(var k=0;k<traversalRoots.length;k++)if(traversalRoots[k]===r)return;traversalRoots.push(r);}
+
+    if (comp.selectedProperties && comp.selectedProperties.length){
+      for (var rg=0; rg<comp.selectedProperties.length; rg++){
+        var selectedProp = comp.selectedProperties[rg];
+        if (!selectedProp) continue;
+        if (selectedProp.propertyType === PropertyType.INDEXED_GROUP || selectedProp.propertyType === PropertyType.NAMED_GROUP){
+          pushUniqueRoot(selectedProp);
+        }
+      }
+    }
+
+    if (traversalRoots.length === 0){
+      for (var sr=0; sr<scopeLayers.length; sr++){
+        pushUniqueRoot(scopeLayers[sr]);
+      }
+    }
+
     var state = { applied:0, skipped:0, errors:[] };
-    for (var li=0; li<scopeLayers.length; li++){
-      var layer = scopeLayers[li];
+    for (var li=0; li<traversalRoots.length; li++){
+      var root = traversalRoots[li];
       if (tokens.length > 1){
         var props = [];
-        he_P_GS3_findPropsByTokenPath(layer, tokens, 0, props);
+        he_P_GS3_findPropsByTokenPath(root, tokens, 0, props);
         for (var pi=0; pi<props.length; pi++){
           var pr = props[pi];
           if (!pr) continue;
@@ -562,7 +582,7 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
           collectTarget(pr);
         }
       } else {
-        he_S_TS_collectAndApply(layer, tokens[0], expr, state, strict, collectTarget);
+        he_S_TS_collectAndApply(root, tokens[0], expr, state, strict, collectTarget);
       }
     }
 
