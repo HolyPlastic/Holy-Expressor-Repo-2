@@ -628,6 +628,7 @@ Once changes are approved or merged, maintainers or archival agents may migrate 
 * 2025-11-18 – gpt-5.2-codex: Restored legacy path helper return and adjusted Express custom search feedback to count skipped/errors as activity. Design Intent: fix Express apply regressions without altering traversal or rewrite mode. Risks / Concerns: Toast counts may include warning-only applies; monitor for any misleading user messages.
 * 2025-02-14 – gpt-5.2-codex: Restored runtime availability of `he_P_MM_getExprPathHybrid` while leaving the legacy block commented. Design Intent: keep Blue Apply path resolution working without reactivating other deprecated helpers. Risks / Concerns: None observed.
 * 2025-02-14 – gpt-5.2-codex: Added session-only Custom Search text memory and post-apply checkbox reset while keeping the field populated. Design Intent: persist Custom Search text within a single AE session without coupling it to the checkbox state. Risks / Concerns: None observed.
+* 2025-02-14 – gpt-5.2-codex: Limited Custom Search traversal to selected property groups by building per-root traversal lists before recursion. Design Intent: allow Custom Search to respect group selections while preserving full-layer fallback behavior. Risks / Concerns: Group-only selection ignores other selected layers; monitor for user confusion if mixed selections are common.
 
 
 🧱 Verified Architectural Notes (2025-11)
