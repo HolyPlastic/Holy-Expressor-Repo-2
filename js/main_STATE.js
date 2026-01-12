@@ -104,10 +104,14 @@ if (typeof Holy !== "object") {
       return;
     }
     try {
+      var persistedState = Object.assign({}, state);
+      if (Object.prototype.hasOwnProperty.call(persistedState, "customSearch")) {
+        delete persistedState.customSearch;
+      }
       var payload = {
         version: 1,
         updatedAt: Date.now(),
-        state: state
+        state: persistedState
       };
       var res = Holy.UTILS.cy_writeJSONFile(path, payload);
       if (res && res.err) {
@@ -262,6 +266,9 @@ if (typeof Holy !== "object") {
       var disk = readStateFromDisk();
       if (disk && typeof disk === "object") {
         var incoming = disk.state && typeof disk.state === "object" ? disk.state : disk;
+        if (Object.prototype.hasOwnProperty.call(incoming, "customSearch")) {
+          delete incoming.customSearch;
+        }
         applyState(incoming, {
           origin: "disk",
           skipBroadcast: true,
@@ -372,19 +379,16 @@ if (typeof Holy !== "object") {
         customToggle.addEventListener("change", function () {
           var nextChecked = !!customToggle.checked;
           applyCustomSearchUI(nextChecked);
-          if (!nextChecked && customInput) {
-            customInput.value = "";
-          }
           update({
             useCustomSearch: nextChecked,
-            customSearch: nextChecked && customInput ? customInput.value : ""
+            customSearch: customInput ? customInput.value : ""
           });
         });
       }
     }
 
     if (customInput) {
-      customInput.value = snapshot.useCustomSearch ? (snapshot.customSearch || "") : "";
+      customInput.value = snapshot.customSearch || "";
       if (!customInput.dataset.holyStateBound) {
         customInput.dataset.holyStateBound = "1";
         var syncInput = function () {
@@ -427,14 +431,8 @@ if (typeof Holy !== "object") {
           customToggle.checked = useCustomSearch;
         }
         if (customInput) {
-          if (useCustomSearch) {
-            if (customInput.value !== (current.customSearch || "")) {
-              customInput.value = current.customSearch || "";
-            }
-          } else if (useCustomSearch === false) {
-            if (customInput.value !== "") {
-              customInput.value = "";
-            }
+          if (customInput.value !== (current.customSearch || "")) {
+            customInput.value = current.customSearch || "";
           }
         }
         if (useCustomSearch !== null) {
