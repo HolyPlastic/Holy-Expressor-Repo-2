@@ -122,6 +122,26 @@ if (typeof Holy !== "object") Holy = {};
         runSearchReplace(legacyBtn);
       });
     }
+
+    var clearBtn = document.getElementById("rewriteClearBtn");
+    if (clearBtn && !clearBtn.dataset.cyClearBound) {
+      clearBtn.dataset.cyClearBound = "true";
+      clearBtn.addEventListener("click", function () {
+        var searchEl = document.getElementById("searchField");
+        var replaceEl = document.getElementById("replaceField");
+
+        if (searchEl) searchEl.value = "";
+        if (replaceEl) replaceEl.value = "";
+
+        try {
+          var ev = new Event("input", { bubbles: true });
+          if (searchEl) searchEl.dispatchEvent(ev);
+          if (replaceEl) replaceEl.dispatchEvent(ev);
+        } catch (e) {}
+
+        if (searchEl && searchEl.focus) searchEl.focus();
+      });
+    }
   }
 
   if (document.readyState === "loading") {

@@ -222,6 +222,14 @@ ensureHostReady(() => {
 
         modePanel.dataset.mode = isExpress ? "express" : "rewrite";
 
+        if (btnModeSwitch) {
+          var label = isExpress
+            ? "Switch to rewrite mode"
+            : "Switch to express mode";
+          btnModeSwitch.setAttribute("aria-label", label);
+          btnModeSwitch.setAttribute("title", label);
+        }
+
         if (applyBtnLabel) {
           applyBtnLabel.textContent = isExpress ? "APPLY" : "REWRITE";
         }
