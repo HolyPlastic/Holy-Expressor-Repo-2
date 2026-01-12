@@ -974,128 +974,163 @@ function cy_deleteExpressions() {
     try { selectedProps = comp.selectedProperties; } catch (_) { selectedProps = null; }
     try { selectedLayers = comp.selectedLayers; } catch (_) { selectedLayers = null; }
 
-    if (selectedProps && selectedProps.length) {
-      result.selectionType = "properties";
+    // ============================================================
+    // 🧠 V1 – SELECTION-SCOPED DELETE EXPRESSIONS (matches Custom Search)
+    // ============================================================
+    function isGroupNode(node) {
+      if (!node) return false;
+      var t = 0;
+      try { t = node.propertyType; } catch (_) { t = 0; }
+      return (t === PropertyType.INDEXED_GROUP || t === PropertyType.NAMED_GROUP);
+    }
 
-      for (var prep = 0; prep < selectedProps.length; prep++) {
-        var preTarget = selectedProps[prep];
-        trackLayerState(findLayerForNode(preTarget));
-        trackLayerFromProperty(preTarget, layerMap);
+    function isLeafProp(node) {
+      if (!node) return false;
+      var t = 0;
+      try { t = node.propertyType; } catch (_) { t = 0; }
+      return (t === PropertyType.PROPERTY);
+    }
+
+    function pushUniqueLayer(arr, layer) {
+      if (!layer) return;
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === layer) return;
+      }
+      arr.push(layer);
+    }
+
+    function walkAndClearWithinLayer(layer, allowedGroupSignatures) {
+      // 💡 CHECKER: traverses ALL groups (INDEXED + NAMED), clears on leaf props only
+      if (!layer) return;
+
+      var stack = [layer];
+      while (stack.length) {
+        var node = stack.pop();
+        if (!node) continue;
+
+        if (isLeafProp(node)) {
+          // 💡 CHECKER: apply group-scope filter when active
+          if (allowedGroupSignatures && typeof he_U_SC_isDescendantOfAllowedGroup === "function") {
+            if (!he_U_SC_isDescendantOfAllowedGroup(node, allowedGroupSignatures)) continue;
+          }
+          disableExpressionOnProperty(node, result, layerMap);
+          continue;
+        }
+
+        // groups/layers with children
+        var num = 0;
+        try { num = node.numProperties || 0; } catch (_) { num = 0; }
+        if (!num) continue;
+
+        for (var j = 1; j <= num; j++) {
+          var child = null;
+          try { child = node.property(j); } catch (_) { child = null; }
+          if (!child) continue;
+
+          var ct = 0;
+          try { ct = child.propertyType; } catch (_) { ct = 0; }
+          if (ct === PropertyType.PROPERTY) {
+            stack.push(child);
+          } else if (ct === PropertyType.INDEXED_GROUP || ct === PropertyType.NAMED_GROUP) {
+            stack.push(child);
+          }
+        }
+      }
+    }
+
+    if ((selectedProps && selectedProps.length) || (selectedLayers && selectedLayers.length)) {
+      var hasLeafSelection = false;
+      var hasGroupSelection = false;
+      var treatAsWholeLayer = false;
+
+      if (selectedProps && selectedProps.length) {
+        for (var sp = 0; sp < selectedProps.length; sp++) {
+          var selNode = selectedProps[sp];
+          if (!selNode) continue;
+          if (isLeafProp(selNode)) hasLeafSelection = true;
+          if (isGroupNode(selNode)) {
+            hasGroupSelection = true;
+            if (typeof he_U_SC_isContentsGroup === "function" && he_U_SC_isContentsGroup(selNode)) {
+              // 💡 CHECKER: Contents selection overrides into "whole layer"
+              treatAsWholeLayer = true;
+            }
+          }
+        }
+      }
+
+      // Determine scoping mode
+      var allowedGroupSignatures = null;
+      if (!treatAsWholeLayer && hasGroupSelection && typeof he_U_SC_buildAllowedGroupSignatures === "function") {
+        allowedGroupSignatures = he_U_SC_buildAllowedGroupSignatures(comp);
+      }
+
+      // Build layers to process
+      var layersToProcess = [];
+
+      if (selectedLayers && selectedLayers.length) {
+        result.selectionType = "layers";
+        for (var sl = 0; sl < selectedLayers.length; sl++) {
+          pushUniqueLayer(layersToProcess, selectedLayers[sl]);
+        }
+      } else {
+        result.selectionType = "properties";
+      }
+
+      if (selectedProps && selectedProps.length) {
+        for (var sp2 = 0; sp2 < selectedProps.length; sp2++) {
+          var pre = selectedProps[sp2];
+          var owner = findLayerForNode(pre);
+          pushUniqueLayer(layersToProcess, owner);
+        }
+      }
+
+      // Track layer states before modifications
+      for (var lt = 0; lt < layersToProcess.length; lt++) {
+        trackLayerState(layersToProcess[lt]);
       }
 
       app.beginUndoGroup("Holy Delete Expressions");
       undoOpen = true;
       enableTrackedLayers();
 
-      for (var i = 0; i < selectedProps.length; i++) {
-        var candidate = selectedProps[i];
-        if (!candidate) continue;
+      // 1) Always clear explicitly selected leaf properties (matches "property selected ⇒ property only")
+      if (selectedProps && selectedProps.length) {
+        for (var i = 0; i < selectedProps.length; i++) {
+          var cand = selectedProps[i];
+          if (!cand) continue;
 
-        var leaf = null;
-        try { leaf = he_U_findFirstLeaf(candidate, 0); }
-        catch (_) { leaf = null; }
-        if (!leaf) {
-          var type = 0;
-          try { type = candidate.propertyType; } catch (_) { type = 0; }
-          if (type === PropertyType.PROPERTY) leaf = candidate;
-        }
-        if (!leaf) continue;
+          var leaf = null;
+          if (isLeafProp(cand)) {
+            leaf = cand;
+          } else {
+            // 💡 CHECKER: if a non-leaf is selected, do not force-clear a random leaf here;
+            // it will be handled by scoped traversal below.
+            leaf = null;
+          }
 
-        var cleared = disableExpressionOnProperty(leaf, result, layerMap);
-        if (!cleared) {
-          trackLayerFromProperty(leaf, layerMap);
+          if (leaf) {
+            disableExpressionOnProperty(leaf, result, layerMap);
+          }
         }
       }
-    } else if (selectedLayers && selectedLayers.length) {
-      result.selectionType = "layers";
 
-      for (var liTrack = 0; liTrack < selectedLayers.length; liTrack++) {
-        trackLayerState(selectedLayers[liTrack]);
+      // 2) If group scoping active, clear descendants within selected groups.
+      //    If layer selection present OR Contents selected, allowedGroupSignatures is null ⇒ clear whole layer.
+      //    If only leaf properties selected (no groups, no layers), this still only clears the leaf props above.
+      var shouldTraverse =
+        (selectedLayers && selectedLayers.length) ||
+        (treatAsWholeLayer) ||
+        (allowedGroupSignatures !== null);
+
+      if (shouldTraverse) {
+        for (var lp = 0; lp < layersToProcess.length; lp++) {
+          walkAndClearWithinLayer(layersToProcess[lp], allowedGroupSignatures);
+        }
       }
 
-      app.beginUndoGroup("Holy Delete Expressions");
-      undoOpen = true;
-      enableTrackedLayers();
-
-      for (var li = 0; li < selectedLayers.length; li++) {
-        var layer = selectedLayers[li];
-        if (!layer) continue;
-
-        var payload = JSON.stringify({ layerIndex: layer.index, layerId: layer.id });
-        var raw = "";
-        try {
-          raw = he_EX_collectExpressionsForLayer(payload);
-        } catch (collectErr) {
-          result.errors.push({ layer: layer.name || ("#" + layer.index), err: String(collectErr) });
-          continue;
-        }
-
-        var report = {};
-        try { report = JSON.parse(raw || "{}"); }
-        catch (_) { report = { ok: false, err: "Parse error" }; }
-
-        if (!report || report.ok === false) {
-          result.errors.push({ layer: layer.name || ("#" + layer.index), err: (report && report.err) ? report.err : "Failed to scan expressions" });
-          continue;
-        }
-
-        var entries = report.entries || [];
-        if (!entries.length) {
-          trackLayer(layer, layerMap); // still note layer processed even if no expressions
-          continue;
-        }
-
-        for (var ei = 0; ei < entries.length; ei++) {
-          var entry = entries[ei];
-          if (!entry || !entry.path) continue;
-
-          var propList = [];
-          try {
-            if (typeof he_P_EX_findPropertiesByPath === "function") {
-              propList = he_P_EX_findPropertiesByPath(comp, entry.path) || [];
-            } else {
-              propList = he_U_EX_findPropertiesByPath(comp, entry.path) || [];
-            }
-          } catch (_) {
-            propList = [];
-          }
-
-          if (!propList || !propList.length) {
-            result.errors.push({ path: entry.path, err: "Property not found" });
-            continue;
-          }
-
-          var scopedProps = [];
-          for (var pi = 0; pi < propList.length; pi++) {
-            var prop = propList[pi];
-            if (!prop) continue;
-
-            if (!propertyBelongsToLayer(prop, layer)) {
-              continue;
-            }
-
-            scopedProps.push(prop);
-          }
-
-          if (!scopedProps.length) {
-            result.errors.push({ path: entry.path, err: "Property not found on selected layer" });
-            continue;
-          }
-
-          for (var spi = 0; spi < scopedProps.length; spi++) {
-            var scopedProp = scopedProps[spi];
-
-            var clearedProp = disableExpressionOnProperty(scopedProp, result, layerMap);
-            if (!clearedProp) {
-              trackLayerFromProperty(scopedProp, layerMap);
-            }
-          }
-        }
-
-        trackLayer(layer, layerMap);
-      }
     } else {
-      result.err = "Select a property or layer";
+      result.err = "No selected properties or layers";
+      result.toastMessage = "Select properties or layers to delete expressions";
       return JSON.stringify(result);
     }
 
@@ -1190,5 +1225,4 @@ try {
   NEW_log_event_utils.data = "✅ host_UTILS.jsx Loaded ⛓️";
   NEW_log_event_utils.dispatch();
 } catch (e) {}
-
 

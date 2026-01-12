@@ -8,6 +8,155 @@ function he_P_EX_findPropertyByPath(comp, pathString) {
   return matches.length ? matches[0] : null;
 }
 
+// ============================================================
+// 🧠 SHARED SELECTION SCOPE UTILITIES (V1)
+// Used by:
+// - Search Captain / Custom Search traversal
+// - Delete Expressions traversal
+//
+// IMPORTANT:
+// host.jsx includes host_APPLY.jsx BEFORE host_UTILS.jsx, so these
+// helpers are placed here to be safely available everywhere.
+// ============================================================
+
+function he_U_SC_owningLayer(node) {
+  // 💡 CHECKER: resolves an owning AVLayer for any property/group node
+  if (!node) return null;
+
+  try {
+    if (node instanceof AVLayer) return node;
+  } catch (_) {}
+
+  var depth = 0;
+  try { depth = node.propertyDepth || 0; } catch (_) { depth = 0; }
+
+  for (var d = depth; d >= 1; d--) {
+    var owner = null;
+    try { owner = node.propertyGroup(d); } catch (_) { owner = null; }
+    if (!owner) continue;
+
+    try {
+      if (owner instanceof AVLayer) return owner;
+    } catch (_) {}
+
+    try {
+      // 💡 CHECKER: fallback heuristic when instanceof fails in some AE contexts
+      if (typeof owner.enabled !== "undefined" && typeof owner.index === "number") return owner;
+    } catch (_) {}
+  }
+
+  return null;
+}
+
+function he_U_SC_isContentsGroup(group) {
+  // 💡 CHECKER: "Contents" selection means "treat as whole layer"
+  if (!group) return false;
+  var name = "";
+  var matchName = "";
+  try { name = String(group.name || ""); } catch (_) { name = ""; }
+  try { matchName = String(group.matchName || ""); } catch (_) { matchName = ""; }
+  if (name === "Contents") return true;
+  if (matchName === "ADBE Root Vectors Group") return true;
+  return false;
+}
+
+function he_U_SC_buildGroupSignature(group) {
+  // 💡 CHECKER: stable signature for group scoping (avoids identity / exprPath flakiness)
+  if (!group) return null;
+  var owner = he_U_SC_owningLayer(group);
+  if (!owner) return null;
+
+  var ownerIndex = "";
+  try { ownerIndex = String(owner.index); } catch (_) { ownerIndex = ""; }
+  if (!ownerIndex) return null;
+
+  var nodes = [];
+  var current = group;
+
+  while (current) {
+    var segName = "";
+    var segMatch = "";
+    var segIndex = "";
+
+    try { segMatch = String(current.matchName || ""); } catch (_) { segMatch = ""; }
+    try { segName  = String(current.name || ""); } catch (_) { segName = ""; }
+    try { segIndex = String(current.propertyIndex || ""); } catch (_) { segIndex = ""; }
+
+    var label = (segMatch || segName || "Group") + "#" + (segIndex || "");
+    nodes.push(label);
+
+    var parent = null;
+    try { parent = current.parentProperty; } catch (_) { parent = null; }
+    if (!parent) break;
+    current = parent;
+  }
+
+  if (!nodes.length) return null;
+  nodes.reverse();
+  return ownerIndex + "|" + nodes.join(" > ");
+}
+
+function he_U_SC_buildAllowedGroupSignatures(comp) {
+  // 💡 CHECKER: returns null = no group scope (treat as whole layer)
+  // Returns object map when group scoping is active.
+  if (!comp) return null;
+  if (!(comp.selectedProperties && comp.selectedProperties.length)) return null;
+
+  var signatures = {};
+  var hasGroup = false;
+  var sawContents = false;
+
+  for (var ap = 0; ap < comp.selectedProperties.length; ap++) {
+    var sel = comp.selectedProperties[ap];
+    if (!sel) continue;
+
+    if (sel.propertyType === PropertyType.INDEXED_GROUP || sel.propertyType === PropertyType.NAMED_GROUP) {
+      if (he_U_SC_isContentsGroup(sel)) {
+        sawContents = true;
+        continue;
+      }
+      var sig = he_U_SC_buildGroupSignature(sel);
+      if (sig) {
+        signatures[sig] = true;
+        hasGroup = true;
+      }
+    }
+  }
+
+  // 💡 CHECKER: Contents selection overrides group scoping into "whole layer"
+  if (sawContents) return null;
+  return hasGroup ? signatures : null;
+}
+
+function he_U_SC_isDescendantOfAllowedGroup(prop, allowedGroupSignatures) {
+  // 💡 CHECKER: if allowedGroupSignatures is null, accept all
+  if (!allowedGroupSignatures) return true;
+  if (!prop) return false;
+
+  var cur = null;
+  try { cur = prop.parentProperty; } catch (_) { cur = null; }
+
+  while (cur) {
+    var t = 0;
+    try { t = cur.propertyType; } catch (_) { t = 0; }
+
+    if (t === PropertyType.INDEXED_GROUP || t === PropertyType.NAMED_GROUP) {
+      if (he_U_SC_isContentsGroup(cur)) {
+        // 💡 CHECKER: Contents means "whole layer" scope, so accept
+        return true;
+      }
+      var sig = he_U_SC_buildGroupSignature(cur);
+      if (sig && allowedGroupSignatures[sig]) return true;
+    }
+
+    var next = null;
+    try { next = cur.parentProperty; } catch (_) { next = null; }
+    cur = next;
+  }
+
+  return false;
+}
+
 
 // TYPE PEEKER: Peek the type of the first selected animatable property
 function he_U_TP_peekTypeForSearch(jsonStr) {
@@ -434,33 +583,8 @@ try {
     var targets = [];
     var undoOpen = false;
 
-    function owningLayer(node) {
-      if (!node) return null;
-
-      try {
-        if (node instanceof AVLayer) return node;
-      } catch (_) {}
-
-      var depth = 0;
-      try { depth = node.propertyDepth || 0; } catch (_) { depth = 0; }
-
-      for (var d = depth; d >= 1; d--) {
-        var owner = null;
-        try { owner = node.propertyGroup(d); }
-        catch (_) { owner = null; }
-        if (!owner) continue;
-
-        try {
-          if (owner instanceof AVLayer) return owner;
-        } catch (_) {}
-
-        try {
-          if (typeof owner.enabled !== "undefined" && typeof owner.index === "number") return owner;
-        } catch (_) {}
-      }
-
-      return null;
-    }
+    // 💡 CHECKER: Search Captain now uses shared selection-scope helpers
+    function owningLayer(node) { return he_U_SC_owningLayer(node); }
 
     function trackLayerState(layer) {
       if (!layer) return;
@@ -503,90 +627,15 @@ try {
     }
 
     var allowedGroupSignatures = null;
-    function isContentsGroup(group) {
-      if (!group) return false;
-      var name = "";
-      var matchName = "";
-      try { name = String(group.name || ""); } catch (_) { name = ""; }
-      try { matchName = String(group.matchName || ""); } catch (_) { matchName = ""; }
-      if (name === "Contents") return true;
-      if (matchName === "ADBE Root Vectors Group") return true;
-      return false;
-    }
+    function isContentsGroup(group) { return he_U_SC_isContentsGroup(group); }
 
-    function buildGroupSignature(group) {
-      if (!group) return null;
-      var owner = owningLayer(group);
-      if (!owner) return null;
-      var ownerIndex = "";
-      try { ownerIndex = String(owner.index); } catch (_) { ownerIndex = ""; }
-      if (!ownerIndex) return null;
+    function buildGroupSignature(group) { return he_U_SC_buildGroupSignature(group); }
 
-      var nodes = [];
-      var current = group;
-      while (current) {
-        var isGroup = (current.propertyType === PropertyType.INDEXED_GROUP || current.propertyType === PropertyType.NAMED_GROUP);
-        if (!isGroup) break;
-
-        var nodeMatchName = "";
-        try { nodeMatchName = String(current.matchName || current.name || ""); } catch (_) { nodeMatchName = ""; }
-        var nodeIndex = null;
-        try {
-          if (typeof current.propertyIndex === "number") nodeIndex = current.propertyIndex;
-        } catch (_) { nodeIndex = null; }
-
-        var segment = nodeMatchName;
-        if (nodeIndex !== null) segment += ":" + String(nodeIndex);
-        nodes.push(segment);
-
-        try { current = current.parentProperty; } catch (_) { current = null; }
-      }
-
-      if (!nodes.length) return null;
-      nodes.reverse();
-      return ownerIndex + "|" + nodes.join(" > ");
-    }
-
-    function buildAllowedGroupSignatures() {
-      if (!(comp.selectedProperties && comp.selectedProperties.length)) return null;
-      var signatures = {};
-      var hasGroup = false;
-      var sawContents = false;
-      for (var ap = 0; ap < comp.selectedProperties.length; ap++) {
-        var sel = comp.selectedProperties[ap];
-        if (!sel) continue;
-        if (sel.propertyType === PropertyType.INDEXED_GROUP || sel.propertyType === PropertyType.NAMED_GROUP) {
-          if (isContentsGroup(sel)) {
-            sawContents = true;
-            continue;
-          }
-          var sig = buildGroupSignature(sel);
-          if (sig) {
-            signatures[sig] = true;
-            hasGroup = true;
-          }
-        }
-      }
-      if (sawContents) return null;
-      return hasGroup ? signatures : null;
-    }
+    function buildAllowedGroupSignatures() { return he_U_SC_buildAllowedGroupSignatures(comp); }
 
     allowedGroupSignatures = buildAllowedGroupSignatures();
 
-    function isDescendantOfAllowedGroup(prop) {
-      if (!allowedGroupSignatures) return true;
-      var current = null;
-      try { current = prop ? prop.parentProperty : null; } catch (_) { current = null; }
-      while (current) {
-        var isGroup = (current.propertyType === PropertyType.INDEXED_GROUP || current.propertyType === PropertyType.NAMED_GROUP);
-        if (isGroup) {
-          var sig = buildGroupSignature(current);
-          if (sig && allowedGroupSignatures[sig]) return true;
-        }
-        try { current = current.parentProperty; } catch (_) { current = null; }
-      }
-      return false;
-    }
+    function isDescendantOfAllowedGroup(prop) { return he_U_SC_isDescendantOfAllowedGroup(prop, allowedGroupSignatures); }
 
     function collectTarget(prop) {
       if (!prop) return;
