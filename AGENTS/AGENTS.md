@@ -629,6 +629,7 @@ Once changes are approved or merged, maintainers or archival agents may migrate 
 * 2025-02-14 – gpt-5.2-codex: Restored runtime availability of `he_P_MM_getExprPathHybrid` while leaving the legacy block commented. Design Intent: keep Blue Apply path resolution working without reactivating other deprecated helpers. Risks / Concerns: None observed.
 * 2025-02-14 – gpt-5.2-codex: Added session-only Custom Search text memory and post-apply checkbox reset while keeping the field populated. Design Intent: persist Custom Search text within a single AE session without coupling it to the checkbox state. Risks / Concerns: None observed.
 * 2025-02-14 – gpt-5.2-codex: Limited Custom Search traversal to selected property groups by building per-root traversal lists before recursion. Design Intent: allow Custom Search to respect group selections while preserving full-layer fallback behavior. Risks / Concerns: Group-only selection ignores other selected layers; monitor for user confusion if mixed selections are common.
+* 2025-02-14 – gpt-5.2-codex: Restored `collectTarget` to a side-effect-free collector because GS3/TS traversal helpers assume it will not filter or short-circuit. Design Intent: apply group scoping only after traversal by filtering collected targets against allowed group paths, avoiding path-resolution failures during traversal. Risks / Concerns: When scoping is active, properties without resolvable expression paths remain excluded.
 
 
 🧱 Verified Architectural Notes (2025-11)
