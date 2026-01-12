@@ -175,6 +175,9 @@ Holy.UI.cs.evalScript('he_P_SC_applyExpressionBySearch("' + escaped + '")', func
           ? "Found and expressed, 1 instance"
           : "Found and expressed, " + touchCount + " instances";
         Holy.UI.toast(toastMsg);
+        if (Holy.BUTTONS && typeof Holy.BUTTONS.setCustomSearchActive === "function") {
+          Holy.BUTTONS.setCustomSearchActive(false);
+        }
         return;
       }
 
