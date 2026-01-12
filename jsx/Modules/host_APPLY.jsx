@@ -502,8 +502,41 @@ try {
       }
     }
 
+    var allowedGroupPaths = null;
+    function buildAllowedGroupPaths() {
+      if (!(comp.selectedProperties && comp.selectedProperties.length)) return null;
+      var paths = [];
+      for (var ap = 0; ap < comp.selectedProperties.length; ap++) {
+        var sel = comp.selectedProperties[ap];
+        if (!sel) continue;
+        if (sel.propertyType === PropertyType.INDEXED_GROUP || sel.propertyType === PropertyType.NAMED_GROUP) {
+          try {
+            var gPath = he_P_MM_getExprPath(sel);
+            if (gPath && gPath.length) paths.push(gPath);
+          } catch (_) {}
+        }
+      }
+      return paths.length ? paths : null;
+    }
+
+    allowedGroupPaths = buildAllowedGroupPaths();
+
+    function isAllowedByGroupPath(prop) {
+      if (!allowedGroupPaths || !allowedGroupPaths.length) return true;
+      var propPath = "";
+      try { propPath = he_P_MM_getExprPath(prop) || ""; } catch (_) { propPath = ""; }
+      if (!propPath) return false;
+      for (var gp = 0; gp < allowedGroupPaths.length; gp++) {
+        var rootPath = allowedGroupPaths[gp];
+        if (!rootPath) continue;
+        if (propPath.indexOf(rootPath) === 0) return true;
+      }
+      return false;
+    }
+
     function collectTarget(prop) {
       if (!prop) return;
+      if (!isAllowedByGroupPath(prop)) return;
       targets.push(prop);
       var ownerLayer = owningLayer(prop);
       if (ownerLayer) trackLayerState(ownerLayer);
@@ -529,7 +562,7 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
 
     // Gather layer scope
     var scopeLayers = [];
-    function pushUniqueLayer(l){for(var k=0;k<scopeLayers.length;k++)if(scopeLayers[k]===l)return;scopeLayers.push(l);}    
+    function pushUniqueLayer(l){for(var k=0;k<scopeLayers.length;k++)if(scopeLayers[k]===l)return;scopeLayers.push(l);}
     if (comp.selectedLayers && comp.selectedLayers.length){
       for (var i=0;i<comp.selectedLayers.length;i++) pushUniqueLayer(comp.selectedLayers[i]);
     } else if (comp.selectedProperties && comp.selectedProperties.length){
@@ -545,10 +578,10 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
 
     var state = { applied:0, skipped:0, errors:[] };
     for (var li=0; li<scopeLayers.length; li++){
-      var layer = scopeLayers[li];
+      var root = scopeLayers[li];
       if (tokens.length > 1){
         var props = [];
-        he_P_GS3_findPropsByTokenPath(layer, tokens, 0, props);
+        he_P_GS3_findPropsByTokenPath(root, tokens, 0, props);
         for (var pi=0; pi<props.length; pi++){
           var pr = props[pi];
           if (!pr) continue;
@@ -562,7 +595,7 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
           collectTarget(pr);
         }
       } else {
-        he_S_TS_collectAndApply(layer, tokens[0], expr, state, strict, collectTarget);
+        he_S_TS_collectAndApply(root, tokens[0], expr, state, strict, collectTarget);
       }
     }
 
