@@ -13,6 +13,8 @@ if (typeof Holy !== "object") Holy = {};
   };
   var APPLY_LOG_MAX_ENTRIES = 250;
   var applyLogEntries = [];
+  // Session-only Custom Search text (in-memory only; cleared on AE shutdown).
+  if (typeof Holy.sessionCustomSearchText !== "string") Holy.sessionCustomSearchText = "";
 
   function formatApplyLogEntry(title, data) {
     var lines = [];
@@ -687,18 +689,32 @@ Holy.UI.toast("Expressed to selected properties");
             var customBox = Holy.UI.DOM("#customSearch");
             var targetBox = Holy.UI.DOM("#TargetBox");
             if (customToggle && customBox && targetBox) {
-              customToggle.addEventListener("change", function () {
-                if (customToggle.checked) {
-                  customBox.disabled = false;
-                  targetBox.style.opacity = "0.5";
-                  targetBox.style.pointerEvents = "none";
-                } else {
-                  customBox.disabled = true;
-                  customBox.value = "";
-                  targetBox.style.opacity = "1";
-                  targetBox.style.pointerEvents = "auto";
-                }
+              // Session-only persistence: rehydrate from memory on UI init/redraw.
+              customBox.value = Holy.sessionCustomSearchText || "";
+
+              function applyCustomSearchToggleState(isActive) {
+                customBox.disabled = !isActive;
+                targetBox.style.opacity = isActive ? "0.5" : "1";
+                targetBox.style.pointerEvents = isActive ? "none" : "auto";
+              }
+
+              customBox.addEventListener("input", function () {
+                Holy.sessionCustomSearchText = customBox.value;
               });
+
+              applyCustomSearchToggleState(customToggle.checked);
+
+              customToggle.addEventListener("change", function () {
+                applyCustomSearchToggleState(customToggle.checked);
+              });
+
+              Holy.BUTTONS.setCustomSearchActive = function (isActive) {
+                var nextState = !!isActive;
+                if (customToggle.checked !== nextState) {
+                  customToggle.checked = nextState;
+                }
+                applyCustomSearchToggleState(customToggle.checked);
+              };
             }
 
             /* ============================
@@ -787,6 +803,9 @@ Holy.UI.toast("Expressed to selected properties");
           ? "Found and expressed, 1 instance"
           : "Found and expressed, " + appliedCount + " instances"
       );
+      if (Holy.BUTTONS && typeof Holy.BUTTONS.setCustomSearchActive === "function") {
+        Holy.BUTTONS.setCustomSearchActive(false);
+      }
       return;
     }
 
