@@ -1626,51 +1626,58 @@ z-index: 100;
 
 /* Mode switch arrow v2 */
 .modeSwitchBar .mode-switch-svg.modeSwitchSvg {
-  width: 18px;
+  width: 14px;
   height: auto;
 }
 
 .modeSwitchSvg {
-  width: 18px;
+  width: 14px;
   height: auto;
   display: block;
-  transition: transform 0.25s ease;
 }
 
-.modeSwitchSvg #inactivearrow {
+/* =====================================================
+   Mode Switch Button — SVG Visibility
+   ===================================================== */
+
+.modeSwitch-express {
+  display: none;
+}
+
+#modePanel[data-mode="express"] .modeSwitch-rewrite {
+  display: none;
+}
+
+#modePanel[data-mode="express"] .modeSwitch-express {
+  display: block;
+}
+
+.modeSwitchSvg polygon[id$="inactivearrow"] {
   color: var(--G-grey-1);
   opacity: 0.65;
   transition: color 0.25s ease, opacity 0.25s ease;
 }
 
-.modeSwitchSvg #bigarrow {
+.modeSwitchSvg polygon[id$="bigarrow"] {
   color: var(--G-color-1-midlight2);
   transition: color 0.25s ease;
 }
 
-.modeSwitchSvg #lilarrow {
+.modeSwitchSvg polygon[id$="lilarrow"] {
   color: var(--G-color-1-mid);
   transition: color 0.25s ease;
 }
 
-#modePanel[data-mode="express"] .modeSwitchSvg {
-  transform: scaleX(1);
-}
-
-#modePanel[data-mode="rewrite"] .modeSwitchSvg {
-  transform: scaleX(-1);
-}
-
-#modePanel[data-mode="rewrite"] .modeSwitchSvg #inactivearrow {
+#modePanel[data-mode="rewrite"] .modeSwitchSvg polygon[id$="inactivearrow"] {
   color: var(--G-color-1-mid-3);
   opacity: 0.85;
 }
 
-#modePanel[data-mode="rewrite"] .modeSwitchSvg #bigarrow {
+#modePanel[data-mode="rewrite"] .modeSwitchSvg polygon[id$="bigarrow"] {
   color: var(--G-color-1);
 }
 
-#modePanel[data-mode="rewrite"] .modeSwitchSvg #lilarrow {
+#modePanel[data-mode="rewrite"] .modeSwitchSvg polygon[id$="lilarrow"] {
   color: var(--G-color-1-midlight2);
 }
 
