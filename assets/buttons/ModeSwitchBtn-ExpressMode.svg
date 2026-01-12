@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" width="14.88" height="12.27" viewBox="0 0 14.88 12.27">
+  <g id="ModeSwitchBtn-ExpressMode">
+    <polygon id="inactivearrow" points="7.44 0 14.88 6.35 7.42 12.27 7.44 0" fill="#262626"/>
+    <polygon id="bigarrow" points="7.44 0 0 6.35 7.46 12.27 7.44 0" fill="#17c3ff"/>
+    <polygon id="lilarrow" points="7.44 0 3.03 6.35 7.46 12.27 7.44 0" fill="#1d3e3f"/>
+  </g>
+</svg>
