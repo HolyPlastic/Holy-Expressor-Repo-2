@@ -536,7 +536,6 @@ try {
 
     function collectTarget(prop) {
       if (!prop) return;
-      if (!isAllowedByGroupPath(prop)) return;
       targets.push(prop);
       var ownerLayer = owningLayer(prop);
       if (ownerLayer) trackLayerState(ownerLayer);
@@ -617,6 +616,16 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
       } else {
         he_S_TS_collectAndApply(root, tokens[0], expr, state, strict, collectTarget);
       }
+    }
+
+    if (allowedGroupPaths && allowedGroupPaths.length) {
+      var filteredTargets = [];
+      for (var ft = 0; ft < targets.length; ft++) {
+        var candidate = targets[ft];
+        if (!candidate) continue;
+        if (isAllowedByGroupPath(candidate)) filteredTargets.push(candidate);
+      }
+      targets = filteredTargets;
     }
 
     app.beginUndoGroup("HolyExpressor Apply By Search (Tokens)");
