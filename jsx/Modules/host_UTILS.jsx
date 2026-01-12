@@ -972,109 +972,107 @@ function cy_deleteExpressions() {
       result.toastMessage = "Open a comp and select properties or layers";
       return JSON.stringify(result);
     }
-
     // ============================================================
-    // 🧠 V2 – CORRECT SCOPED DELETE (USES SEARCH CAPTAIN COLLECTOR)
+    // 🧪 V1 – PHASE 1 MINIMAL FUNCTIONAL DELETE (NO COLLECTOR)
+    // Clears expressions by traversing selection roots directly.
     // ============================================================
 
     var layerMap = {};
+
+    // 💡 CHECKER: prefer explicit property/group selection if present
+    var selectedProps = null;
+    try { selectedProps = comp.selectedProperties; } catch (_) { selectedProps = null; }
+
     var selectedLayers = null;
     try { selectedLayers = comp.selectedLayers; } catch (_) { selectedLayers = null; }
+
+    var roots = [];
+    if (selectedProps && selectedProps.length) {
+      result.selectionType = "properties";
+      roots = selectedProps;
+    } else if (selectedLayers && selectedLayers.length) {
+      result.selectionType = "layers";
+      roots = selectedLayers;
+    } else {
+      result.err = "No selected properties or layers";
+      result.toastMessage = "Select properties or layers to delete expressions";
+      return JSON.stringify(result);
+    }
 
     app.beginUndoGroup("Holy Delete Expressions");
     undoOpen = true;
 
-    // ------------------------------------------------------------
-    // 1) Determine layers to process
-    // ------------------------------------------------------------
-    var layersToProcess = [];
+    // 💡 CHECKER: enable only the owning layers for selection roots (safety for hidden/disabled layers)
 
-    if (selectedLayers && selectedLayers.length) {
-      result.selectionType = "layers";
-      for (var l = 0; l < selectedLayers.length; l++) {
-        layersToProcess.push(selectedLayers[l]);
-      }
-    } else {
-      // property or group selection → resolve owning layers
-      result.selectionType = "properties";
-      var selProps = null;
-      try { selProps = comp.selectedProperties; } catch (_) { selProps = null; }
+ // NOTE: avoid name collision with existing functions
+    var __layersToEnable = [];
 
-      if (!(selProps && selProps.length)) {
-        result.err = "No selected properties or layers";
-        result.toastMessage = "Select properties or layers to delete expressions";
-        return JSON.stringify(result);
+    function __hasLayer(arr, layer) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === layer) return true;
       }
-
-      for (var sp = 0; sp < selProps.length; sp++) {
-        var owner = findLayerForNode(selProps[sp]);
-        if (!owner) continue;
-        if (layersToProcess.indexOf(owner) === -1) {
-          layersToProcess.push(owner);
-        }
-      }
+      return false;
     }
 
-    // ------------------------------------------------------------
-    // 2) Track layer states
-    // ------------------------------------------------------------
-    for (var t = 0; t < layersToProcess.length; t++) {
-      trackLayerState(layersToProcess[t]);
+
+    for (var rr = 0; rr < roots.length; rr++) {
+      var rootNode = roots[rr];
+      if (!rootNode) continue;
+
+      var ownerLayer = null;
+      try {
+        if (rootNode instanceof AVLayer) ownerLayer = rootNode;
+      } catch (_) {
+        ownerLayer = null;
+      }
+      if (!ownerLayer) ownerLayer = findLayerForNode(rootNode);
+
+      if (ownerLayer && !__hasLayer(__layersToEnable, ownerLayer)) {
+        __layersToEnable.push(ownerLayer);
+        trackLayerState(ownerLayer);
+      }
     }
 
     enableTrackedLayers();
 
-    // ------------------------------------------------------------
-    // 3) Collect targets via Search Captain (AUTHORITATIVE)
-    // ------------------------------------------------------------
-    for (var li = 0; li < layersToProcess.length; li++) {
-      var layer = layersToProcess[li];
-      if (!layer) continue;
+    // 💡 CHECKER: depth-first traversal; clear expressions on leaf props only
+    function traverseNode(node) {
+      if (!node) return;
 
-      var payload = JSON.stringify({
-        layerIndex: layer.index,
-        layerId: layer.id
-      });
-
-      var raw = "";
+      // Try clear on this node if it's an expression-capable property
       try {
-        raw = he_P_SC_collectExpressionTargetsForLayer(payload);
-      } catch (e) {
-        result.hadErrors = true;
-        result.errors.push({ layer: layer.name, err: String(e) });
-        continue;
-      }
-
-      var parsed = {};
-      try { parsed = JSON.parse(raw || "{}"); } catch (_) { parsed = {}; }
-      var entries = (parsed.entries && parsed.entries.length) ? parsed.entries : [];
-
-      if (!entries.length) {
-        result.clearedLayers++;
-        continue;
-      }
-
-      // ----------------------------------------------------------
-      // 4) Resolve paths → properties → clear expressions
-      // ----------------------------------------------------------
-      for (var ei = 0; ei < entries.length; ei++) {
-        var entry = entries[ei];
-        if (!entry || !entry.path) continue;
-
-        var props = [];
-        try {
-          props = he_P_EX_findPropertiesByPath(comp, entry.path) || [];
-        } catch (_) {
-          props = [];
+        if (node.canSetExpression === true) {
+          disableExpressionOnProperty(node, result, layerMap);
         }
+      } catch (_) {}
 
-        for (var pi = 0; pi < props.length; pi++) {
-          disableExpressionOnProperty(props[pi], result, layerMap);
-        }
+      // Recurse if node is a group/container
+      var childCount = 0;
+      try { childCount = node.numProperties || 0; } catch (_) { childCount = 0; }
+      if (!childCount) return;
+
+      for (var ci = 1; ci <= childCount; ci++) {
+        var child = null;
+        try { child = node.property(ci); } catch (_) { child = null; }
+        if (child) traverseNode(child);
       }
-
-      result.clearedLayers++;
     }
+
+    for (var r0 = 0; r0 < roots.length; r0++) {
+      traverseNode(roots[r0]);
+    }
+
+    // 💡 CHECKER: compute affected layers from layerMap (ignore internal counter key)
+    var affected = 0;
+    for (var k in layerMap) {
+      if (!layerMap.hasOwnProperty(k)) continue;
+      if (k === "__anonCount") continue;
+      affected++;
+    }
+    result.clearedLayers = affected;
+
+    // 💡 CHECKER: mark error state if any per-property errors were recorded
+if (result.errors && result.errors.length) { result.hadErrors = true; }
 
     result.ok = true;
     result.toastMessage = "✅ Deleted expressions from selection";
