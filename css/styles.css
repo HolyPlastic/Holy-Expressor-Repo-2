@@ -1143,11 +1143,7 @@ textarea {
   display: block;
 }
 
-/* === Fill + color inheritance =================================== */
-.modeSwitchBar .diamond-left,
-.modeSwitchBar .diamond-right {
-  fill: currentColor;
-}
+
 
 /* === Active color state ========================================= */
 .modeSwitchBar .mode-btn.active,
@@ -1156,11 +1152,6 @@ textarea {
   color: var(--G-color-1);
 }
 
-/* === Dynamic color logic for side diamonds ====================== */
-#modePanel[data-mode="express"] .diamond-left  { color: var(--G-color-1); }
-#modePanel[data-mode="express"] .diamond-right { color: var(--G-grey-1); }
-#modePanel[data-mode="rewrite"] .diamond-left  { color: var(--G-grey-1); }
-#modePanel[data-mode="rewrite"] .diamond-right { color: var(--G-color-1); }
 
 
 /* Optional subtle glow for active state 
@@ -1169,6 +1160,84 @@ textarea {
 #modePanel[data-mode="rewrite"] .mode-switch-svg {
   filter: drop-shadow(0 0 2px var(--G-color-1));
 }*/
+
+
+
+/* Mode switch arrow v2 */
+.modeSwitchBar .mode-switch-svg.modeSwitchSvg {
+  width: 14px;
+  height: auto;
+}
+
+.modeSwitchSvg {
+  width: 14px;
+  height: auto;
+  display: block;
+}
+
+
+/* =====================================================
+   Mode Switch Button — SVG Visibility (STABLE)
+   ===================================================== */
+
+/* Default state: rewrite mode */
+.modeSwitch-rewrite {
+  display: block;
+}
+
+.modeSwitch-express {
+  display: none;
+}
+
+/* Express mode active */
+#modePanel[data-mode="express"] .modeSwitch-rewrite {
+  display: none;
+}
+
+#modePanel[data-mode="express"] .modeSwitch-express {
+  display: block;
+}
+
+
+/* Rewrite mode active */
+#modePanel[data-mode="rewrite"] .modeSwitch-rewrite {
+  display: block;
+}
+
+#modePanel[data-mode="rewrite"] .modeSwitch-express {
+  display: none;
+}
+
+
+
+/* =====================================================
+   Mode Switch Button — COLOURING
+   ===================================================== */
+
+
+/* =====================================================
+   Mode Switch Button — Triangle Colouring (FINAL)
+   ===================================================== */
+
+.modeSwitchSvg polygon[id$="bigarrow"] {
+  color: var(--G-color-1);
+  transition: color 0.25s ease;
+}
+
+.modeSwitchSvg polygon[id$="lilarrow"] {
+  color: var(--G-color-1-mid);
+  transition: color 0.25s ease;
+  stroke: currentColor;
+  stroke-width: 0.5px;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.modeSwitchSvg polygon[id$="inactivearrow"] {
+  color: var(--G-grey-1);
+  transition: color 0.25s ease;
+}
+
 
 #modePanel[data-mode="rewrite"]{
     border-radius: 0px 0px 0px 0px;
@@ -1196,6 +1265,8 @@ textarea {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+    flex: 1 1 auto;     /* 💡 CHECKER: fill available vertical space */
+  min-height: 0;      /* 💡 CHECKER: REQUIRED for nested flex scrolling */
 }
 /* Optional inner padding for spacing inside the box */
 #modePanel .he-mode-views {
@@ -1286,6 +1357,11 @@ transform: translateY(39%) translateX(17px);
 z-index: 100;
   /* overlay above the document UI */
 }
+
+
+
+
+
 
 /* === Checkbox container (always above buttons) === */
 .express-editor-overlay-checkbox {
@@ -1623,63 +1699,6 @@ z-index: 100;
 
 
 
-
-/* Mode switch arrow v2 */
-.modeSwitchBar .mode-switch-svg.modeSwitchSvg {
-  width: 14px;
-  height: auto;
-}
-
-.modeSwitchSvg {
-  width: 14px;
-  height: auto;
-  display: block;
-}
-
-/* =====================================================
-   Mode Switch Button — SVG Visibility
-   ===================================================== */
-
-.modeSwitch-express {
-  display: none;
-}
-
-#modePanel[data-mode="express"] .modeSwitch-rewrite {
-  display: none;
-}
-
-#modePanel[data-mode="express"] .modeSwitch-express {
-  display: block;
-}
-
-.modeSwitchSvg polygon[id$="inactivearrow"] {
-  color: var(--G-grey-1);
-  opacity: 0.65;
-  transition: color 0.25s ease, opacity 0.25s ease;
-}
-
-.modeSwitchSvg polygon[id$="bigarrow"] {
-  color: var(--G-color-1-midlight2);
-  transition: color 0.25s ease;
-}
-
-.modeSwitchSvg polygon[id$="lilarrow"] {
-  color: var(--G-color-1-mid);
-  transition: color 0.25s ease;
-}
-
-#modePanel[data-mode="rewrite"] .modeSwitchSvg polygon[id$="inactivearrow"] {
-  color: var(--G-color-1-mid-3);
-  opacity: 0.85;
-}
-
-#modePanel[data-mode="rewrite"] .modeSwitchSvg polygon[id$="bigarrow"] {
-  color: var(--G-color-1);
-}
-
-#modePanel[data-mode="rewrite"] .modeSwitchSvg polygon[id$="lilarrow"] {
-  color: var(--G-color-1-midlight2);
-}
 
 /*
 .eeo-z-Main {
@@ -2048,6 +2067,7 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
   background-color: #3a6ed3;
 }
 
+/*---------------------------------\-----*/
 #codeEditor {
   min-height: 0 !important;
   flex: 1 1 auto !important;
