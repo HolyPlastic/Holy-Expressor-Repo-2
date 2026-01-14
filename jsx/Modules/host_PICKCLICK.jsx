@@ -92,6 +92,9 @@ function he_PC_poll() {
   he_PC_scheduleNext();
 }
 
+// 💡 CHECKER: expose poll function for app.scheduleTask string execution
+$.global.he_PC_poll = he_PC_poll;
+
 function he_PC_armPickClick(jsonStr) {
   var data = {};
   try {

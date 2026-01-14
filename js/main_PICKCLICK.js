@@ -43,7 +43,16 @@ if (typeof Holy !== "object") Holy = {};
   }
 
   function escapeForEvalScript(text) {
-    return String(text).replace(/\\/g, "\\\\").replace(/\"/g, "\\\"");
+    // 💡 CHECKER: evalScript string boundary protection
+    // - Always escape backslashes first
+    // - Escape double quotes because we wrap the payload in "..."
+    // - Escape single quotes defensively (some callers may wrap in '...')
+    // - Normalize newlines to avoid accidental multiline JSX strings
+    return String(text)
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, "\\\"")
+      .replace(/'/g, "\\'")
+      .replace(/\r?\n/g, "\\n");
   }
 
   function parseEventData(event) {
