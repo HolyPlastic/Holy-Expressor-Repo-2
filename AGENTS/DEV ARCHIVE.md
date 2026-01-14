@@ -2108,3 +2108,109 @@ The patch was large and structurally coherent, but **failed in practice** and wa
 
 
 
+
+
+
+
+
+### 🧾 Dev Archive Addendum (PickClick Saga, Comment Drift, Canon Reset)
+
+**Date:** 2026-01-14 (late)
+
+#### 🧩 What we were building
+
+* A new **PickClick UX** flow: press a button in the panel, show a veil, then **click a property in the AE timeline** to resolve the pick and perform an action (initial target: “Load Expression From Selection”, later: “Load Path From Selection” style behavior).
+
+#### 🔥 Primary symptom
+
+* **Veil appears correctly** when armed.
+* **Clicking properties in the AE timeline does NOTHING.**
+* Only clicking the veil itself cancels PickClick.
+* Notably, this button previously showed a toast; after PickClick integration, the toast was missing, suggesting the chain was changing and/or failing earlier than expected.
+
+#### 🧠 Why the debug phase mattered
+
+We switched strategy from guessing to instrumentation:
+
+* Removed a blocking **`alert("host_PICKCLICK.jsx LOADED")`** and replaced it with non-blocking logging.
+* Added **end-to-end trace events** from host JSX → CEP panel → Chrome DevTools, to see exactly where the chain was failing.
+* Added a CEP listener for PickClick trace events so host-side telemetry appeared in DevTools.
+
+#### 🧨 The smoking gun (what the logs proved)
+
+Chrome DevTools showed repeated host-side failures during the poll loop:
+
+* `ReferenceError: Function he_U_getSelectedProps is undefined`
+* The poll loop was running and rescheduling correctly, but **selection payload retrieval was impossible**, so PickClick could never resolve on selection changes.
+* This perfectly matched the UX: “veil stays forever unless cancelled manually.”
+
+#### 🌀 The real cause (comment confusion + architectural drift)
+
+* `he_U_getSelectedProps` only existed as **commented-out code** (and there were effectively no live definitions elsewhere).
+* Multiple agents (human + Codex) treated **commented blocks as live architecture**, which caused:
+
+  * **Dissonance** between “repo truth” and “assumed truth”
+  * Agents proposing “restore/resurrect” fixes that were architecturally risky
+  * A loop where new features were built against APIs that didn’t exist at runtime
+* This created a fragile “canonical knowledge base” effect: names survived in conversation and doc references, but not in executable reality.
+
+#### ✅ Canonical system reaffirmed (what is actually trusted)
+
+We re-centered on the newer, deterministic architecture already used by “Load Path From Selection”:
+
+* **`he_GET_SelPath_Simple`** is the canonical selection gate and deterministic path builder:
+
+  * active comp validation
+  * reads `comp.selectedProperties`
+  * filters to `PropertyType.PROPERTY`
+  * requires exactly **one** selected leaf property
+  * fail-fast on containers / multi-select / unsupported properties
+  * deterministic, allow-list based path emission
+* This system is explicitly designed to avoid the older heuristic / sprawling “selection helpers” that were quarantined previously.
+
+#### 🔥 Current state (end of night status)
+
+* PickClick currently:
+
+  * arms successfully and shows veil
+  * can only cancel via veil click
+  * cannot resolve from AE timeline selection because it depends on removed/disabled selection helper functions
+* Debug instrumentation is now in place and working, giving reliable host-to-panel trace visibility.
+
+#### 🛠️ Decision for next steps (going forward)
+
+We are NOT resurrecting the old `he_U_getSelectedProps` / `he_U_findFirstLeaf` helper stack. Instead:
+
+1. **Hard reset / cleanup**
+
+* Fully delete (or permanently tombstone) the legacy helper functions that caused drift.
+* Avoid keeping executable logic commented out. Commented code is now treated as a primary source of agent misreads.
+
+2. **Route PickClick through the canonical “Simple” system without disrupting it**
+
+* Treat **`he_GET_SelPath_Simple` as a black-box selection validator**:
+
+  * PickClick calls it.
+  * If it returns `{ ok: true }`, PickClick resolves (discard the `expr` if not needed yet).
+  * If `{ ok: false }`, PickClick remains armed.
+* This reuses the modern deterministic selection contract without modifying the path builder’s current job.
+
+3. **Stabilize the chain**
+
+* Keep the current trace logging until PickClick resolves reliably from timeline clicks.
+* Once stable, reduce instrumentation and leave only minimal fail-fast logs.
+
+4. **Documentation hygiene**
+
+* Update AGENTS / Knowledge Base notes that incorrectly imply legacy selection helpers are canonical or live.
+* Add a rule: **no commented-out executable systems**, only tombstones pointing to Dev Archive context.
+
+#### ✅ Immediate next action (when resuming)
+
+* Implement PickClick resolution logic based on calling `he_GET_SelPath_Simple` as the selection gate.
+* Confirm: veil resolves on valid single-leaf selection and cancels cleanly.
+* Only after that, layer in “Load Expression From Selection” and later “Load Path From Selection” behavior using the same canonical contract.
+
+
+
+
