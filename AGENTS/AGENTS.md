@@ -33,6 +33,7 @@ main_FLYO.js
 main_MENU.js
 main_UI.js
 main_EXPRESS.js
+main_PICKCLICK.js
 main_BUTTON_LOGIC_1.js
 main_SNIPPETS.js
 main_DEV_INIT.js
@@ -105,6 +106,7 @@ Handled by `main_DEV_INIT.js → loadJSX()`:
 host_UTILS.jsx
 host_MAPS.jsx
 host_GET.jsx
+host_PICKCLICK.jsx
 host_APPLY.jsx
 host_DEV.jsx
 host_FLYO.jsx
@@ -162,6 +164,7 @@ Agents may add new events under the same namespace.
 | main_UI.js             | DOM binding + CSInterface creation |
 | main_MENU.js           | Context menu management            |
 | main_EXPRESS.js        | Expression + CodeMirror logic      |
+| main_PICKCLICK.js      | Selection-driven pick mode         |
 | main_BUTTON_LOGIC_1.js | Button → JSX handlers              |
 | main_SNIPPETS.js       | Snippet buttons + preset logic     |
 | main_DEV_INIT.js       | Bootstrap (init UI + load JSX)     |
@@ -177,6 +180,7 @@ Agents may add new events under the same namespace.
 | host_UTILS.jsx | Logging and error wrappers    |
 | host_MAPS.jsx  | Property mappings             |
 | host_GET.jsx   | Retrieves AE selection / data |
+| host_PICKCLICK.jsx | PickClick polling + dispatch |
 | host_APPLY.jsx | Applies expressions           |
 | host_DEV.jsx   | Dev utilities                 |
 | host_FLYO.jsx  | Deprecated                    |
@@ -636,6 +640,7 @@ Once changes are approved or merged, maintainers or archival agents may migrate 
 * 2025-02-20 | gpt-5.2-codex: Delegated delete-expression targeting to Search Captain’s collector and resolved property paths before clearing expressions to preserve correct scope. Design Intent: prevent layer-wide nuking by relying on Search Captain’s authoritative scoping. Risks / Concerns: Path resolution misses will skip clears for any entries that fail to resolve.
 * 2025-03-18 | gpt-5.2-codex: Inlined dual mode-switch SVGs with namespaced IDs, refreshed visibility/color selectors, and added rewrite clear/ARIA label updates. Design Intent: prevent SVG ID collisions while keeping the mode switch accessible and the rewrite panel easy to reset. Risks / Concerns: Inline SVG markup should be reconciled with the missing ModeSwitchBtn asset files when they are restored.
 * 2026-01-12 | gpt-5.2-codex: Removed Contents-based early acceptance from group-descendant filtering so active group scoping remains enforced unless scoping is disabled. Design Intent: preserve group-only targeting while keeping Contents selections handled by the scoping builder. Risks / Concerns: None noted.
+* 2026-01-14 | gpt-5.2-codex: Added PickClick controller with host-side polling and panel veil to support selection-driven actions like Load Expression from Selection. Design Intent: provide a reusable pick mode that resolves via CEP events without evalScript polling. Risks / Concerns: Polling interval may need tuning for extremely large selections.
 
 
 🧱 Verified Architectural Notes (2025-11)

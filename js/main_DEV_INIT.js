@@ -51,6 +51,7 @@ if (typeof Holy !== "object") Holy = {};
       "/jsx/Modules/host_UTILS.jsx",
       "/jsx/Modules/host_MAPS.jsx",
       "/jsx/Modules/host_GET.jsx",
+      "/jsx/Modules/host_PICKCLICK.jsx",
       "/jsx/Modules/host_APPLY.jsx",
       "/jsx/Modules/host_DEV.jsx",
       "/jsx/Modules/host_FLYO.jsx", // 🆕 added for flyover launcher
