@@ -4,6 +4,21 @@ if (typeof Holy !== "object") Holy = {};
   "use strict";
 
   var cs = new CSInterface();
+  // ----------------------------------------------------------
+// PickClick TRACE listener (host → CEP diagnostics)
+// ----------------------------------------------------------
+cs.addEventListener(
+  "com.holy.expressor.pickclick.trace",
+  function (event) {
+    try {
+      var data = event && event.data ? JSON.parse(event.data) : null;
+      console.log("[Holy.PICKCLICK][trace]", data);
+    } catch (e) {
+      console.log("[Holy.PICKCLICK][trace][parse-fail]", event.data);
+    }
+  }
+);
+
   var EVENT_RESOLVE = "com.holy.expressor.pickclick.resolve";
   var EVENT_CANCEL = "com.holy.expressor.pickclick.cancel";
 

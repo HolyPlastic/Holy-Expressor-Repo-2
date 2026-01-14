@@ -130,65 +130,7 @@ function he_P_isShapeContainer(prop) {
 
 
 
-function he_U_findFirstLeaf(prop, depth) {// V2 deterministic DFS for first animatable leaf
 
-  // FILTER: quick guards
-  if (!prop) return null;
-
-  // CHECKER: is this a valid leaf for expressions
-  function _isGoodLeaf(p) {
-    if (!p) return false;
-    try {
-      if (p.propertyType !== PropertyType.PROPERTY) return false;
-    } catch (_) { return false; }
-
-    // VALIDATOR: skip disabled Layer Styles
-    try {
-      if (he_U_Ls_1_isLayerStyleProp(p) && !he_U_Ls_2_styleEnabledForLeaf(p)) return false;
-    } catch (_) {}
-
-    // VALIDATOR: skip truly hidden or phantom leaves
-    try {
-      if (he_U_VS_isTrulyHidden(p)) return false;
-    } catch (_) {}
-
-    try { return p.canSetExpression === true; } catch (_) { return false; }
-  }
-
-  // FAST PATH: selected node is already a good leaf
-  if (_isGoodLeaf(prop)) return prop;
-
-  // FILTER: only descend into containers
-  var pt = 0;
-  try { pt = prop.propertyType; } catch (_) { pt = 0; }
-  if (!(pt === PropertyType.NAMED_GROUP || pt === PropertyType.INDEXED_GROUP)) return null;
-
-  // WALKER: explicit stack for preorder DFS
-  var stack = [];
-  function _pushChildren(node) {
-    var n = 0;
-    try { n = node.numProperties || 0; } catch (_) { n = 0; }
-    for (var i = n; i >= 1; i--) { // push reverse so we pop in natural order
-      var c = null; try { c = node.property(i); } catch (_) { c = null; }
-      if (c) stack.push(c);
-    }
-  }
-
-  _pushChildren(prop);
-
-  while (stack.length) {
-    var node = stack.pop();
-    if (_isGoodLeaf(node)) return node;
-
-    var t = 0;
-    try { t = node.propertyType; } catch (_) { t = 0; }
-    if (t === PropertyType.NAMED_GROUP || t === PropertyType.INDEXED_GROUP) {
-      _pushChildren(node);
-    }
-  }
-
-  return null;
-}
 
 
 function he_U_findLeaf(prop, depth) {
