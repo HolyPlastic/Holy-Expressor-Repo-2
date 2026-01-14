@@ -99,7 +99,10 @@ if (typeof Holy !== "object") Holy = {};
 
     if (cs && typeof cs.evalScript === "function") {
       var encoded = escapeForEvalScript(JSON.stringify(payload));
-      cs.evalScript('he_PC_cancelPickClick("' + encoded + '")');
+      cs.evalScript('he_PC_cancelPickClick("' + encoded + '")', function (res) {
+        console.log("[Holy.PICKCLICK] cancel result:", res);
+      });
+
     }
 
     if (typeof handler === "function") {
@@ -165,7 +168,11 @@ if (typeof Holy !== "object") Holy = {};
     if (cs && typeof cs.evalScript === "function") {
       var payload = { sessionId: sessionId, intent: options.intent || "" };
       var encodedPayload = escapeForEvalScript(JSON.stringify(payload));
-      cs.evalScript('he_PC_armPickClick("' + encodedPayload + '")');
+      cs.evalScript('he_PC_armPickClick("' + encodedPayload + '")', function (res) {
+        // 💡 CHECKER: if host fails, this will show "undefined" or empty
+        console.log("[Holy.PICKCLICK] arm result:", res);
+      });
+
     }
 
     active = true;

@@ -7,6 +7,7 @@
 
 //@include "modules/host_APPLY.jsx"
 //@include "modules/host_UTILS.jsx"
+//@include "modules/host_PICKCLICK.jsx"
 //@include "modules/host_MAPS.jsx"
 //@include "modules/host_GET.jsx"
 //@include "modules/host_DEV.jsx"

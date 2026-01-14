@@ -2047,5 +2047,64 @@ The development cycle for this alignment is considered **complete and stable**.
 
 
 
+* * *
+
+### *2026-01-14 | gpt-5.2 + lead-dev — PickClick (Selection-Driven Pick Mode) — Intent, Design, and Aborted Patch*
+
+**Context / Motivation:**  
+This development thread explored a new interaction mode internally referred to as **PickClick**. The goal was to introduce a **pick-whip-like UX without drag**, allowing panel buttons to defer their action until the user clicks a property in the After Effects timeline. Primary motivation was to improve ergonomics for actions such as **Load Expression from Selection**, especially in large, complex comps where selection intent is clearer after the button press rather than before.
+
+**Key Design Intent (Non-Negotiable):**
+
+- PickClick is a **general interaction mode**, not bespoke to a single button.
+- Initial integration target was *Load Expression from Selection*, but the system was explicitly designed to be reusable for future actions (e.g. Load Path from Selection).
+- Stability in **large projects** was a hard requirement; evalScript polling from the CEP panel was explicitly rejected.
+
+**Architectural Decision:**  
+After research and comparison, the chosen approach was **Option B: host-side polling + CEP event dispatch**.
+
+- ExtendScript (host) owns polling via `app.scheduleTask` (non-blocking, cancelable).
+- CEP panel does **not** poll selection.
+- Host dispatches a **single CEP event** when selection changes.
+- Panel resolves the action and cleans up state.
+
+This avoided known crash vectors associated with repeated CEP→JSX evalScript polling.
+
+**UX Layer (Pick Veil):**  
+A visual “pick veil” was introduced to clearly communicate that the panel is waiting for an external (timeline) interaction:
+
+- Full-panel semi-transparent overlay (HTML/CSS only).
+- Appears immediately when PickClick is armed.
+- Disappears on resolve or cancel.
+- Clicking the veil explicitly **cancels PickClick**, stopping host polling and removing listeners.
+
+The veil was intended as *state signaling*, not modal blocking.
+
+**Implementation Attempt (Aborted):**  
+A full multi-file patch was produced covering:
+
+- New CEP module: `main_PICKCLICK.js`
+- New host module: `host_PICKCLICK.jsx`
+- Wiring into load order (`index.html`, `main_DEV_INIT.js`)
+- CSS veil styles
+- Integration of Load Expression button via PickClick
+- Documentation updates in AGENTS.md / README.md
+
+The patch was large and structurally coherent, but **failed in practice** and was intentionally **not merged**. The specific failure mode is not documented here by design.
+
+**Important State at Abandon:**
+
+- The conceptual design is considered **sound and worth revisiting**.
+- The failure was treated as an implementation / integration issue, **not a rejection of the architecture**.
+- No PR was merged; no changes are considered canonical.
+- This entry exists to preserve **intent, constraints, and reasoning**, not code.
+
+**Guidance for Future Agent:**
+
+- Reattempt PickClick as a **phased implementation** (veil → controller skeleton → host polling → first button integration).
+- Preserve Option B (host-side polling); do not regress to CEP polling.
+- Treat PickClick as a reusable mode/controller, but avoid premature abstraction.
+- Expect additional notes to follow in subsequent Dev Archive entries.
+
 
 

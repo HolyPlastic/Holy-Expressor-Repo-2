@@ -6,6 +6,35 @@ var HE_PICKCLICK_EVENT_RESOLVE = "com.holy.expressor.pickclick.resolve";
 var HE_PICKCLICK_EVENT_CANCEL = "com.holy.expressor.pickclick.cancel";
 var HE_PICKCLICK_POLL_DELAY = 250;
 
+// ----------------------------------------------------------
+// 🔌 PlugPlug bootstrap (required for CSXSEvent)
+// ----------------------------------------------------------
+var he_PC__plugPlugLoaded = false;
+
+function he_PC_ensurePlugPlug() {
+  if (he_PC__plugPlugLoaded) return true;
+
+  try {
+    // 💡 CHECKER: CSXSEvent exists only when PlugPlugExternalObject is loaded
+    if (typeof CSXSEvent !== "undefined") {
+      he_PC__plugPlugLoaded = true;
+      return true;
+    }
+  } catch (_) {}
+
+  try {
+    // ⚙️ VALIDATOR: load PlugPlugExternalObject (needed to construct CSXSEvent)
+    if (typeof ExternalObject !== "undefined") {
+      new ExternalObject("lib:PlugPlugExternalObject");
+      he_PC__plugPlugLoaded = (typeof CSXSEvent !== "undefined");
+      return he_PC__plugPlugLoaded;
+    }
+  } catch (_) {}
+
+  return false;
+}
+
+
 var he_PC_state = {
   active: false,
   sessionId: "",
@@ -46,13 +75,23 @@ function he_PC_getSelectionPayload() {
 }
 
 function he_PC_dispatch(type, payload) {
+  // 💡 CHECKER: ensure PlugPlug is available before using CSXSEvent
+  if (!he_PC_ensurePlugPlug()) return false;
+
   try {
+    // 🧩 FILTER: only attempt dispatch when constructor is available
+    if (typeof CSXSEvent === "undefined") return false;
+
     var evt = new CSXSEvent();
     evt.type = type;
     evt.data = JSON.stringify(payload || {});
     evt.dispatch();
-  } catch (_) {}
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
+
 
 function he_PC_scheduleNext() {
   if (!he_PC_state.active) return;
@@ -63,7 +102,7 @@ function he_PC_scheduleNext() {
 
   he_PC_state.taskId = app.scheduleTask("he_PC_poll()", HE_PICKCLICK_POLL_DELAY, false);
 }
-
+0
 function he_PC_poll() {
   if (!he_PC_state.active) return;
 
