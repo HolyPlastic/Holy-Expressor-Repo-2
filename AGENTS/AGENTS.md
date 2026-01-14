@@ -641,7 +641,6 @@ Once changes are approved or merged, maintainers or archival agents may migrate 
 * 2025-03-18 | gpt-5.2-codex: Inlined dual mode-switch SVGs with namespaced IDs, refreshed visibility/color selectors, and added rewrite clear/ARIA label updates. Design Intent: prevent SVG ID collisions while keeping the mode switch accessible and the rewrite panel easy to reset. Risks / Concerns: Inline SVG markup should be reconciled with the missing ModeSwitchBtn asset files when they are restored.
 * 2026-01-12 | gpt-5.2-codex: Removed Contents-based early acceptance from group-descendant filtering so active group scoping remains enforced unless scoping is disabled. Design Intent: preserve group-only targeting while keeping Contents selections handled by the scoping builder. Risks / Concerns: None noted.
 * 2026-01-14 | gpt-5.2-codex: Added PickClick controller with host-side polling and panel veil to support selection-driven actions like Load Expression from Selection. Design Intent: provide a reusable pick mode that resolves via CEP events without evalScript polling. Risks / Concerns: Polling interval may need tuning for extremely large selections.
-* 2026-01-14 | gpt-5.2-codex: Revised PickClick polling signature to track raw AE selection properties instead of derived selection payloads. Design Intent: ensure PickClick resolves when timeline selections change even if derived payloads are unchanged. Risks / Concerns: Signature relies on propertyIndex/name matching; unusual property reindexing could affect detection.
 
 
 🧱 Verified Architectural Notes (2025-11)

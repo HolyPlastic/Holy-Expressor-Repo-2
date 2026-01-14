@@ -13,39 +13,20 @@ var he_PC_state = {
   taskId: null
 };
 
-function he_PC_getSelectionSignature() {
-  try {
-    var comp = app.project.activeItem;
-    if (!comp || !(comp instanceof CompItem)) return "";
+function he_PC_buildSignature(items) {
+  if (!items || !(items instanceof Array) || items.length === 0) return "";
 
-    var props = comp.selectedProperties;
-    if (!props || props.length === 0) return "";
-
-    var keys = [];
-    for (var i = 0; i < props.length; i++) {
-      var prop = props[i];
-      if (!prop) continue;
-
-      var parts = [];
-      try { parts.push("d" + prop.propertyDepth); } catch (_) {}
-      try { parts.push("i" + prop.propertyIndex); } catch (_) {}
-      try { parts.push("m" + (prop.matchName || "")); } catch (_) {}
-      try { parts.push("n" + (prop.name || "")); } catch (_) {}
-      try {
-        var layer = prop.propertyGroup(prop.propertyDepth);
-        if (layer && typeof layer.index === "number") {
-          parts.push("L" + layer.index);
-        }
-      } catch (_) {}
-
-      keys.push(parts.join(":"));
-    }
-
-    keys.sort();
-    return keys.join("|");
-  } catch (_) {
-    return "";
+  var keys = [];
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i] || {};
+    var path = it.path || "";
+    var picked = it.pickedMatchName || "";
+    var leafFlag = it.pickedIsLeaf ? "leaf" : "group";
+    keys.push(path + "::" + picked + "::" + leafFlag);
   }
+
+  keys.sort();
+  return keys.join("|");
 }
 
 function he_PC_getSelectionPayload() {
@@ -60,7 +41,7 @@ function he_PC_getSelectionPayload() {
 
   return {
     items: items,
-    signature: he_PC_getSelectionSignature()
+    signature: he_PC_buildSignature(items)
   };
 }
 

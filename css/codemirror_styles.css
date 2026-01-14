@@ -50,8 +50,10 @@ width:100%
 
 }
 #codeEditor  {
-min-height: 1000px !important;
-    max-height: 2000px !important;
+ min-height: 0;       /* 💡 CHECKER: allow flex parent to define height */
+ max-height: none;    /* 💡 CHECKER: prevent forced overflow */
+   flex: 1 1 auto;     /* 💡 CHECKER: participate in flex sizing */
+  height: 100%;       /* 💡 CHECKER: align with parent height */
 }
 
 /* 🧩 Gutters container */

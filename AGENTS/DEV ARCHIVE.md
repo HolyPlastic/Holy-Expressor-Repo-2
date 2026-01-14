@@ -1914,3 +1914,138 @@ The “visitedKey” (dedupe) system previously returned `exprPath` early when a
 - DO NOT rely on expression-path strings as a hierarchy source for shape layer filtering.
 - DO NOT rely on wrapper object identity for group comparisons in ExtendScript.
 - Prefer “collect then apply” for broad searches. Helpers that apply during traversal can silently under-hit complex shape trees.
+
+
+
+## 🧠 Delete Expressions — Phase 1 Resolution (Selection-Root Traversal)
+
+### Context
+
+The **Delete Expressions** button was originally implemented by reusing **Search Captain–style collection logic**, relying on `he_P_SC_collectExpressionTargetsForLayer` and path-based re-resolution. This approach appeared sound conceptually but proved **non-functional at runtime** and structurally unsafe for destructive operations.
+
+Diagnostics confirmed that:
+
+- The collector function **did not exist at runtime**
+- Property and group selections were **silently coerced into layer mode**
+- Delete operations could report success while performing **no mutations**
+- The pipeline relied on **path → re-resolve → mutate**, introducing scope ambiguity
+
+This created a hard blocker: delete could not function reliably, and further architectural debate was premature.
+
+* * *
+
+### Resolution Strategy (Phase 1)
+
+The fix deliberately **abandoned collector reuse** and implemented a **minimal, local traversal model**, optimized for correctness and user intent rather than abstraction parity.
+
+Core principles:
+
+- **Selection precedence is explicit**
+
+    - If `selectedProperties.length > 0` → property/group intent
+    - Else if `selectedLayers.length > 0` → layer intent
+    - No fallback, no inference
+- **Traversal operates on live objects**
+
+    - No paths
+    - No re-resolution
+    - No cross-layer inference
+- **Mutation happens immediately**
+
+    - Leaf properties with `canSetExpression === true` are cleared directly
+    - Group nodes are traversed depth-first
+    - Ownership is resolved via ancestry, not string matching
+- **Safety is preserved**
+
+    - Only owning layers of selection roots are temporarily enabled
+    - Layer state is tracked and restored
+    - Errors are accumulated per-property, not swallowed
+
+* * *
+
+### Outcome
+
+This approach produced the desired result:
+
+- Delete Expressions now **works deterministically**
+- Group, property, and layer selections behave **exactly like Custom Search**
+- UX parity between **Search** and **Delete** is achieved
+- The system is **trustworthy**: what is selected is what is mutated
+
+Diagnostics showed:
+
+- Correct `selectionType` reporting
+- Accurate `clearedProperties` counts
+- Zero false positives
+- No scope leakage
+
+* * *
+
+### Key Insight
+
+**Destructive operations must not rely on fuzzy resolution.**
+
+While path-based collection is acceptable for **search, reporting, and preview**, deletion requires:
+
+- explicit targets
+- live object references
+- ancestry-bounded traversal
+
+This Phase 1 implementation establishes a **lawful baseline**. Any future abstraction or shared traversal logic must preserve this contract.
+
+* * *
+
+### Status
+
+- **Phase 1: COMPLETE**
+- Collector reuse intentionally deferred
+- System is now stable, correct, and extensible
+
+
+### ✅ **FINAL RESOLUTION: DELETE EXPRESSIONS + CUSTOM SEARCH SCOPE ALIGNMENT**
+
+**Context:**  
+Following the successful implementation of the **Delete Expressions** feature with group-aware traversal, a regression was detected where **Custom Search lost group-specific scoping** and began applying layer-wide for Shape Layers.
+
+**Observed Regression:**
+
+- Selecting a Shape Layer **group** (e.g. Stroke 1 / Fill 1) caused Custom Search to behave as if the **entire layer** was selected.
+- This contradicted prior, correct behavior where traversal was constrained to the selected group’s descendants.
+
+**Root Cause (Confirmed):**
+
+- `he_U_SC_buildAllowedGroupSignatures` correctly encoded scoping intent:
+
+    - `null` ⇒ whole-layer scope
+    - non-null ⇒ constrained group scope
+- However, `he_U_SC_isDescendantOfAllowedGroup` contained an **over-applied early return**:
+
+    - Any ancestor named **“Contents”** auto-accepted descendants.
+    - Because all Shape Layer properties descend from Contents, this **short-circuited group scoping entirely**.
+- This logic drift likely entered during delete-expressions alignment work, where whole-layer behavior was intentionally required in other contexts.
+
+**Repair Strategy:**
+
+- **Do not change traversal order or Search Captain architecture.**
+- Gate the “Contents means whole layer” shortcut so it only applies when:
+
+    - group scoping is explicitly disabled (`allowedGroupSignatures === null`)
+- Preserve the existing rule:
+
+    - Selecting **Contents** explicitly still results in whole-layer scope.
+
+**Outcome:**
+
+- Custom Search group scoping is fully restored.
+- Layer-only selection still applies layer-wide.
+- Contents selection still forces whole-layer behavior.
+- Delete Expressions remains unaffected and continues to function correctly.
+
+**Final State:**  
+Delete Expressions and Custom Search now share **consistent traversal semantics** while remaining **logically independent**.  
+The development cycle for this alignment is considered **complete and stable**.
+
+
+
+
+
