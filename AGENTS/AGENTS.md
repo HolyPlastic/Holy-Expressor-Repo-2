@@ -179,8 +179,8 @@ Agents may add new events under the same namespace.
 | -------------- | ----------------------------- |
 | host_UTILS.jsx | Logging and error wrappers    |
 | host_MAPS.jsx  | Property mappings             |
-| host_GET.jsx   | Retrieves AE selection / data |
-| host_PICKCLICK.jsx | PickClick polling + dispatch |
+| host_GET.jsx   | Retrieves AE selection / data (note: legacy `he_U_getSelectedProps` is currently commented out) |
+| host_PICKCLICK.jsx | PickClick polling + dispatch (selection payload is intentionally disabled until PickClick UX is finished) |
 | host_APPLY.jsx | Applies expressions           |
 | host_DEV.jsx   | Dev utilities                 |
 | host_FLYO.jsx  | Deprecated                    |
@@ -641,6 +641,9 @@ Once changes are approved or merged, maintainers or archival agents may migrate 
 * 2025-03-18 | gpt-5.2-codex: Inlined dual mode-switch SVGs with namespaced IDs, refreshed visibility/color selectors, and added rewrite clear/ARIA label updates. Design Intent: prevent SVG ID collisions while keeping the mode switch accessible and the rewrite panel easy to reset. Risks / Concerns: Inline SVG markup should be reconciled with the missing ModeSwitchBtn asset files when they are restored.
 * 2026-01-12 | gpt-5.2-codex: Removed Contents-based early acceptance from group-descendant filtering so active group scoping remains enforced unless scoping is disabled. Design Intent: preserve group-only targeting while keeping Contents selections handled by the scoping builder. Risks / Concerns: None noted.
 * 2026-01-14 | gpt-5.2-codex: Added PickClick controller with host-side polling and panel veil to support selection-driven actions like Load Expression from Selection. Design Intent: provide a reusable pick mode that resolves via CEP events without evalScript polling. Risks / Concerns: Polling interval may need tuning for extremely large selections.
+* 2026-02-20 | gpt-5.2-codex: Documented that PickClick host polling remains present but selection payload (`he_U_getSelectedProps`) is intentionally commented out, so PickClick resolution is currently disabled. Design Intent: prevent agents from assuming legacy selection helpers are live while PickClick UX is unfinished. Risks / Concerns: If this warning is missed, redundant selection helpers may be reintroduced and cause confusion.
+
+* 2026-02-20 | gpt-5.2-codex: No functional change — documentation clarification only. Design Intent: flag that PickClick’s selection payload is intentionally disabled so future agents avoid reintroducing redundant selection helpers. Risks / Concerns: None.
 
 
 🧱 Verified Architectural Notes (2025-11)

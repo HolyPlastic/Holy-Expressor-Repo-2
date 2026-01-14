@@ -32,6 +32,11 @@
   * Polling must be explicitly cancelled.
   * Selection APIs often return **containers instead of animatable leaves**.
   * Shape Layer hierarchies proved brittle and deep.
+* ⚠️ Current runtime caveat:
+
+  * PickClick host polling exists, but the selection payload helper (`he_U_getSelectedProps`) is intentionally commented out, so PickClick resolution is disabled until the UX is finalized.
+  * Do not resurrect legacy selection helpers to “fix” PickClick; the canonical selection authority for path extraction is now `he_GET_SelPath_Simple`.
+  * ⚠️ Consequence if ignored: agents may mistakenly reintroduce redundant selection helpers, causing conflicting behavior and future debugging churn.
 
 ### Shape Layer Deep-Dive & Classification Era (“Clive” Knowledge Formation)
 
@@ -510,4 +515,3 @@ These laws apply equally to Apply, Custom Search, and Delete-Expression systems.
 * Extent of legacy code removal in V2 is *unclear*.
 
 ---
-

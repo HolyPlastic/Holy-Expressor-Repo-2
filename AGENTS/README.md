@@ -117,11 +117,11 @@ Think of `host.jsx` as:
 
 `/jsx/Modules/`
 
-Active ExtendScript modules include:
+Active ExtendScript modules include (with current runtime caveats):
 
 * `host_UTILS.jsx`
-* `host_GET.jsx`
-* `host_PICKCLICK.jsx`
+* `host_GET.jsx` (note: legacy selection payload `he_U_getSelectedProps` is currently commented out)
+* `host_PICKCLICK.jsx` (host polling exists, but selection payload path is intentionally disabled until PickClick UX is finalized)
 * `host_APPLY.jsx`
 * `host_MAPS.jsx`
 * `host_FLYO.jsx`
