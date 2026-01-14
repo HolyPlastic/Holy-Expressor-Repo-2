@@ -448,117 +448,129 @@ Holy.UI.toast("Expressed to selected properties");
           /* ============================PULL EXP BUTTTON*/
 
           // V11 – LFS: dedupe by path preferring direct picks; include ShapePath when the Path was directly selected
+          function loadExpressionFromSelectionItems(items) {
+            if (!items || !items.length) {
+              Holy.UI.toast("Nothing selected");
+              return;
+            }
+
+            // CHECKER: normalize and dedupe by expr path, preferring records that were directly picked
+            var byPath = Object.create(null);
+
+            for (var i = 0; i < items.length; i++) {
+              var it = items[i];
+              if (!it) continue;
+
+              var path = String(it.path || "");
+              if (!path) continue;
+
+              var current = byPath[path];
+
+              // Choose "better" candidate for the same path:
+              // 1) Prefer direct pick (pickedIsLeaf === true)
+              // 2) Prefer one that has an expression over one that does not
+              // 3) Otherwise keep the existing one
+              if (!current) {
+                byPath[path] = it;
+              } else {
+                var aDirect = !!(it.pickedIsLeaf);
+                var bDirect = !!(current.pickedIsLeaf);
+                if (aDirect && !bDirect) {
+                  byPath[path] = it;
+                } else if (aDirect === bDirect) {
+                  var aHasExpr = !!(it.expr && it.expr !== "__NO_EXPRESSION__");
+                  var bHasExpr = !!(current.expr && current.expr !== "__NO_EXPRESSION__");
+                  if (aHasExpr && !bHasExpr) {
+                    byPath[path] = it;
+                  }
+                }
+              }
+            }
+
+            // CHECKER: scan whether any non-Path candidate with an expression exists
+            var hasNonPath = false;
+            for (var k in byPath) {
+              if (!Object.prototype.hasOwnProperty.call(byPath, k)) continue;
+              var probe = byPath[k];
+              if (!probe || !probe.expr || probe.expr === "__NO_EXPRESSION__") continue;
+
+              var mmProbe = String(probe.matchName || "");
+              var clsProbe = String(probe.classification || "");
+              var isPathProbe = (clsProbe === "ShapePath") || (mmProbe === "ADBE Vector Shape");
+              if (!isPathProbe) { hasNonPath = true; break; }
+            }
+
+            // CHECKER: build final list with Path rule
+            var exprs = [];
+            var seenPathKeys = Object.create(null);
+
+            for (var p in byPath) {
+              if (!Object.prototype.hasOwnProperty.call(byPath, p)) continue;
+              var it2 = byPath[p];
+              if (!it2) continue;
+
+              var expr = it2.expr;
+              if (!expr || expr === "__NO_EXPRESSION__") continue;
+
+              var mm = String(it2.matchName || "");
+              var cls = String(it2.classification || "");
+              var isPath = (cls === "ShapePath") || (mm === "ADBE Vector Shape");
+
+              if (isPath) {
+                // ALLOW Path if:
+                //  A) no non-Path expressions exist, OR
+                //  B) this Path was directly picked (pickedIsLeaf true), OR
+                //  C) pickedMatchName explicitly equals ADBE Vector Shape
+                var allowPath =
+                  (!hasNonPath) ||
+                  !!it2.pickedIsLeaf ||
+                  (String(it2.pickedMatchName || "") === "ADBE Vector Shape");
+
+                if (!allowPath) continue;
+
+                // DEDUPE: guard against multiple entries with the same Path key
+                if (seenPathKeys[p]) continue;
+                seenPathKeys[p] = true;
+              }
+
+              exprs.push(String(expr));
+            }
+
+            if (!exprs.length) {
+              Holy.UI.toast("No expression on the selected property");
+              return;
+            }
+
+            var joined = exprs.join("\n");
+            Holy.EXPRESS.EDITOR_insertText(joined);
+
+            Holy.UI.toast(
+              "Loaded " +
+              exprs.length +
+              " expression" +
+              (exprs.length > 1 ? "s" : "") +
+              " from selection"
+            );
+          }
+
           var loadBtn = document.getElementById("loadFromSelectionBtn");
           if (loadBtn) {
             loadBtn.addEventListener("click", function () {
-              Holy.UI.cs.evalScript('JSON.stringify(he_U_getSelectedProps())', function (raw) {
-                try {
-                  var items = JSON.parse(raw || "[]");
-                  if (!items || !items.length) {
-                    Holy.UI.toast("Nothing selected");
-                    return;
+              if (!Holy.PICKCLICK || typeof Holy.PICKCLICK.arm !== "function") {
+                Holy.UI.toast("PickClick unavailable");
+                return;
+              }
+
+              Holy.PICKCLICK.arm({
+                intent: "loadExpressionFromSelection",
+                onResolve: function (payload) {
+                  try {
+                    var items = (payload && payload.items) ? payload.items : [];
+                    loadExpressionFromSelectionItems(items);
+                  } catch (e) {
+                    console.error("Load From Selection failed:", e);
+                    Holy.UI.toast("Failed to load from selection");
                   }
-
-                  // CHECKER: normalize and dedupe by expr path, preferring records that were directly picked
-                  var byPath = Object.create(null);
-
-                  for (var i = 0; i < items.length; i++) {
-                    var it = items[i];
-                    if (!it) continue;
-
-                    var path = String(it.path || "");
-                    if (!path) continue;
-
-                    var current = byPath[path];
-
-                    // Choose "better" candidate for the same path:
-                    // 1) Prefer direct pick (pickedIsLeaf === true)
-                    // 2) Prefer one that has an expression over one that does not
-                    // 3) Otherwise keep the existing one
-                    if (!current) {
-                      byPath[path] = it;
-                    } else {
-                      var aDirect = !!(it.pickedIsLeaf);
-                      var bDirect = !!(current.pickedIsLeaf);
-                      if (aDirect && !bDirect) {
-                        byPath[path] = it;
-                      } else if (aDirect === bDirect) {
-                        var aHasExpr = !!(it.expr && it.expr !== "__NO_EXPRESSION__");
-                        var bHasExpr = !!(current.expr && current.expr !== "__NO_EXPRESSION__");
-                        if (aHasExpr && !bHasExpr) {
-                          byPath[path] = it;
-                        }
-                      }
-                    }
-                  }
-
-                  // CHECKER: scan whether any non-Path candidate with an expression exists
-                  var hasNonPath = false;
-                  for (var k in byPath) {
-                    if (!Object.prototype.hasOwnProperty.call(byPath, k)) continue;
-                    var probe = byPath[k];
-                    if (!probe || !probe.expr || probe.expr === "__NO_EXPRESSION__") continue;
-
-                    var mmProbe = String(probe.matchName || "");
-                    var clsProbe = String(probe.classification || "");
-                    var isPathProbe = (clsProbe === "ShapePath") || (mmProbe === "ADBE Vector Shape");
-                    if (!isPathProbe) { hasNonPath = true; break; }
-                  }
-
-                  // CHECKER: build final list with Path rule
-                  var exprs = [];
-                  var seenPathKeys = Object.create(null);
-
-                  for (var p in byPath) {
-                    if (!Object.prototype.hasOwnProperty.call(byPath, p)) continue;
-                    var it2 = byPath[p];
-                    if (!it2) continue;
-
-                    var expr = it2.expr;
-                    if (!expr || expr === "__NO_EXPRESSION__") continue;
-
-                    var mm   = String(it2.matchName || "");
-                    var cls  = String(it2.classification || "");
-                    var isPath = (cls === "ShapePath") || (mm === "ADBE Vector Shape");
-
-                    if (isPath) {
-                      // ALLOW Path if:
-                      //  A) no non-Path expressions exist, OR
-                      //  B) this Path was directly picked (pickedIsLeaf true), OR
-                      //  C) pickedMatchName explicitly equals ADBE Vector Shape
-                      var allowPath =
-                        (!hasNonPath) ||
-                        !!it2.pickedIsLeaf ||
-                        (String(it2.pickedMatchName || "") === "ADBE Vector Shape");
-
-                      if (!allowPath) continue;
-
-                      // DEDUPE: guard against multiple entries with the same Path key
-                      if (seenPathKeys[p]) continue;
-                      seenPathKeys[p] = true;
-                    }
-
-                    exprs.push(String(expr));
-                  }
-
-                  if (!exprs.length) {
-                    Holy.UI.toast("No expression on the selected property");
-                    return;
-                  }
-
-                  var joined = exprs.join("\n");
-                  Holy.EXPRESS.EDITOR_insertText(joined);
-
-                  Holy.UI.toast(
-                    "Loaded " +
-                    exprs.length +
-                    " expression" +
-                    (exprs.length > 1 ? "s" : "") +
-                    " from selection"
-                  );
-                } catch (e) {
-                  console.error("Load From Selection failed:", e);
-                  Holy.UI.toast("Failed to load from selection");
                 }
               });
             });

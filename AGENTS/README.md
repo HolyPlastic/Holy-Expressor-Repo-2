@@ -121,6 +121,7 @@ Active ExtendScript modules include:
 
 * `host_UTILS.jsx`
 * `host_GET.jsx`
+* `host_PICKCLICK.jsx`
 * `host_APPLY.jsx`
 * `host_MAPS.jsx`
 * `host_FLYO.jsx`
@@ -180,11 +181,12 @@ From `index.html`:
 8. `main_MENU.js`
 9. `main_UI.js`
 10. `main_EXPRESS.js`
-11. `main_BUTTON_LOGIC_1.js`
-12. `main_SNIPPETS.js`
-13. `main_SEARCH_REPLACE.js`
-14. `main_DEV_INIT.js`
-15. `main.js`
+11. `main_PICKCLICK.js`
+12. `main_BUTTON_LOGIC_1.js`
+13. `main_SNIPPETS.js`
+14. `main_SEARCH_REPLACE.js`
+15. `main_DEV_INIT.js`
+16. `main.js`
 
 ⚠️ Any new modules must respect this order or be explicitly inserted.
 
