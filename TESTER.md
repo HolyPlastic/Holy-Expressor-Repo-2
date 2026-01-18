@@ -1,4 +1,1 @@
-WHO KNOWS WHAT HAPPENS NEXT
-
----
-
+The answer is: 4!
