@@ -139,6 +139,25 @@ function he_PC_dispatch(type, payload) {
     var evt = new CSXSEvent();
     evt.type = type;
     evt.data = JSON.stringify(payload || {});
+    // V1 – T1 diagnostic: relay dispatch activity to CEP
+    // 💡 CHECKER: confirms host dispatch executes and reaches CEP
+    if (type !== "trace") {
+        try {
+            var diag = {
+                source: "HOST",
+                phase: "T1_DISPATCH",
+                eventType: type,
+                timestamp: Date.now()
+            };
+            var diagEvt = new CSXSEvent();
+            diagEvt.type = "com.holy.expressor.pickclick.trace";
+            diagEvt.data = JSON.stringify(diag);
+            diagEvt.dispatch();
+        } catch (e) {
+            // swallow – diagnostics must never break logic
+        }
+    }
+
     evt.dispatch();
     return true;
   } catch (e) {
@@ -146,6 +165,7 @@ function he_PC_dispatch(type, payload) {
     return false;
   }
 }
+
 
 // ----------------------------------------------------------
 // Poll scheduling

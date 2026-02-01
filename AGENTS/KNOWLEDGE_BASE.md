@@ -1,132 +1,263 @@
 
-## 1. PROJECT EVOLUTION MAP
 
-### Early CEP Interaction Era (Experimental Pick-Whip Phase)
+## 🧠 KNOWLEDGE BASE — EPISTEMIC SCOPE & READING RULES
 
-* Initial architecture pursued **pick-whip style interaction** from CEP panel into After Effects.
-* Assumed CEP could intercept AE canvas or property clicks.
-* Introduced UI scaffolding:
+This document records **understandings, models, and constraints as they were believed or inferred at the time they were written**.
 
-  * Pick mode button
-  * Visual overlay (“PickVeil”)
-* **Primary constraint discovered**:
+It is **not** a source of permanent truth, correctness, or final architectural law.
 
-  * CEP sandbox **cannot reliably capture AE canvas or property clicks**.
-* Result:
+All statements in this document must be interpreted as **temporally scoped**, even when not explicitly stated.
 
-  * Direct interception abandoned.
-  * Forced architectural pivot to host-side inference.
+### ⏳ TEMPORAL INTERPRETATION
 
-### Host-Side Polling Era
+Every claim in this document implicitly means:
 
-* Introduced **ExtendScript polling** via `app.scheduleTask`.
-* Architecture split:
+- “At the time of writing, this was believed to…”
+- “Based on the evidence available then, this appeared to…”
+- “This understanding informed design decisions during that period…”
 
-  * Panel: UI state, veil, editor injection.
-  * Host: selection polling, path extraction, dispatch.
-* Polling lifecycle formalized:
+No statement should be read as asserting that a behavior, limitation, or rule will remain true in the future.
 
-  * Arm → snapshot initial selection → poll → dispatch → cancel.
-* Constraints shaping this era:
+### 🚫 NO CANONICAL AUTHORITY
 
-  * Polling must be explicitly cancelled.
-  * Selection APIs often return **containers instead of animatable leaves**.
-  * Shape Layer hierarchies proved brittle and deep.
-* ⚠️ Current runtime caveat:
+Nothing in this document is authoritative by default.
 
-  * PickClick host polling exists, but the selection payload helper (`he_U_getSelectedProps`) is intentionally commented out, so PickClick resolution is disabled until the UX is finalized.
-  * Do not resurrect legacy selection helpers to “fix” PickClick; the canonical selection authority for path extraction is now `he_GET_SelPath_Simple`.
-  * ⚠️ Consequence if ignored: agents may mistakenly reintroduce redundant selection helpers, causing conflicting behavior and future debugging churn.
+- Entries do **not** establish correctness
+- Entries do **not** close investigation
+- Entries do **not** forbid alternative approaches
+- Entries do **not** supersede empirical testing or new evidence
 
-### Shape Layer Deep-Dive & Classification Era (“Clive” Knowledge Formation)
+If a claim here conflicts with observed behavior, **the observation takes precedence**.
 
-* Sustained instability around Shape Layer contents forced focused investigation.
-* Key discoveries:
+### 🧾 HISTORICAL COMPRESSION, NOT PROOF
 
-  * Expressions require **display name paths**, not `matchName`.
-  * `matchName` is still required for **classification and safety checks**.
-* Introduced hybrid concepts:
+This document exists to **compress prior reasoning and accumulated context**, not to prove that those conclusions were correct.
 
-  * Expression path (`.name`)
-  * Metadata path (`.matchName`)
-* Container-to-leaf promotion logic explored and partially implemented.
-* Tradeoff acknowledged:
+Items may reflect:
 
-  * Increased correctness vs increased mis-target risk.
+- Partial investigations
+- Incomplete testing
+- Assumptions made under time or tooling constraints
+- Understandings later revised or invalidated
 
-### Stabilization & Guarding Era
+Contradictions across entries are expected and allowed.
 
-* Multiple guard systems introduced to prevent:
+### ⚠️ AGENT READING REQUIREMENTS
 
-  * Infinite polling loops.
-  * Repeated dispatches.
-  * Accidental editor wipes.
-* Event channel normalization performed.
-* Sentinel values introduced to represent “no expression”.
-* CodeMirror integration stabilized after multiple init failures.
+Agents must not:
 
-### Strategic Pivot to Expressor V2
+- Treat phrasing here as evidence of correctness
+- Assume stability because something is stated confidently
+- Stop investigating because a limitation is described
 
-* Interactive pick-whip workflow assessed as **high cost, low return**.
-* Declared pivot to:
+Agents should treat this document as **contextual memory**, not instruction.
 
-  * Editor-first model.
-  * Single Apply workflows.
-* Legacy subsystems preserved as **archival safety net**, not invariants.
-* Pick-whip logic explicitly retired from critical path.
+
+### 📜 INTERPRETATION & CONFLICT HANDLING
+
+No document in this system establishes truth by authority or position.
+
+This document, along with **DEV\_ARCHIVE.md** and **AGENTS.md**, represents different forms of recorded understanding, not sources of correctness.
+
+If statements across documents appear to conflict, this should be treated as:
+
+- Evidence of evolving understanding
+- Differences in scope, timing, or context
+- A signal that further investigation may be required
+
+In all cases:
+
+- **Observed runtime behavior**
+- **Direct testing**
+- **New instrumentation or data**
+
+should be treated as stronger signals than any written description.
+
+This document may be revised, contradicted, or rendered partially obsolete as new information becomes available.
+
+
+
+
 
 ---
 
-## 2. ISSUE → MECHANISM LEDGER
+# 1. PROJECT EVOLUTION MAP (AS UNDERSTOOD AT THE TIME)
+
+### Early CEP Interaction Era (Experimental Pick-Whip Phase)
+
+During this period, the architecture was explored under the assumption that a **pick-whip-style interaction** could be initiated from a CEP panel into After Effects.
+
+At the time of writing, the following assumptions and actions were present:
+
+* It was assumed that CEP might be able to intercept or respond to AE canvas or property click events.
+* UI scaffolding was introduced to support this exploration, including:
+
+  * A pick-mode button
+  * A visual overlay (“PickVeil”)
+
+During testing under the conditions available at that time, it appeared that:
+
+* The CEP sandbox did not reliably surface AE canvas or property click events.
+* Direct interception attempts did not consistently resolve selection intent.
+
+As a result of these observations during that phase:
+
+* Direct click interception was deprioritized.
+* Investigation shifted toward host-side inference mechanisms.
+
+No claim is made that these conclusions remain valid outside the tested conditions.
+
+---
+
+### Host-Side Polling Era
+
+Following the above observations, investigation shifted toward **ExtendScript-driven polling** using `app.scheduleTask`.
+
+At the time of writing, the explored architectural shape included:
+
+* A split between panel and host responsibilities:
+
+  * Panel: UI state, veil presentation, editor injection
+  * Host: selection polling, path extraction, dispatch logic
+* A polling lifecycle conceptualized as:
+
+  * Arm → snapshot initial selection → poll → dispatch → cancel
+
+Under the conditions tested during this era, the following behaviors were observed:
+
+* Polling required explicit cancellation to avoid indefinite execution.
+* AE selection APIs often returned containers rather than expression-capable leaf properties.
+* Shape Layer hierarchies appeared deep and structurally brittle when traversed generically.
+
+#### Selection Payload Handling (Historical Context)
+
+During this period, a helper responsible for extracting selection payloads (`he_U_getSelectedProps`) existed in the codebase and was referenced in discussion and documentation.
+
+At a later point during this phase:
+
+* The helper was **intentionally commented out** as part of UX and architectural experimentation.
+* Under the tested runtime conditions at that time, this resulted in PickClick polling loops that could arm and cancel but not resolve.
+
+Subsequently:
+
+* Repeated confusion arose from agents and tools interpreting commented code as active logic.
+* This ambiguity was observed to materially slow debugging and misdirect investigation.
+
+As a result of these observations:
+
+* The helper was **fully removed from the codebase**, not merely commented out.
+* At the time of writing, `he_U_getSelectedProps` does **not exist anywhere in the runtime codebase**.
+
+This removal was performed to eliminate ambiguity and does not, by itself, establish conclusions about long-term architecture.
+
+Any references to this helper should be interpreted as **historical**, not indicative of current availability.
+
+---
+
+### Shape Layer Deep-Dive & Classification Era (“Clive”)
+
+Sustained instability when interacting with Shape Layer contents prompted focused investigation during this period.
+
+During testing and inspection at the time, the following observations were made:
+
+* Expression paths appeared to require **display-name paths** to function as expected.
+* `matchName` values appeared useful for classification and safety checks, but not for expression targeting.
+* Hybrid representations were explored, including:
+
+  * Expression paths derived from `.name`
+  * Metadata paths derived from `.matchName`
+
+Container-to-leaf promotion logic was explored and partially implemented.
+
+At the time, this work involved a perceived tradeoff:
+
+* Increased correctness in leaf resolution
+* Increased risk of mis-targeting under ambiguous selection
+
+No conclusion was reached about optimality or completeness.
+
+---
+
+### Stabilization & Guarding Era
+
+During this period, multiple guard mechanisms were introduced in response to behaviors observed during earlier testing.
+
+At the time of writing, these included:
+
+* Guards intended to prevent:
+
+  * Infinite polling loops
+  * Repeated dispatches
+  * Accidental editor wipes
+* Event channel normalization to reduce silent failure modes
+* Sentinel values used to represent the absence of an expression
+
+CodeMirror integration was revisited after multiple initialization failures.
+
+Under the tested conditions at that time, integration appeared more stable, though no claim is made about long-term robustness.
+
+---
+
+### Strategic Pivot Toward Expressor V2
+
+At the time of writing, interactive pick-whip workflows were assessed as relatively high cost compared to observed benefit under available constraints.
+
+As a result, investigation emphasis shifted toward:
+
+* Editor-first interaction models
+* Single-apply workflows
+
+Legacy subsystems were retained in the codebase as reference or archival artifacts.
+
+Pick-whip logic was no longer treated as part of the critical execution path during this phase.
+
+---
+
+# 2. ISSUE → MECHANISM LEDGER (AS OBSERVED)
 
 ### A. CEP → AE Interaction Limits
 
-**Problem Signature**
+**Problem Signature (as observed)**
+Attempts to intercept AE canvas or property clicks appeared to fail or behave inconsistently under tested conditions.
 
-* Attempts to intercept AE canvas or property clicks fail or behave inconsistently.
-
-**Affected Areas**
+**Affected Areas (during testing)**
 
 * PickVeil
-* Pick Expression workflows
+* Pick-expression workflows
 * CEP event listeners
 
-**Mechanisms That Worked**
+**Mechanisms Observed to Function**
 
-* Host-side polling using `app.scheduleTask`.
-* Selection change inference.
+* Host-side polling via `app.scheduleTask`
+* Inference based on selection state changes
 
-**Mechanisms That Failed or Were Abandoned**
+**Mechanisms Observed to Fail or Be Deprioritized**
 
-* Direct click interception.
-* CEP-side click capture outside panel.
+* Direct click interception
+* CEP-side click capture outside the panel
 
-**Constraints That Shaped the Outcome**
+**Constraints Observed at the Time**
 
-* CEP sandbox restrictions.
-* No reliable access to AE canvas events.
+* CEP sandbox limitations
+* Lack of reliable access to AE canvas events
 
-**Known Regressions / Side Effects**
+**Observed Side Effects**
 
-* Polling introduces lifecycle and cleanup risks.
+* Polling introduced lifecycle and cleanup risks
 
-**Landmines / Don’t Try This Again**
+**Unresolved Aspects**
 
-* Do not assume CEP can capture AE canvas input.
-
-**Explicitly Unresolved Aspects**
-
-* Full pick-whip parity remains impractical.
+* Whether full pick-whip parity is achievable under different constraints
 
 ---
 
 ### B. Host Polling & Dispatch Loops
 
-**Problem Signature**
+**Problem Signature (as observed)**
 
-* Repeated dispatches.
-* CPU churn.
-* Stale selection treated as a pick.
+* Repeated dispatch attempts
+* CPU activity during polling
+* Stale selection interpreted as a pick
 
 **Affected Areas**
 
@@ -134,384 +265,202 @@
 * Poll scheduler
 * Dispatch helpers
 
-**Mechanisms That Worked**
+**Behaviors Observed to Help**
 
-* Initial selection snapshot (`_initialPath`).
-* One-shot dispatch.
-* Explicit task cancellation.
-* State flag clearing on dispatch.
+* Initial selection snapshotting
+* One-shot dispatch attempts
+* Explicit task cancellation
+* State clearing on dispatch
 
-**Mechanisms That Failed or Were Abandoned**
+**Behaviors Observed to Cause Issues**
 
-* Persistent polling without enforced stop.
-* Over-strict dedupe blocking valid re-picks.
+* Persistent polling without enforced stop
+* Over-strict deduplication blocking valid re-picks
 
-**Constraints That Shaped the Outcome**
+**Constraints Present at the Time**
 
-* ExtendScript polling has no implicit lifecycle.
-* Selection APIs ambiguous on containers vs leaves.
+* ExtendScript polling lacks implicit lifecycle management
+* Selection APIs ambiguously surface containers and leaves
 
-**Known Regressions / Side Effects**
+**Unresolved Aspects**
 
-* Multi-pick per engage not supported.
-
-**Landmines / Don’t Try This Again**
-
-* Never rely on leaf detection alone to stop polling.
-
-**Explicitly Unresolved Aspects**
-
-* Polling frequency tuning.
-* Residual risk if dispatch never occurs.
+* Polling frequency tuning
+* Behavior when dispatch never occurs
 
 ---
 
 ### C. Group & Shape Layer Selection Pathology
 
-#### Canonical Selection & Scope Laws (Authoritative)
+During this period, selection-driven systems were observed to behave unpredictably when groups or containers were selected.
 
-The following rules define the non-negotiable behavior of selection-driven systems (Apply, Search, Delete):
+At the time of writing, the following understandings guided investigation:
 
-- **Selection is an entry point, not a guarantee**  
-  `selectedProperties` may include containers, groups, or structural nodes. All systems must validate and resolve to explicit, expression-capable leaf properties before acting.
+* Selection appeared to function as an entry point rather than a guarantee of an expression-capable target.
+* Traversal from containers to leaves was explored, but intent inference was treated cautiously.
+* Display-name paths appeared unreliable for scoping.
+* Parent-property ancestry appeared more reliable for containment checks.
 
-- **Traversal is allowed; inference is not**  
-  Systems may recurse downward from a selected container to locate valid leaves, but must never guess intent or broaden scope beyond explicitly selected ancestry.
+These understandings informed design decisions during that period but are not asserted as universal rules.
 
-- **Scope is defined by ancestry, not paths**  
-  Display-name paths are not reliable for scoping. Group containment must be determined via parent-property ancestry, not string prefixes or partial path matching.
-
-- **Containers do not imply permission**  
-  Selecting a group does not authorize blanket operations on all descendants. Only leaves resolved within the selected group’s ancestry are valid targets.
-
-- **Failure must be loud and deterministic**  
-  If no valid leaves resolve, the operation must fail explicitly. Silent fallbacks, partial success, or “best guess” behavior are forbidden.
-
-These laws apply equally to Apply, Custom Search, and Delete-Expression systems.
-
-
-
-**Problem Signature**
-
-* “Select a property” errors.
-* Over-application.
-* Target flooding.
-* Infinite redispatch on groups.
-
-**Affected Areas**
-
-* Apply logic
-* Selection summarizers
-* Shape Layer contents
-
-**Mechanisms That Worked**
-
-* Recursive descent from group entry points.
-* Gating recursion to explicitly selected groups.
-* One-shot stop even on container dispatch.
-* Structural skip maps for known non-leaf groups.
-
-**Mechanisms That Failed or Were Abandoned**
-
-* Flat iteration over selection.
-* Unbounded recursion.
-* Display-name-only traversal.
-
-**Constraints That Shaped the Outcome**
-
-* Shape Layers deeply nested.
-* Groups often lack expression-capable properties.
-
-**Known Regressions / Side Effects**
-
-* Some deep leaves unreachable without direct selection.
-
-**Landmines / Don’t Try This Again**
-
-* Never assume selection equals animatable leaf.
-
-**Explicitly Unresolved Aspects**
-
-* Optimal recursion depth control.
-* Promotion priority tuning.
+Unresolved aspects included recursion depth control and promotion priority tuning.
 
 ---
 
 ### D. Container → Leaf Promotion
 
-**Problem Signature**
+**Observed Issue**
 
-* Users select Stroke/Fill groups instead of properties.
+Users frequently selected Stroke or Fill groups rather than expression-capable properties.
 
-**Affected Areas**
+**Observed Responses**
 
-* Host-side scanners
-* Leaf reader tables
+* Bounded depth-first search with priority lists
+* Expansion of leaf classification tables
 
-**Mechanisms That Worked**
+**Observed Risks**
 
-* Bounded DFS with priority lists.
-* Expanded leaf classification tables.
+* Incorrect leaf promotion under ambiguous conditions
+* Mis-targeting of Path vs Width or similar properties
 
-**Mechanisms That Failed or Were Abandoned**
-
-* Unbounded DFS.
-* Blind first-leaf selection.
-
-**Constraints That Shaped the Outcome**
-
-* Expressions require leaf properties.
-* User intent ambiguous from container selection.
-
-**Known Regressions / Side Effects**
-
-* Wrong leaf sometimes promoted (Path vs Width, etc.).
-
-**Landmines / Don’t Try This Again**
-
-* Do not auto-promote without depth caps.
-
-**Explicitly Unresolved Aspects**
-
-* Leaf priority correctness across all shape types.
-* AE version drift risk.
+No determination was made regarding correctness across all shape types or AE versions.
 
 ---
 
 ### E. Event Channel Drift
 
-**Problem Signature**
+**Observed Issue**
 
-* Panel receives nothing.
-* Silent failures.
+* Panel listeners occasionally received no events.
+* Failures were silent.
 
-**Affected Areas**
+**Observed Mitigations**
 
-* CSXSEvent dispatch
-* Panel listeners
+* Consolidation toward a single event channel
+* Centralized dispatch helpers
 
-**Mechanisms That Worked**
+**Observed Risks**
 
-* Single canonical channel:
-
-  * `ISO_ReportLine_dispatch`
-* Centralized dispatch helper.
-
-**Mechanisms That Failed or Were Abandoned**
-
-* Multiple event names.
-* Partial renames.
-
-**Constraints That Shaped the Outcome**
-
-* Channel strings must match exactly.
-
-**Known Regressions / Side Effects**
-
-* Legacy listeners exist historically.
-
-**Landmines / Don’t Try This Again**
-
-* Never introduce parallel event channels.
-
-**Explicitly Unresolved Aspects**
-
-* Exact switchover point is *partially documented*.
+* Legacy listeners persisted historically
+* Partial documentation of switchover points
 
 ---
 
 ### F. Sentinel & Empty Expression Handling
 
-**Problem Signature**
+**Observed Issue**
 
-* Editor wiped unexpectedly.
-* Empty strings treated as valid expressions.
+* Empty strings returned from AE were treated as valid expressions.
+* Editor state was sometimes wiped unexpectedly.
 
-**Affected Areas**
+**Observed Mitigations**
 
-* Host expression extraction.
-* Panel injection logic.
+* Introduction of a sentinel value
+* Panel logic treating empty strings as sentinel cases
 
-**Mechanisms That Worked**
+**Observed Risks**
 
-* Sentinel value (`__NO_EXPRESSION__`).
-* Panel treats empty string as sentinel.
-
-**Mechanisms That Failed or Were Abandoned**
-
-* Trusting empty string as valid content.
-
-**Constraints That Shaped the Outcome**
-
-* AE sometimes returns empty string for “no expression”.
-
-**Known Regressions / Side Effects**
-
-* Reliance on magic constant.
-
-**Landmines / Don’t Try This Again**
-
-* Never inject blindly without sentinel checks.
-
-**Explicitly Unresolved Aspects**
-
-* Centralization of sentinel constant not enforced.
+* Reliance on a magic constant
+* Sentinel centralization not enforced
 
 ---
 
 ### G. CodeMirror Integration Failures
 
-**Problem Signature**
+**Observed Issue**
 
-* Panel “dead”.
-* Editor invisible.
+* Panel appeared inactive
+* Editor failed to render
 
-**Affected Areas**
+**Observed Mitigations**
 
-* Editor init
-* Bundle exports
+* Single guarded initialization
+* Reliance on global `window.codemirror` exposure
 
-**Mechanisms That Worked**
+**Observed Risks**
 
-* Single guarded init.
-* Reliance on `window.codemirror.*`.
-
-**Mechanisms That Failed or Were Abandoned**
-
-* Direct `EditorState` / `EditorView` imports.
-* Duplicate init blocks.
-
-**Constraints That Shaped the Outcome**
-
-* CEP requires globals.
-* Bundle export shape must match runtime assumptions.
-
-**Known Regressions / Side Effects**
-
-* Bundle mismatch remains a risk.
-
-**Landmines / Don’t Try This Again**
-
-* Never mount CodeMirror twice.
-
-**Explicitly Unresolved Aspects**
-
-* Bundle evolution risk.
+* Bundle export shape mismatches
+* Sensitivity to initialization order
 
 ---
 
 ### H. CEP Asset & Styling Constraints (SVG, CSS, CEF)
 
-**Problem Signature**
+**Observed Issues**
 
-* Assets fail to load.
-* SVG strokes inherit wrong colors.
-* Geometry clipped.
+* Assets failed to load
+* SVG strokes inherited unintended colors
+* Geometry clipping occurred
 
-**Affected Areas**
+**Observed Mitigations**
 
-* Inline SVG
-* CSS variables
-* Manifest flags
+* Inline SVG usage
+* CSS-driven stroke and fill
+* Expanded SVG viewBox
+* JS-assisted color derivation
 
-**Mechanisms That Worked**
+**Observed Risks**
 
-* Inline SVG markup.
-* CSS-driven stroke/fill.
-* Expanded SVG viewBox.
-* JS-driven color derivation.
-
-**Mechanisms That Failed or Were Abandoned**
-
-* External SVG `<img>` loading.
-* Unitless HSL math in CSS.
-
-**Constraints That Shaped the Outcome**
-
-* CEP CEF sandbox.
-* Older Chromium parser quirks.
-
-**Known Regressions / Side Effects**
-
-* Increased markup verbosity.
-* Styling depends on JS bootstrap.
-
-**Landmines / Don’t Try This Again**
-
-* Do not rely on external SVG geometry styling.
-
-**Explicitly Unresolved Aspects**
-
-* CEF version variability.
-* Hex format coverage.
+* Increased markup complexity
+* Dependency on JS bootstrap timing
+* Variability across CEF versions
 
 ---
 
 ### I. Automation & Bulk Refactor Hazards
 
-**Problem Signature**
+**Observed Issues**
 
-* Broken callsites.
-* Mojibake.
-* Silent load failures.
+* Broken callsites
+* Silent load failures
+* Encoding corruption
 
-**Affected Areas**
+**Observed Mitigations**
 
-* Multi-file renames
-* Dispatch logic
+* Patch-forward strategy
+* Surgical fixes on latest state
 
-**Mechanisms That Worked**
+**Observed Risks**
 
-* Patch-forward strategy.
-* Surgical fixes on latest state.
-
-**Mechanisms That Failed or Were Abandoned**
-
-* Automated bulk renames without validation.
-* Rollback after large refactor.
-
-**Constraints That Shaped the Outcome**
-
-* Rollback cost too high.
-
-**Known Regressions / Side Effects**
-
-* Residual inconsistencies.
-
-**Landmines / Don’t Try This Again**
-
-* Never trust multi-file automation blindly.
-
-**Explicitly Unresolved Aspects**
-
-* Full cleanup deferred.
+* Residual inconsistencies
+* Deferred cleanup
 
 ---
 
-## 3. ARCHITECTURAL TRUTHS (EARNED FACTS)
+# 3. ARCHITECTURAL UNDERSTANDINGS (AS RECORDED)
 
-* CEP **cannot** reliably capture AE canvas or property clicks.
-* Host-side polling **must** be explicitly cancelled.
-* `selectedProperties` may return **groups**, not leaves.
-* Shape Layer expressions **require display name paths**.
-* `matchName` is unsuitable for expression paths but critical for classification.
-* Polling systems require **one-shot dispatch semantics**.
-* Event channel strings must be **singular and exact**.
-* Empty string from AE does **not** imply valid expression.
-* CodeMirror must be initialized **once**, from known globals.
-* CEP CEF parsing behavior differs from modern browsers.
+At the time of writing, the following were commonly assumed or inferred based on accumulated observation:
+
+* CEP did not reliably surface AE canvas or property clicks under tested conditions.
+* Host-side polling required explicit cancellation.
+* `selectedProperties` frequently returned groups rather than leaves.
+* Shape Layer expressions appeared to require display-name paths.
+* `matchName` appeared unsuitable for expression paths but useful for classification.
+* Polling systems benefited from one-shot dispatch semantics.
+* Event channel strings required exact matching.
+* Empty strings from AE did not reliably indicate valid expressions.
+* CodeMirror integration depended on single initialization and global exposure.
+* CEP CEF parsing behavior differed from modern browsers.
+
+These statements reflect belief-state at the time, not verified invariants.
+
+---
+
+# 4. OPEN LOOPS & RISK REGISTER (AS KNOWN)
+
+At the time of writing, the following uncertainties remained:
+
+* Container-to-leaf promotion accuracy was incomplete.
+* Shape subtree coverage was partial and brittle.
+* Leaf priority tables risked drift across AE versions.
+* Polling behavior when dispatch never occurs was assumed, not proven.
+* Bundle export shape mismatches remained a risk.
+* Sentinel constant centralization was not enforced.
+* Legacy pick-whip logic remained present as historical reference.
+* The extent of legacy code removal in V2 was unclear.
 
 ---
 
-## 4. OPEN LOOPS & RISK REGISTER
+## 🔒 FINAL NOTE
 
-* Container → leaf promotion accuracy remains *incomplete*.
-* Shape subtree coverage is *partial and brittle*.
-* Leaf priority tables may drift with AE updates.
-* Polling non-dispatch scenario remains *assumed behavior*.
-* Bundle export shape mismatch is an ongoing risk.
-* Sentinel constant centralization is *not enforced*.
-* Legacy pick-whip logic retained but *not trusted*.
-* Extent of legacy code removal in V2 is *unclear*.
+This document reflects **understanding as it existed**, not **truth as it must remain**.
 
----

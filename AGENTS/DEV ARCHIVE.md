@@ -2047,169 +2047,173 @@ The development cycle for this alignment is considered **complete and stable**.
 
 
 
+
 * * *
 
-### *2026-01-14 | gpt-5.2 + lead-dev — PickClick (Selection-Driven Pick Mode) — Intent, Design, and Aborted Patch*
+### *2026-01-14 | gpt-5.2 + lead-dev — PickClick (Selection-Driven Pick Mode) — Intent, Design Context, and Unmerged Implementation Attempt*
 
-**Context / Motivation:**  
-This development thread explored a new interaction mode internally referred to as **PickClick**. The goal was to introduce a **pick-whip-like UX without drag**, allowing panel buttons to defer their action until the user clicks a property in the After Effects timeline. Primary motivation was to improve ergonomics for actions such as **Load Expression from Selection**, especially in large, complex comps where selection intent is clearer after the button press rather than before.
+**Context / Motivation (at the time):**  
+This development thread explored a proposed interaction mode internally referred to as **PickClick**. The intent was to investigate whether a **pick-whip-like UX without drag** could be introduced, allowing panel buttons to defer their action until a subsequent interaction occurred in the After Effects timeline. At the time, this was motivated by ergonomic friction observed when performing actions such as **Load Expression from Selection** in large or complex compositions, where selection intent may occur after the initiating action rather than before.
 
-**Key Design Intent (Non-Negotiable):**
+This entry records the **design intent and implementation attempt as they existed at the time of writing**, not a determination of feasibility beyond that context.
 
-- PickClick is a **general interaction mode**, not bespoke to a single button.
-- Initial integration target was *Load Expression from Selection*, but the system was explicitly designed to be reusable for future actions (e.g. Load Path from Selection).
-- Stability in **large projects** was a hard requirement; evalScript polling from the CEP panel was explicitly rejected.
+**Design Intent (as defined during this session):**
 
-**Architectural Decision:**  
-After research and comparison, the chosen approach was **Option B: host-side polling + CEP event dispatch**.
+- PickClick was conceived as a **general interaction mode**, not tied to a single button.
+- The first integration target explored was *Load Expression from Selection*.
+- Reusability for other selection-driven actions (e.g. path-based operations) was part of the initial intent, but not implemented at this stage.
+- Stability in **large projects** was treated as a constraint during design exploration; repeated CEP→JSX polling via `evalScript` was avoided during this attempt.
 
-- ExtendScript (host) owns polling via `app.scheduleTask` (non-blocking, cancelable).
-- CEP panel does **not** poll selection.
-- Host dispatches a **single CEP event** when selection changes.
-- Panel resolves the action and cleans up state.
+**Architectural Shape Explored (at the time):**  
+The implementation attempt followed a design referred to internally as **Option B**, characterized by:
 
-This avoided known crash vectors associated with repeated CEP→JSX evalScript polling.
+- ExtendScript (host) owning a non-blocking polling loop via `app.scheduleTask`.
+- The CEP panel not polling selection state directly.
+- The host dispatching a CEP event upon detected selection change.
+- The panel resolving the initiating action and cleaning up UI state.
+
+This architecture was chosen during this session based on perceived stability characteristics at the time. This entry does not assert that this choice is optimal or exhaustive.
 
 **UX Layer (Pick Veil):**  
-A visual “pick veil” was introduced to clearly communicate that the panel is waiting for an external (timeline) interaction:
+A visual “pick veil” was introduced during this attempt to indicate that the panel was awaiting an external (timeline) interaction.
 
-- Full-panel semi-transparent overlay (HTML/CSS only).
-- Appears immediately when PickClick is armed.
-- Disappears on resolve or cancel.
-- Clicking the veil explicitly **cancels PickClick**, stopping host polling and removing listeners.
+Observed behavior during this session:
 
-The veil was intended as *state signaling*, not modal blocking.
+- The veil appeared immediately when PickClick was armed.
+- The veil was removed on explicit cancellation.
+- Clicking the veil itself triggered cancellation.
+- The veil was intended as a **state indicator**, not a modal input blocker.
 
-**Implementation Attempt (Aborted):**  
-A full multi-file patch was produced covering:
+**Implementation Attempt:**  
+A multi-file implementation was produced during this session, including:
 
-- New CEP module: `main_PICKCLICK.js`
-- New host module: `host_PICKCLICK.jsx`
-- Wiring into load order (`index.html`, `main_DEV_INIT.js`)
-- CSS veil styles
-- Integration of Load Expression button via PickClick
-- Documentation updates in AGENTS.md / README.md
+- A new CEP module (`main_PICKCLICK.js`)
+- A new ExtendScript host module (`host_PICKCLICK.jsx`)
+- Load-order wiring
+- CSS and markup for the pick veil
+- Initial integration of the *Load Expression from Selection* button
+- Documentation updates reflecting the new mode
 
-The patch was large and structurally coherent, but **failed in practice** and was intentionally **not merged**. The specific failure mode is not documented here by design.
+This implementation was **not merged**. At the time of writing, it was considered incomplete based on observed runtime behavior.
 
-**Important State at Abandon:**
+**State at End of Session:**
 
-- The conceptual design is considered **sound and worth revisiting**.
-- The failure was treated as an implementation / integration issue, **not a rejection of the architecture**.
-- No PR was merged; no changes are considered canonical.
-- This entry exists to preserve **intent, constraints, and reasoning**, not code.
+- The conceptual interaction model was not rejected during this session.
+- The observed failure was treated as an **implementation- or integration-level issue under the tested conditions**.
+- No code from this attempt was merged into the canonical codebase.
+- This entry exists to preserve **what was attempted and observed**, not to establish correctness or final conclusions.
 
-**Guidance for Future Agent:**
-
-- Reattempt PickClick as a **phased implementation** (veil → controller skeleton → host polling → first button integration).
-- Preserve Option B (host-side polling); do not regress to CEP polling.
-- Treat PickClick as a reusable mode/controller, but avoid premature abstraction.
-- Expect additional notes to follow in subsequent Dev Archive entries.
+* * *
 
 
-
-
-
-
-
-
-### 🧾 Dev Archive Addendum (PickClick Saga, Comment Drift, Canon Reset)
+### 🧾 Dev Archive Addendum — PickClick Investigation, Comment Drift, and Observed Failure Modes
 
 **Date:** 2026-01-14 (late)
 
-#### 🧩 What we were building
+#### 🧩 What was being investigated (at the time)
 
-* A new **PickClick UX** flow: press a button in the panel, show a veil, then **click a property in the AE timeline** to resolve the pick and perform an action (initial target: “Load Expression From Selection”, later: “Load Path From Selection” style behavior).
+During this session, PickClick was being explored as a UX flow in which:
 
-#### 🔥 Primary symptom
+1. A panel button arms a waiting state.
+2. A visual veil indicates that an external interaction is expected.
+3. A user interaction in the After Effects timeline is expected to resolve the action.
 
-* **Veil appears correctly** when armed.
-* **Clicking properties in the AE timeline does NOTHING.**
-* Only clicking the veil itself cancels PickClick.
-* Notably, this button previously showed a toast; after PickClick integration, the toast was missing, suggesting the chain was changing and/or failing earlier than expected.
+Initial focus was on integrating this flow with **Load Expression from Selection**.
 
-#### 🧠 Why the debug phase mattered
+This description reflects the investigation scope at the time and does not imply that the flow is viable or non-viable beyond the observed conditions.
 
-We switched strategy from guessing to instrumentation:
+* * *
 
-* Removed a blocking **`alert("host_PICKCLICK.jsx LOADED")`** and replaced it with non-blocking logging.
-* Added **end-to-end trace events** from host JSX → CEP panel → Chrome DevTools, to see exactly where the chain was failing.
-* Added a CEP listener for PickClick trace events so host-side telemetry appeared in DevTools.
+#### 🔥 Observed runtime behavior
 
-#### 🧨 The smoking gun (what the logs proved)
+Under the conditions tested during this session:
 
-Chrome DevTools showed repeated host-side failures during the poll loop:
+- The pick veil appeared when PickClick was armed.
+- Clicking properties in the After Effects timeline did **not** result in PickClick resolving.
+- Clicking the pick veil itself reliably cancelled PickClick.
+- No other timeline interaction observed during this session caused resolution or cancellation.
+- A previously existing toast associated with the same button was no longer displayed, suggesting a change in execution order or gating earlier in the chain.
 
-* `ReferenceError: Function he_U_getSelectedProps is undefined`
-* The poll loop was running and rescheduling correctly, but **selection payload retrieval was impossible**, so PickClick could never resolve on selection changes.
-* This perfectly matched the UX: “veil stays forever unless cancelled manually.”
+These observations apply only to this session and configuration.
 
-#### 🌀 The real cause (comment confusion + architectural drift)
+* * *
 
-* `he_U_getSelectedProps` only existed as **commented-out code** (and there were effectively no live definitions elsewhere).
-* Multiple agents (human + Codex) treated **commented blocks as live architecture**, which caused:
+#### 🧠 Debug approach used
 
-  * **Dissonance** between “repo truth” and “assumed truth”
-  * Agents proposing “restore/resurrect” fixes that were architecturally risky
-  * A loop where new features were built against APIs that didn’t exist at runtime
-* This created a fragile “canonical knowledge base” effect: names survived in conversation and doc references, but not in executable reality.
+During this session, the debugging approach shifted from speculative fixes to instrumentation:
 
-#### ✅ Canonical system reaffirmed (what is actually trusted)
+- A blocking `alert("host_PICKCLICK.jsx LOADED")` was removed.
+- Non-blocking logging was added.
+- Host-side trace events were dispatched to the CEP panel.
+- CEP listeners were added to surface host telemetry in Chrome DevTools.
 
-We re-centered on the newer, deterministic architecture already used by “Load Path From Selection”:
+This instrumentation confirmed execution flow up to the polling stage.
 
-* **`he_GET_SelPath_Simple`** is the canonical selection gate and deterministic path builder:
+* * *
 
-  * active comp validation
-  * reads `comp.selectedProperties`
-  * filters to `PropertyType.PROPERTY`
-  * requires exactly **one** selected leaf property
-  * fail-fast on containers / multi-select / unsupported properties
-  * deterministic, allow-list based path emission
-* This system is explicitly designed to avoid the older heuristic / sprawling “selection helpers” that were quarantined previously.
+#### 🧨 Observations from logging
 
-#### 🔥 Current state (end of night status)
+At the time of writing, logs showed:
 
-* PickClick currently:
+- The host-side polling loop was executing and rescheduling.
+- Errors were repeatedly emitted during selection payload retrieval:
 
-  * arms successfully and shows veil
-  * can only cancel via veil click
-  * cannot resolve from AE timeline selection because it depends on removed/disabled selection helper functions
-* Debug instrumentation is now in place and working, giving reliable host-to-panel trace visibility.
+    - `ReferenceError: Function he_U_getSelectedProps is undefined`
+- As a result, selection state could not be evaluated successfully.
+- Because resolution depended on selection payload changes, PickClick remained armed indefinitely unless explicitly cancelled.
 
-#### 🛠️ Decision for next steps (going forward)
+This behavior matched the observed UX state during testing.
 
-We are NOT resurrecting the old `he_U_getSelectedProps` / `he_U_findFirstLeaf` helper stack. Instead:
+* * *
 
-1. **Hard reset / cleanup**
+#### 🌀 Comment drift and architectural confusion observed
 
-* Fully delete (or permanently tombstone) the legacy helper functions that caused drift.
-* Avoid keeping executable logic commented out. Commented code is now treated as a primary source of agent misreads.
+During investigation, it became apparent that:
 
-2. **Route PickClick through the canonical “Simple” system without disrupting it**
+- `he_U_getSelectedProps` existed only as **commented-out code**.
+- Multiple automated agents treated commented code as if it were executable.
+- Function names persisted across discussion and documentation despite not existing at runtime.
 
-* Treat **`he_GET_SelPath_Simple` as a black-box selection validator**:
+Observed consequences during this session included:
 
-  * PickClick calls it.
-  * If it returns `{ ok: true }`, PickClick resolves (discard the `expr` if not needed yet).
-  * If `{ ok: false }`, PickClick remains armed.
-* This reuses the modern deterministic selection contract without modifying the path builder’s current job.
+- Proposals to “restore” or “fix” functions that were not part of the active architecture.
+- Mismatch between assumed and actual executable systems.
+- Increased difficulty distinguishing canonical behavior from historical remnants.
+- `he_U_getSelectedProps` was fully deleted from the codebase. 
 
-3. **Stabilize the chain**
+This entry records the **presence of comment-driven confusion**, not a generalized rule about commented code.
 
-* Keep the current trace logging until PickClick resolves reliably from timeline clicks.
-* Once stable, reduce instrumentation and leave only minimal fail-fast logs.
+* * *
 
-4. **Documentation hygiene**
+#### 📌 Selection system status during this session
 
-* Update AGENTS / Knowledge Base notes that incorrectly imply legacy selection helpers are canonical or live.
-* Add a rule: **no commented-out executable systems**, only tombstones pointing to Dev Archive context.
+At the time of writing:
 
-#### ✅ Immediate next action (when resuming)
+- The active, trusted selection mechanism in the codebase was `he_GET_SelPath_Simple`.
+- This system:
 
-* Implement PickClick resolution logic based on calling `he_GET_SelPath_Simple` as the selection gate.
-* Confirm: veil resolves on valid single-leaf selection and cancels cleanly.
-* Only after that, layer in “Load Expression From Selection” and later “Load Path From Selection” behavior using the same canonical contract.
+    - Validated active comp state
+    - Read `comp.selectedProperties`
+    - Enforced a single-leaf-property constraint
+    - Rejected containers and unsupported selections
+- PickClick did **not** successfully route through this system during this session.
+
+No determination is made here about whether such routing is sufficient or insufficient outside the tested conditions.
+
+* * *
+
+#### 🧊 Epistemic status at close of session
+
+At the end of this session:
+
+- PickClick could be armed and cancelled.
+- PickClick did not resolve based on timeline interaction under the observed conditions.
+- No conclusion was reached about long-term feasibility.
+- No attempt was made to exhaust all architectural variants.
+- The investigation was paused with uncertainty explicitly preserved.
+
+This addendum records **what was observed**, not what is true in general.
+
 
 
 

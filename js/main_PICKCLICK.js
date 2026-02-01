@@ -10,6 +10,8 @@ if (typeof Holy !== "object") Holy = {};
 cs.addEventListener(
   "com.holy.expressor.pickclick.trace",
   function (event) {
+    // V1 – T1 diagnostic: log host trace to CEP console
+    console.log("[PICKCLICK][TRACE]", event.data);
     try {
       var data = event && event.data ? JSON.parse(event.data) : null;
       console.log("[Holy.PICKCLICK][trace]", data);
@@ -18,6 +20,7 @@ cs.addEventListener(
     }
   }
 );
+
 
   var EVENT_RESOLVE = "com.holy.expressor.pickclick.resolve";
   var EVENT_CANCEL = "com.holy.expressor.pickclick.cancel";
