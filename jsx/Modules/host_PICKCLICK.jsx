@@ -54,7 +54,8 @@ function he_PC_ensurePlugPlug() {
 var he_PC_state = {
   active: false,
   sessionId: "",
-  baselineSignature: "",
+  baselineSignature: "",      // deep signature baseline (expr path string)
+  baselineCoarseSig: "",      // coarse signature baseline (cheap selection key)
   taskId: null
 };
 
@@ -104,16 +105,162 @@ function he_PC_buildSignature(items) {
   return keys.join("|");
 }
 
-function he_PC_getSelectionPayload() {
-  var items = [];
+// ----------------------------------------------------------
+// V1 – Class 5: COARSE SELECTION SIGNATURE (cheap, deterministic)
+// ----------------------------------------------------------
+function he_PC_getCoarseSignature() {
+  // 💡 CHECKER: MUST NOT throw; MUST be cheap; MUST change when user clicks a different prop (usually)
   try {
-    items = he_U_getSelectedProps();
-  } catch (e) {
-    he_PC_trace("he_U_getSelectedProps threw", String(e));
-    items = [];
-  }
+    var comp = app.project.activeItem;
+    if (!comp || !(comp instanceof CompItem)) return "NO_COMP";
 
-  if (!(items instanceof Array)) items = [];
+    var props = null;
+    try { props = comp.selectedProperties; } catch (_) { props = null; }
+    var propCount = (props && props.length) ? props.length : 0;
+
+    var layers = null;
+    try { layers = comp.selectedLayers; } catch (_) { layers = null; }
+    var layerCount = (layers && layers.length) ? layers.length : 0;
+
+    // Build a small fingerprint for up to first 3 selected props.
+    // This avoids deep path building but usually changes as the clicked prop changes.
+    var bits = [];
+    bits.push("L" + layerCount);
+    bits.push("P" + propCount);
+
+    var limit = propCount > 3 ? 3 : propCount;
+    for (var i = 0; i < limit; i++) {
+      var p = props[i];
+      if (!p) { bits.push("N"); continue; }
+
+      var mm = "";
+      var nm = "";
+      var idx = "";
+      var depth = "";
+      try { mm = p.matchName || ""; } catch (_) { mm = ""; }
+      try { nm = p.name || ""; } catch (_) { nm = ""; }
+      try { idx = String(p.propertyIndex); } catch (_) { idx = ""; }
+      try { depth = String(p.propertyDepth); } catch (_) { depth = ""; }
+
+      // Attempt to include owning layer index if resolvable (helps distinguish same-named props across layers)
+      var layerIndex = "";
+      try {
+        if (depth && Number(depth) > 0) {
+          var layer = p.propertyGroup(Number(depth));
+          if (layer && typeof layer.index !== "undefined") layerIndex = String(layer.index);
+        }
+      } catch (_) { layerIndex = ""; }
+
+      bits.push(layerIndex + ":" + mm + ":" + nm + ":" + idx + ":" + depth);
+    }
+
+    return bits.join("|");
+  } catch (_) {
+    return "COARSE_ERR";
+  }
+}
+
+// ----------------------------------------------------------
+// V1 – NEW: Simple single-leaf property snapshot for PickClick
+// Name required by directive: he_PICK_LeafProp_Snapshot()
+// ----------------------------------------------------------
+function he_PICK_LeafProp_Snapshot() {
+  // 💡 CHECKER: snapshot ONLY; no polling; never throws
+  try {
+    var comp = app.project.activeItem;
+    if (!comp || !(comp instanceof CompItem)) {
+      return { ok: false, reason: "No active comp", prop: null, expr: "" };
+    }
+
+    var props = comp.selectedProperties;
+    if (!props || !props.length) {
+      return { ok: false, reason: "No selection", prop: null, expr: "" };
+    }
+
+    // Filter to actual leaf properties only
+    var leafProps = [];
+    for (var i = 0; i < props.length; i++) {
+      try {
+        if (props[i] && props[i].propertyType === PropertyType.PROPERTY) {
+          leafProps.push(props[i]);
+        }
+      } catch (_) {}
+    }
+
+    if (leafProps.length !== 1) {
+      return { ok: false, reason: "Select exactly one leaf property", prop: null, expr: "" };
+    }
+
+    var leaf = leafProps[0];
+    if (!leaf || leaf.propertyType !== PropertyType.PROPERTY) {
+      return { ok: false, reason: "Unsupported selection (container)", prop: null, expr: "" };
+    }
+
+    // Match he_GET_SelPath_Simple guard: only allow expression-accessible props
+    try {
+      if (leaf.canSetExpression === false) {
+        return { ok: false, reason: "Unsupported property (no expression access)", prop: null, expr: "" };
+      }
+    } catch (_) {}
+
+    // Build deterministic expression path using existing proven builder (no duplication)
+    var exprPath = "";
+    try {
+      var built = he_GET_SelPath_Simple(false);
+      var parsed = built && built.length ? JSON.parse(built) : null;
+      if (parsed && parsed.ok && parsed.expr) exprPath = String(parsed.expr);
+    } catch (_) { exprPath = ""; }
+
+    if (!exprPath) {
+      return { ok: false, reason: "Unable to build expression path", prop: leaf, expr: "" };
+    }
+
+    return { ok: true, reason: null, prop: leaf, expr: exprPath };
+  } catch (e) {
+    return { ok: false, reason: "Exception: " + String(e), prop: null, expr: "" };
+  }
+}
+
+function he_PC_getSelectionPayload() {
+  // 💡 CHECKER: NO he_U_getSelectedProps dependency (removed); use new simple snapshot
+  var items = [];
+
+  var snap = he_PICK_LeafProp_Snapshot();
+  if (snap && snap.ok) {
+    var leaf = snap.prop;
+    var exprPath = snap.expr;
+
+    var exprText = "__NO_EXPRESSION__";
+    try {
+      // expression may exist even if disabled; treat empty as no expression
+      var raw = leaf.expression;
+      if (raw !== null && typeof raw !== "undefined" && String(raw).length) {
+        exprText = String(raw);
+      }
+    } catch (_) {
+      exprText = "__NO_EXPRESSION__";
+    }
+
+    var mm = "";
+    var nm = "";
+    try { mm = leaf.matchName || ""; } catch (_) { mm = ""; }
+    try { nm = leaf.name || ""; } catch (_) { nm = ""; }
+
+    items.push({
+      // Required by loadExpressionFromSelectionItems() (CEP)
+      path: exprPath,
+      expr: exprText,
+      matchName: mm,
+      displayName: nm,
+
+      // Hints used by CEP dedupe / preference
+      pickedIsLeaf: true,
+      pickedMatchName: mm,
+
+      // Classification optional; leave blank to avoid wrong ShapePath heuristics
+      classification: ""
+    });
+  }
 
   return {
     items: items,
@@ -200,8 +347,20 @@ function he_PC_poll() {
     return;
   }
 
-  var payload = he_PC_getSelectionPayload();
-  var signature = payload.signature;
+  // ----------------------------------------------------------
+  // V1 – Class 5 HYBRID:
+  // 1) compute coarse signature cheaply
+  // 2) only do deep snapshot when coarse changes
+  // ----------------------------------------------------------
+  var coarseSig = he_PC_getCoarseSignature();
+  var shouldDeep = (coarseSig !== he_PC_state.baselineCoarseSig);
+
+  var payload = null;
+  var signature = "";
+  if (shouldDeep) {
+    payload = he_PC_getSelectionPayload();
+    signature = payload.signature || "";
+  }
 
   if (he_PC_debug.enabled) {
     he_PC_debug.tick++;
@@ -209,11 +368,17 @@ function he_PC_poll() {
       he_PC_dispatch(HE_PICKCLICK_EVENT_DEBUG, {
         tick: he_PC_debug.tick,
         signature: signature,
-        itemCount: payload.items ? payload.items.length : 0
+        itemCount: (payload && payload.items) ? payload.items.length : 0
       });
     }
   }
 
+  // Update coarse baseline when it changes (even if deep snapshot invalid)
+  if (shouldDeep) {
+    he_PC_state.baselineCoarseSig = coarseSig;
+  }
+
+  // Resolve only when deep signature becomes valid and differs from baseline
   if (signature && signature !== he_PC_state.baselineSignature) {
     he_PC_trace("signature changed → resolve", {
       from: he_PC_state.baselineSignature,
@@ -225,17 +390,19 @@ function he_PC_poll() {
     he_PC_state.active = false;
     he_PC_state.sessionId = "";
     he_PC_state.baselineSignature = "";
+    he_PC_state.baselineCoarseSig = "";
     he_PC_state.taskId = null;
 
     he_PC_dispatch(HE_PICKCLICK_EVENT_RESOLVE, {
       sessionId: session,
-      items: payload.items,
+      items: payload && payload.items ? payload.items : [],
       signature: signature
     });
     return;
   }
 
-  if (signature !== he_PC_state.baselineSignature) {
+  // If we performed a deep snapshot, keep the deep baseline in sync
+  if (shouldDeep && signature !== he_PC_state.baselineSignature) {
     he_PC_trace("baseline updated", signature);
     he_PC_state.baselineSignature = signature;
   }
@@ -268,6 +435,8 @@ function he_PC_armPickClick(jsonStr) {
 
   he_PC_state.active = true;
   he_PC_state.sessionId = sessionId;
+  // V1 – Class 5: initialize baselines from current context
+  he_PC_state.baselineCoarseSig = he_PC_getCoarseSignature();
   he_PC_state.baselineSignature = he_PC_getSelectionPayload().signature || "";
 
   he_PC_debug.enabled = !!data.debug;

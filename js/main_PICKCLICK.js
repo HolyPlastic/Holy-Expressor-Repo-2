@@ -10,14 +10,19 @@ if (typeof Holy !== "object") Holy = {};
 cs.addEventListener(
   "com.holy.expressor.pickclick.trace",
   function (event) {
-    // V1 – T1 diagnostic: log host trace to CEP console
-    console.log("[PICKCLICK][TRACE]", event.data);
+    // V1 – Observability hardening: event.data may already be an object in some CEP builds
+    // 💡 CHECKER: never throw; preserve raw when parsing fails
+    var data = null;
     try {
-      var data = event && event.data ? JSON.parse(event.data) : null;
-      console.log("[Holy.PICKCLICK][trace]", data);
-    } catch (e) {
-      console.log("[Holy.PICKCLICK][trace][parse-fail]", event.data);
+      if (event && typeof event.data === "object") {
+        data = event.data;
+      } else if (event && typeof event.data === "string" && event.data.length) {
+        data = JSON.parse(event.data);
+      }
+    } catch (_) {
+      data = null;
     }
+    console.log("[Holy.PICKCLICK][trace]", data || (event ? event.data : null));
   }
 );
 
