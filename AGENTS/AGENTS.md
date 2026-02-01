@@ -645,6 +645,8 @@ Once changes are approved or merged, maintainers or archival agents may migrate 
 
 * 2026-02-20 | gpt-5.2-codex: No functional change — documentation clarification only. Design Intent: flag that PickClick’s selection payload is intentionally disabled so future agents avoid reintroducing redundant selection helpers. Risks / Concerns: None.
 
+* 2026-03-10 | gpt-5.2-codex: Implemented PickClick hybrid polling with a new single-leaf snapshot helper and coarse signature to avoid noisy parse-fail traces while preserving existing UX. Design Intent: restore PickClick selection payloads without resurrecting legacy helpers and reduce trace noise. Risks / Concerns: Coarse signature is heuristic; atypical selection changes may require a second click to trigger deep snapshot.
+
 
 🧱 Verified Architectural Notes (2025-11)
 
