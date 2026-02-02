@@ -59,6 +59,17 @@ var(--G-color-1);
   --G-colour-1-opac-50: rgba(var(--G-colour-1-RGB), 0.5);
   --G-colour-1-opac-30: rgba(var(--G-colour-1-RGB), 0.3);
   --G-colour-1-opac-10: rgba(var(--G-colour-1-RGB), 0.1);
+
+  --G-colour-1-veilxx: rgba(var(--G-colour-1-RGB), 0.1);
+  
+--G-veil-dk-r: calc(var(--G-colour-1-RGB).split(',')[0] * 0.15);
+--G-veil-dk-g: calc(var(--G-colour-1-RGB).split(',')[1] * 0.15);
+--G-veil-dk-b: calc(var(--G-colour-1-RGB).split(',')[2] * 0.15);
+
+ --G-colour-1-veil: rgba(var(--G-colour-1-RGB), 0.25);
+  --AE-theme-dark-opac: rgba(0, 0, 0, 0.397);
+
+
   --G-faded-text: rgba(255, 255, 255, 0.151);
 
 
@@ -67,6 +78,7 @@ var(--G-color-1);
   /* === After Effects Theme Colors === */
   --AE-theme-darkest: #1d1d1d;
   --AE-theme-dark: #323232;
+
   --AE-theme-light: #f8f8f8;
   --outer-borders: 0.5px solid var(--G-colour-1-opac-50);
 }
@@ -641,11 +653,13 @@ h4 {
 .appRoot {
   display: flex;
   flex-direction: column;
-  height: 100%;      /* or : 100vh / full panel height */
+  height: 100%;
+  /* or : 100vh / full panel height */
 }
 
 .bottom-bar {
-  margin-top: auto;   /* pushes it to the bottom */
+  margin-top: auto;
+  /* pushes it to the bottom */
 }
 
 body {
@@ -653,14 +667,16 @@ body {
   padding: 0;
   color: #000000;
   margin: 0;
-  padding: 2px; /* preserves same visual spacing */
+  padding: 2px;
+  /* preserves same visual spacing */
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
-#appRoot{
+#appRoot {
   overflow-x: hidden;
 }
 
@@ -1039,8 +1055,10 @@ html, body {
   max-width: none;
   flex-wrap: nowrap;
 }
+
 .bottom-row {
-  margin-top: auto;   /* pushes it to the bottom */
+  margin-top: auto;
+  /* pushes it to the bottom */
 }
 
 .row label {
@@ -1129,7 +1147,7 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  scale:10px;
+  scale: 10px;
   transform: translate(7px, -2px);
 }
 
@@ -1239,8 +1257,8 @@ textarea {
 }
 
 
-#modePanel[data-mode="rewrite"]{
-    border-radius: 0px 0px 0px 0px;
+#modePanel[data-mode="rewrite"] {
+  border-radius: 0px 0px 0px 0px;
 }
 
 /* ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â± MasterBox ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ gives the outer container full styling */
@@ -1252,8 +1270,10 @@ textarea {
   display: flex;
   flex-direction: column;
   margin-top: 5px;
-    flex: 1 1 auto;    /* ðŸ‘ˆ NEW */
-  min-height: 0;     /* ðŸ‘ˆ so children can shrink */
+  flex: 1 1 auto;
+  /* ðŸ‘ˆ NEW */
+  min-height: 0;
+  /* ðŸ‘ˆ so children can shrink */
 }
 
 
@@ -1265,9 +1285,12 @@ textarea {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-    flex: 1 1 auto;     /* 💡 CHECKER: fill available vertical space */
-  min-height: 0;      /* 💡 CHECKER: REQUIRED for nested flex scrolling */
+  flex: 1 1 auto;
+  /* 💡 CHECKER: fill available vertical space */
+  min-height: 0;
+  /* 💡 CHECKER: REQUIRED for nested flex scrolling */
 }
+
 /* Optional inner padding for spacing inside the box */
 #modePanel .he-mode-views {
   padding: 0px;
@@ -1324,37 +1347,38 @@ textarea {
 
 .modePanel-inner,
 #modeViewExpress {
-  min-height: 0; /* critical for scroll shrinking */
+  min-height: 0;
+  /* critical for scroll shrinking */
 }
 
 
 /* Overlay button group that floats on the panel border */
 .express-editor-overlay {
 
-padding: 4px 6px;
+  padding: 4px 6px;
 
-border-radius: 999px;
+  border-radius: 999px;
 
-background: none;
+  background: none;
 
-border: none;
+  border: none;
 
-position: absolute;
+  position: absolute;
 
-right: 12px;
+  right: 12px;
 
-bottom: 0;
+  bottom: 0;
 
-display: flex;
+  display: flex;
 
-align-items: center;
+  align-items: center;
 
-gap: 6px;
+  gap: 6px;
 
-transform: translateY(39%) translateX(17px);
+  transform: translateY(39%) translateX(17px);
   /* required */
 
-z-index: 100;
+  z-index: 100;
   /* overlay above the document UI */
 }
 
@@ -1385,14 +1409,33 @@ z-index: 100;
   /* sits below the checkbox block */
 }
 
+
+
+
+
+
+/* full veil */
 .pickclick-veil {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.28);
+
+  /* DARK modal BASE */
+  background: rgba(var(--G-colour-1-RGB), 0.05);
+
+  /* tint LAYER (subtle, theme-aware) */
+  /* you can increase opacity up to ~0.35 if needed */
+  box-shadow: inset 0 0 0 2000px var(--AE-theme-dark-opac);
+
   opacity: 0;
   pointer-events: none;
   z-index: 500;
   cursor: pointer;
+
+  backdrop-filter: blur(1px);
 }
 
 .pickclick-veil.is-active {
@@ -1400,11 +1443,12 @@ z-index: 100;
   pointer-events: auto;
 }
 
-
-
-
-
-
+.pickclick-veil-content { 
+  position: relative; 
+  z-index: 1; text-align: 
+  center; 
+  color: var(--G-color-1); 
+  user-select: none; }
 
 
 #modeViewRewrite {
@@ -1423,7 +1467,7 @@ z-index: 100;
 
 
 /*=====-===-=-=-=-=-==========*/
- 
+
 #rewriteUnderlay {
   position: absolute;
   inset: 0;
@@ -1460,14 +1504,14 @@ z-index: 100;
   opacity: 0.25;
 }
 
- 
 
-  
- 
- 
- 
+
+
+
+
+
 /*=====-===-=-=-=-=-==========*/
- 
+
 #rewriteOverlay {
   position: absolute;
   right: 20px;
@@ -1490,12 +1534,12 @@ z-index: 100;
 }
 
 
-  
- 
- 
- 
+
+
+
+
 /*=====-===-=-=-=-=-==========*/
- 
+
 .rewrite-checkbox-block {
   display: flex;
   align-items: center;
@@ -1508,12 +1552,12 @@ z-index: 100;
 .rewrite-checkbox-block .checkbox-label {
   gap: 8px;
 }
- 
- 
- 
- 
+
+
+
+
 /*=====-===-=-=-=-=-==========*/
- 
+
 .rewrite-typography-label {
   font-family: var(--f-pixel);
   font-size: 11px;
@@ -1535,13 +1579,13 @@ z-index: 100;
   color: var(--G-color-1-midlight2);
   stroke: var(--G-color-1-midlight2);
 }
- 
- 
- 
- 
+
+
+
+
 /*=====-=-===SEARCH N REPLACE-=-=-=-=-=====-===-=-=-=-=-=======-=-=-=-=-==========*/
 /*#region=====-===-=-=-=-=-=====-===-=-=-=-=-==========*/
- 
+
 #rewriteSearchWrapper,
 #rewriteReplaceWrapper {
   position: relative;
@@ -1582,11 +1626,11 @@ z-index: 100;
   transform: translate(6px, 14px);
 }
 
- 
- 
- 
+
+
+
 /*#endregion*=====-===-=-=-=-=-==========*/
- 
+
 .rewrite-label-search,
 .rewrite-label-replace {
   font-family: var(--f-pixel);
@@ -1615,11 +1659,11 @@ z-index: 100;
   gap: 69;
 }
 
- 
- 
- 
+
+
+
 /*=====-===-=-=-=-=-==========*/
- 
+
 .rewrite-edge-line-bottom,
 .rewrite-edge-line-top {
   position: relative;
@@ -1633,17 +1677,17 @@ z-index: 100;
 }
 
 .rewrite-edge-line-bottom {
-    top: 14.700000000000008px;
+  top: 14.700000000000008px;
 }
 
 .rewrite-edge-line-top {
   top: 0px;
 }
- 
- 
- 
+
+
+
 /*=====-===-=-=-=-=-==========*/
- 
+
 .rewrite-gradient-down,
 .rewrite-gradient-up {
   position: relative;
@@ -1656,14 +1700,16 @@ z-index: 100;
   opacity: 0.5;
 }
 
-.rewrite-gradient-down {top: 0;height: 11px;background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0.32) 0%, rgba(var(--G-colour-1-RGB), 0) 100%);}
+.rewrite-gradient-down {
+  top: 0;
+  height: 11px;
+  background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0.32) 0%, rgba(var(--G-colour-1-RGB), 0) 100%);
+}
 
 .rewrite-gradient-up {
   top: -38px;
   background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0) 0%, rgba(var(--G-colour-1-RGB), 0.32) 100%);
 }
- 
- 
 
 
 
@@ -1671,10 +1717,12 @@ z-index: 100;
 
 
 
- 
- 
+
+
+
+
 /*=====-===-=-=-=-=-==========*/
- 
+
 /*
 .rewrite-action-button {
   width: 100%;
@@ -1931,8 +1979,9 @@ z-index: 100;
 }
 
 .express-misc {
- /* margin-top: 16px;*/
-    margin-top: auto;  /* ðŸ‘ˆ this is now the flex item that gets shoved down */
+  /* margin-top: 16px;*/
+  margin-top: auto;
+  /* ðŸ‘ˆ this is now the flex item that gets shoved down */
 }
 
 
@@ -1946,6 +1995,7 @@ z-index: 100;
 #codeEditor {
   flex: 1 1 auto;
 }
+
 body.editor-maximized {
   height: 100vh;
   overflow: hidden;
@@ -1974,6 +2024,7 @@ body.editor-maximized #expressMisc,
 body.editor-maximized #bankSelectMenu {
   display: none !important;
 }
+
 /* ================================
    ðŸ“Œ EDITOR â€” MAXIMIZE MODE STATES
    ================================ */
@@ -2011,9 +2062,12 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
 
 #codeEditor .cm-editor {
   /* Flex behavior â€” DO NOT REMOVE â†“ */
-  flex: 1 1 auto;        /* expand into container */
-  height: 100%;          /* instead of auto */
-  min-height: 0;         /* allow calculations */
+  flex: 1 1 auto;
+  /* expand into container */
+  height: 100%;
+  /* instead of auto */
+  min-height: 0;
+  /* allow calculations */
 
 
   /* Visual styling */
@@ -2237,7 +2291,8 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
 #snippetsBar {
   display: flex;
   flex-direction: column;
-  flex: 0 0 auto;         /* ðŸ”’ cannot expand or shrink */
+  flex: 0 0 auto;
+  /* ðŸ”’ cannot expand or shrink */
   gap: 0;
   background: none;
   padding: 0;
@@ -2395,7 +2450,7 @@ button:disabled {
   /* ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â§ Core sizing controlled by a variable for unified scaling */
   --size: 25px;
   --stroke-width: 0.8px;
-  --icon-scale: 1;
+  --icon-scale: 1.7;
   --icon-offset-x: 0;
   --icon-offset-y: 0;
   width: var(--size);
@@ -2434,7 +2489,7 @@ button:disabled {
 .btn-clearSVG svg:hover {
   color: var(--G-color-1);
   stroke: var(--G-color-1-midlight2);
-  transform: scale(1.2) translateZ(0);
+  transform: scale(1.9) translateZ(0);
 
   transition: color 0.2s ease-out, transform 0.2s
 }
@@ -2551,13 +2606,13 @@ button.btn-discreet .icon-collapse {
 
 button.btn-discreet.is-active .icon-expand {
   display: none;
-  scale:0.5
+  scale: 0.5
 }
 
 
 button.btn-discreet .icon-expand {
 
-  scale:0.5
+  scale: 0.5
 }
 
 button.btn-discreet.is-active .icon-collapse {
@@ -3215,7 +3270,7 @@ button.target-btn {
   left: 10px;
   bottom: 10px;
   font-size: 12px;
-background: var(--G-color-1);
+  background: var(--G-color-1);
   color: #0a0a0a;
   padding: 6px 8px;
   border-radius: 6px;

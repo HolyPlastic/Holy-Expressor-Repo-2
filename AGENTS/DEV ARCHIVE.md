@@ -2217,4 +2217,67 @@ This addendum records **what was observed**, not what is true in general.
 
 
 
+2026-02-01 – Cypher Agent 💿🔗 and User
+Dev Archive Append — PickClick Debugging, Patch Workflow & UI Veil (Temporal / Evidence-First / Procedural)
+
+• **CONTEXT AT TIME OF WORK**
+• The session involved iterative development, testing, and debugging of the PickClick feature in a CEP plugin for After Effects.
+• Initial focus was on diagnosing polling and selection payload issues; later focus shifted to UI and CSS veil adjustments.
+• A hybrid polling architecture (Class 5) was selected during the chat in place of alternatives.
+• Europe/London local time at the end of this prompt was **12:21 am GMT 1 Feb 2026**. ([Time and Date][1])
+
+• **INITIAL FAILURE STATE**
+• Logs showed continuous polling messages and repeated errors referencing missing function `he_U_getSelectedProps`, indicating a broken dependency.
+• Polling loop did not resolve until a valid payload was detected.
+• User reported some properties (e.g., shape group transforms, effects, text properties) did not stop the pick arm.
+• Veil UI covered only part of the plugin and user desired UI coverage change.
+
+• **INVESTIGATION & REFRAMING**
+• The blocking error `ReferenceError: Function he_U_getSelectedProps is undefined` was detected from host trace logs.
+• Assistant reasoned hybrid polling (coarse signature + deep snapshot) might address missing selector dependency.
+• A conceptual shift occurred where continuous polling was treated as a constraint rather than the core failure point; the missing selector was treated as blocking.
+• Earlier alternatives (Class 1, Class 2, Class 6) were compared; Class 5 hybrid was selected over others during the session.
+
+• **ACTIONS TAKEN**
+• Assistant drafted Phase 4 patch plan for Class 5 hybrid logic and provided diff-style host and CEP patches.
+• User tested and reported improved behavior: pick arm stopped correctly for some properties.
+• User requested UI veil changes; assistant provided DOM and CSS modifications to cover entire plugin and add centered “PickClick armed” text.
+• User tested CSS adjustments and reported veil not dark enough; assistant iterated with multiple color adjustment proposals including `color-mix()` and fallback layered overlay.
+
+• **ATTEMPTS / TESTS**
+• Diagnostic evaluation of polling and resolve logs after users applied patches.
+• Testing selection of various AE properties to observe whether pick arm would stop.
+• User trials of different CSS background configurations: plain RGBA dark overlays, HSL variables, `color-mix()`, and inset tint layering.
+• Observations of veil brightness and blur interaction with CSS variable tints.
+
+• **OBSERVATIONS**
+• After applying host patch, signature changes and resolve events appeared in CEP logs for supported properties.
+• Unsupported property types caused polling to continue.
+• Veil CSS changes resulted in centered text with semi-opaque overlay, but background darkness did not match expectations.
+• Proposed `color-mix()` CSS did not render visual background in the tested environment, which user verified.
+• Layered base + inset tint approach resulted in some darkening but not complete dark effect desired.
+
+• **DECISIONS & RATIONALE**
+• The missing selector function was treated as the core blocking factor at the time and replaced with a new hybrid poll design.
+• Hybrid polling approach was adopted as the working approach during this session over simpler or event-driven alternatives.
+• Veil structural change (move outside mode panel) was adopted to cover entire plugin.
+• CSS fallback using dark RGBA plus tinted overlay was recommended due to environment limitations with advanced CSS functions.
+
+• **FAILURES / LIMITATIONS OBSERVED**
+• CSS approaches that relied on unsupported or invalid declarations (`color-mix()` or HSL variants) resulted in no visible background.
+• Attempts to mathematically darken theme RGB variables in pure CSS were invalid or did not produce expected visual outcome.
+• Some AE properties did not stop pick arm; at the time, recognized as resulting from selection path limitations.
+
+• **UNRESOLVED / UNKNOWN AT END OF SESSION**
+• The precise CSS configuration to produce a sufficiently dark themed veil was not resolved within this chat.
+• The full set of AE property types that require expression path support was not fully enumerated or addressed.
+• A complete mapping of properties that pick arm should accept versus reject was not established.
+
+• **SESSION-LEVEL INTERPRETIVE READ-BACK (NON-CANONICAL)**
+• Based on the above record, the primary breakthrough during this session appeared to be shifting focus from raw polling issues to resolving the missing selector dependency, enabling hybrid polling; this change in investigative focus facilitated progress on pick arm behavior.
+
+
+
+
+
 
