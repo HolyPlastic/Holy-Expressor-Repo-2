@@ -1,4 +1,4 @@
-# AGENT_INDEX — Holy Expressor Fast Start (Verified)
+# 00_START_HERE — Holy Expressor Fast Start (Verified)
 
 Purpose: single "start here" map for agents. Read this first, then jump to one spoke doc only.
 
@@ -77,3 +77,24 @@ Where it lives:
 - State/persistence issue → `ROADMAP_TASK_ROUTER.md` state row → `js/main_STATE.js`, `js/persistent-store.js`, `js/main_UTILS.js`
 - Panel launch/manifest issue → `ROADMAP_TASK_ROUTER.md` manifest row → `CSXS/manifest.xml`, relevant `*.html`
 
+---
+
+## 7) Coverage edge-cases (read this before assuming you're done)
+
+These are recurring task types that agents can miss if they stop at the quick triage table.
+
+- Quick panel behavior/debugging:
+  - Start with `quickpanel.html` + `js/quickpanel.js`.
+  - Then check event consumers in `js/main_UI.js` (quick panel logs are handled there).
+- Color picker behavior/window persistence:
+  - Start with `colorpicker.html`, `js/colorpicker.js`, `js/panel_state.js`.
+  - Then verify persistence links in `js/persistent-store.js` and panel launch trigger in `js/main_UI.js`.
+- Full editor / CodeMirror context issues:
+  - Start with `fulleditor.html`, `js/codemirror-init.js`, `js/main_DEV_INIT.js`, `js/main_STATE.js`.
+  - Full editor sets `window.HX_FULL_EDITOR_CONTEXT`; code paths differ from main panel.
+- Cross-panel state bleed / persistence mismatch:
+  - Trace through `js/main_STATE.js`, `js/persistent-store.js`, and any panel-specific bootstrap file.
+- Host-side operation appears broken but JS click path looks fine:
+  - Follow every `evalScript` call path into the corresponding `jsx/Modules/*.jsx` file before concluding root cause.
+
+Rule of thumb: if your task touches a non-main panel (`quickpanel`, `colorpicker`, `fulleditor`), do not trust main-panel-only routes.

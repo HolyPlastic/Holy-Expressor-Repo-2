@@ -98,3 +98,33 @@ Read only if task explicitly says PickClick:
 
 Rule:
 - Do not generalize PickClick architecture into global rules.
+
+---
+
+
+## 8) Color picker / theme color sync / picker window behavior
+
+Read in order:
+1. `colorpicker.html`
+2. `js/colorpicker.js`
+3. `js/panel_state.js`
+4. `js/persistent-store.js`
+5. `js/main_UI.js` (open-panel trigger + main-panel listeners)
+
+Watch-outs:
+- Color changes can be event-driven across panel boundaries; verify both emitter and listener.
+- Window position/size persistence is shared infrastructure (`panel_state.js`) and can affect multiple panels.
+
+---
+
+## 9) Full editor / CodeMirror context issues
+
+Read in order:
+1. `fulleditor.html`
+2. `js/codemirror-init.js`
+3. `js/main_DEV_INIT.js`
+4. `js/main_STATE.js`
+
+Watch-outs:
+- `window.HX_FULL_EDITOR_CONTEXT` changes startup behavior.
+- Main panel and full editor can both touch editor globals (`window.editor`), so verify context before edits.
