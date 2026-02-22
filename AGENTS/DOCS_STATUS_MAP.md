@@ -5,14 +5,14 @@ Goal: prevent token burn by reading only what is authoritative for the question.
 ## Authority ladder
 
 1. **Current code files** (`index.html`, `/js`, `/jsx`, `CSXS/manifest.xml`) → highest authority.
-2. **This roadmap set** (`AGENT_INDEX`, `ROADMAP_*`) → navigation aid, not substitute for code.
+2. **This roadmap set** (`00_START_HERE`, `ROADMAP_*`) → navigation aid, not substitute for code.
 3. **Historical/legacy docs** (`KNOWLEDGE_BASE`, `DEV ARCHIVE`) → context only.
 
 ---
 
 ## AGENTS directory docs, classified
 
-- `AGENTS/AGENT_INDEX.md`
+- `AGENTS/00_START_HERE.md`
   - Start here. Global rules + routing pointers.
 - `AGENTS/ROADMAP_TASK_ROUTER.md`
   - Fast task-to-file paths.
