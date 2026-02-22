@@ -16,6 +16,18 @@ Purpose: single "start here" map for agents. Read this first, then jump to one s
 
 ---
 
+## 🚨 AGENT SOP: THE TRACING & BLAST RADIUS PROTOCOL
+
+**Do not rely on this map to tell you every file dependency. You are an autonomous agent with search tools. You must use them.** Before modifying any code, you must execute the following protocol:
+
+1. **The End-to-End Trace Rule:** If you are modifying the logic, UI, or functionality of _any_ feature, you must trace its complete execution path before writing code. Search the HTML for the trigger, search the `.js` files for the routing logic, and specifically search for `evalScript` to find the ExtendScript (`.jsx`) backend function it calls. Never edit a node in this chain without checking both the front-end and back-end.
+    
+2. **The Blast Radius Rule:** Before modifying _any_ existing function, state variable, or shared utility (especially anything attached to the global `Holy` namespace), you must run a workspace search (grep) for its exact name. You must look at every file that calls it to ensure your change will not silently break other panels or features.
+    
+3. **The Quarantine Exemption:** You are forbidden from attempting to "fix" the experimental PickClick feature (`main_PICKCLICK.js` / `host_PICKCLICK.jsx`). However, if your blast radius search reveals that PickClick relies on a shared utility you _need_ to change for a normal task, you are permitted to update that shared utility. Just make sure the normal task works.
+
+---
+
 ## 2) PickClick quarantine (hard rule)
 
 Status: **EXPERIMENTAL / UNRESOLVED — DO NOT TOUCH unless user explicitly requests PickClick work.**
@@ -24,10 +36,6 @@ Where it lives:
 - CEP side: `js/main_PICKCLICK.js`
 - Host side: `jsx/Modules/host_PICKCLICK.jsx`
 - Docs: `AGENTS/PICK CLICK SPECIFIC/*`
-
-Routing rule for agents:
-- If task is not explicitly PickClick-related, avoid these files entirely.
-- If task is PickClick-related, treat existing behavior as unstable; map only, do not infer missing architecture.
 
 ---
 
