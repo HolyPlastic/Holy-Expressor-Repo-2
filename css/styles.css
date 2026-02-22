@@ -1591,10 +1591,9 @@ textarea {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  flex: 1;
   gap: 0px;
   z-index: 1;
+  transform: translateY(-4.900000000000003px);
 }
 
 #rewriteSearchWrapper {
@@ -1603,6 +1602,7 @@ textarea {
 
 #rewriteReplaceWrapper {
   padding: 0px;
+  transform: translateY(-38px);
 }
 
 #rewriteSearchWrapper .text-input,
@@ -1642,19 +1642,21 @@ textarea {
 }
 
 .rewrite-label-search {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
+  margin-right: auto;
+  top: -9.399999999999999px;
+  left: -11.399999999999999px;
   transform: scale(0.65);
-  transform-origin: top left;
+  gap: 0px;
 }
 
 .rewrite-label-replace {
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: relative;
+  margin-left: auto;
+  left: 16.699999999999992px;
+  top: 15.20000000000001px;
   transform: scale(0.65);
-  transform-origin: top right;
+  gap: 69;
 }
 
 
@@ -1664,21 +1666,22 @@ textarea {
 
 .rewrite-edge-line-bottom,
 .rewrite-edge-line-top {
-  position: absolute;
+  position: relative;
   left: 0;
   right: 0;
   height: 0;
   background: var(--G-color-1-midlight2);
   pointer-events: none;
+  gap: 0px;
   opacity: 0.5;
 }
 
 .rewrite-edge-line-bottom {
-  bottom: 0;
+  top: 14.700000000000008px;
 }
 
 .rewrite-edge-line-top {
-  top: 0;
+  top: 0px;
 }
 
 
@@ -1687,10 +1690,13 @@ textarea {
 
 .rewrite-gradient-down,
 .rewrite-gradient-up {
-  position: absolute;
+  position: relative;
   left: 0;
   right: 0;
+  height: 14px;
   pointer-events: none;
+  gap: 0px;
+  top: 10px;
   opacity: 0.5;
 }
 
@@ -1700,14 +1706,8 @@ textarea {
   background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0.32) 0%, rgba(var(--G-colour-1-RGB), 0) 100%);
 }
 
-#rewriteReplaceWrapper .rewrite-gradient-down {
-  top: auto;
-  bottom: 0;
-}
-
 .rewrite-gradient-up {
-  bottom: 11px;
-  height: 14px;
+  top: -38px;
   background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0) 0%, rgba(var(--G-colour-1-RGB), 0.32) 100%);
 }
 

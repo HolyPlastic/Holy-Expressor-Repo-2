@@ -25,8 +25,8 @@ C:.
 |   \---PICK CLICK SPECIFIC
 |           Info_1.md
 |           Info_2.md
-|           PickClick - Canonical Investigation & Failure Analysis.md
 |           PICKCLICK DOC MAP.md
+|           PickClick - Canonical Investigation & Failure Analysis.md
 |           
 +---assets
 |   \---buttons
