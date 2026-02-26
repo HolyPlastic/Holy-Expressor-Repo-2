@@ -1,5 +1,8 @@
 PICKCLICK DOC MAP
 
+* `See: [Failure Analysis](<PickClick - Canonical Investigation & Failure Analysis.md>)`
+- `See: [Info 1](Info_1.md)`
+- `[← Back to Start](../00_START_HERE.md)`
 
 ## 🧠 PICKCLICK — MAIN DEVELOPMENT BEATS (VERY HIGH LEVEL)
 

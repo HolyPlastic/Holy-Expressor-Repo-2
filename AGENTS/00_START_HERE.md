@@ -60,23 +60,15 @@ Where it lives:
 
 ## 5) Spoke docs (use one, not all)
 
-- `AGENTS/ROADMAP_TASK_ROUTER.md`
-  - Task-to-file routing table ("I need to do X, read Y first").
-- `AGENTS/ROADMAP_CODE_MAP.md`
-  - Verified module map (what each JS/JSX file currently does).
-- `AGENTS/DOCS_STATUS_MAP.md`
-  - Documentation reliability map (what is canonical vs historical context only).
+| Document                                                             | Purpose                    |
+| :------------------------------------------------------------------- | :------------------------- |
+| **[ROADMAP_TASK_ROUTER.md](ROADMAP_TASK_ROUTER.md)**                 | High-level roadmap.        |
+| **[ROADMAP_CODE_MAP.md](ROADMAP_CODE_MAP.md)**                       | Detailed module map.       |
+| **[PICKCLICK DOC MAP.md](<PICK CLICK SPECIFIC/PICKCLICK DOC MAP.md>)** | Specialized PickClick map. |
 
 ---
 
-## 6) Quick triage table
-
-- UI/layout/style task → `ROADMAP_TASK_ROUTER.md` (UI/CSS row) → `index.html`, `css/styles.css`, `js/main_UI.js`
-- Expression apply/search task → `ROADMAP_TASK_ROUTER.md` (express/apply row) → `js/main_EXPRESS.js`, `js/main_SEARCH_REPLACE.js`, `jsx/Modules/host_APPLY.jsx`, `jsx/Modules/host_GET.jsx`
-- Boot/load-order/runtime crash → `ROADMAP_CODE_MAP.md` bootstrap section
-- State/persistence issue → `ROADMAP_TASK_ROUTER.md` state row → `js/main_STATE.js`, `js/persistent-store.js`, `js/main_UTILS.js`
-- Panel launch/manifest issue → `ROADMAP_TASK_ROUTER.md` manifest row → `CSXS/manifest.xml`, relevant `*.html`
-- Building a completely NEW feature? → `ROADMAP_CODE_MAP.md` (to understand how modules attach to the Holy namespace) + `EXAMPLES.md` (for strict UI/SVG rules). **Crucial:** Any new `.js` or `.jsx` files you create MUST be manually wired into the load order in `index.html` and `main_DEV_INIT.js`.
+## 6) Quick triage table (merged above)
 
 ---
 
