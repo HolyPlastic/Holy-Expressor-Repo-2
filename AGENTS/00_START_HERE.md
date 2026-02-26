@@ -76,6 +76,7 @@ Where it lives:
 - Boot/load-order/runtime crash → `ROADMAP_CODE_MAP.md` bootstrap section
 - State/persistence issue → `ROADMAP_TASK_ROUTER.md` state row → `js/main_STATE.js`, `js/persistent-store.js`, `js/main_UTILS.js`
 - Panel launch/manifest issue → `ROADMAP_TASK_ROUTER.md` manifest row → `CSXS/manifest.xml`, relevant `*.html`
+- Building a completely NEW feature? → `ROADMAP_CODE_MAP.md` (to understand how modules attach to the Holy namespace) + `EXAMPLES.md` (for strict UI/SVG rules). **Crucial:** Any new `.js` or `.jsx` files you create MUST be manually wired into the load order in `index.html` and `main_DEV_INIT.js`.
 
 ---
 
