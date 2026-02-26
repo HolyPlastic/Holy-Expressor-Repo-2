@@ -9,8 +9,6 @@ This map is intentionally compressed. It records what files currently do, based 
   - Includes PickClick veil element.
 - `quickpanel.html`
   - Lightweight snippets-focused panel; loads subset of main modules plus `js/quickpanel.js`.
-- `fulleditor.html`
-  - Full editor context (`window.HX_FULL_EDITOR_CONTEXT = true`), initializes CodeMirror via dedicated script path.
 - `colorpicker.html`
   - Color UI and persistence hooks, separate panel context.
 

@@ -11,7 +11,6 @@
 
     <Extension Id="com.holy.expressor.quickpanel" />
     <Extension Id="com.holy.expressor.colorpicker" />
-    <Extension Id="com.holy.expressor.fulleditor"/> 
   </ExtensionList>
 
   <ExecutionEnvironment>
@@ -168,35 +167,6 @@
 
 
 
-    <Extension Id="com.holy.expressor.fulleditor">
-  <DispatchInfo>
-    <Resources>
-      <MainPath>./fulleditor.html</MainPath>
-      <CEFCommandLine>
-        <Parameter>--enable-nodejs</Parameter>
-        <Parameter>--enable-devtools</Parameter>
-        <Parameter>--remote-debugging-port=6907</Parameter>
-        <Parameter>--allow-file-access</Parameter>
-      </CEFCommandLine>
-    </Resources>
-    <Lifecycle>
-      <AutoVisible>true</AutoVisible>
-    </Lifecycle>
-    <UI>
-      <Type>Panel</Type>
-      <Geometry>
-        <Size>
-          <Width>1000</Width>
-          <Height>700</Height>
-        </Size>
-      </Geometry>
-    </UI>
-  </DispatchInfo>
-</Extension>
-
-
-
-    
 
 
   </DispatchInfoList>

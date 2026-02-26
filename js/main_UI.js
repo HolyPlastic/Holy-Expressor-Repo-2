@@ -165,7 +165,6 @@ ensureHostReady(() => {
     applyBtn = document.getElementById("applyBtn");
     applyBtnLabel = applyBtn ? applyBtn.querySelector(".label") : null;
 
-    var openFullEditorBtn = document.getElementById("openFullEditorBtn");
     var NEW_forCustomer_openLogButton = document.getElementById("NEW_forCustomer_openLogButton");
     var codeEditor = document.getElementById("codeEditor");
     var expressOverlay = document.querySelector(".express-editor-overlay");
@@ -263,13 +262,6 @@ ensureHostReady(() => {
 
       Holy.Panel.setMode = setMode;
 
-      Holy.Panel.lockToRewriteMode = function () {
-        console.log("[Holy.Panel] Locking to RewriteMode for Full Editor launch");
-        if (typeof setMode === "function") setMode("rewrite");
-        if (modeExpressBtn) modeExpressBtn.hidden = true;
-        if (btnModeSwitch) btnModeSwitch.hidden = true;
-      };
-
       modeExpressBtn.addEventListener("click", function () {
         setMode("express");
       });
@@ -284,96 +276,9 @@ ensureHostReady(() => {
         });
       }
 
-      Holy.Panel.returnToMainPanel = function () {
-        if (typeof setMode === "function") {
-          setMode("express");
-        }
-
-        if (modeExpressBtn) {
-          modeExpressBtn.hidden = false;
-        }
-
-        if (btnModeSwitch) {
-          btnModeSwitch.hidden = false;
-        }
-
-        if (window.editor && typeof window.editor.focus === "function") {
-          try {
-            window.editor.focus();
-          } catch (focusErr) {
-            if (window.HX_LOG_MODE === "verbose") {
-              console.warn("[Holy.Panel] Failed to refocus editor", focusErr);
-            }
-          }
-        }
-
-        window.HX_EDITOR_LOCKED = false;
-
-        try {
-          window.localStorage.removeItem("HX_FULL_EDITOR_OPEN");
-        } catch (storageErr) {
-          if (window.HX_LOG_MODE === "verbose") {
-            console.warn("[Holy.Panel] Failed to clear full editor flag", storageErr);
-          }
-        }
-      };
-
       setMode("express");
     }
 
-    function openFullEditorPanel() {
-      if (Holy.Panel && typeof Holy.Panel.lockToRewriteMode === "function") {
-        Holy.Panel.lockToRewriteMode();
-      }
-
-      window.HX_EDITOR_LOCKED = true;
-
-      try {
-        new CSInterface().requestOpenExtension("com.holy.expressor.fulleditor");
-
-      } catch (err) {
-        console.error("[Holy.UI] Failed to open full editor panel", err);
-        window.HX_EDITOR_LOCKED = false;
-        if (typeof Holy.Panel.returnToMainPanel === "function") {
-          Holy.Panel.returnToMainPanel();
-        } else {
-          if (modeExpressBtn) {
-            modeExpressBtn.hidden = false;
-          }
-          if (btnModeSwitch) {
-            btnModeSwitch.hidden = false;
-          }
-          if (typeof setMode === "function") {
-            setMode("express");
-          }
-        }
-        return;
-      }
-
-      try {
-        window.localStorage.setItem("HX_FULL_EDITOR_OPEN", "true");
-      } catch (storageErr) {
-        if (window.HX_LOG_MODE === "verbose") {
-          console.warn("[Holy.UI] Failed to set full editor flag", storageErr);
-        }
-      }
-    }
-
-    Holy.Panel.openFullEditorPanel = openFullEditorPanel;
-
-    if (openFullEditorBtn) {
-      openFullEditorBtn.addEventListener("click", openFullEditorPanel);
-    }
-  });
-
-  window.addEventListener("storage", function (evt) {
-    if (!evt) return;
-
-    if (evt.key === "HX_FULL_EDITOR_OPEN" && evt.newValue === "false") {
-      if (Holy.Panel && typeof Holy.Panel.returnToMainPanel === "function") {
-        Holy.Panel.returnToMainPanel();
-      }
-    }
   });
 
   // ✅ REWRITE – QuickPanel Log Listener (safe for object or string payload)

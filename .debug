@@ -19,12 +19,6 @@
     </HostList>
   </Extension>
 
-  <Extension Id="com.holy.expressor.fulleditor">
-    <HostList>
-      <Host Name="AEFT" Port="6907" />
-    </HostList>
-  </Extension>
-
   <Extension Id="com.holy.expressor.log">
     <HostList>
       <Host Name="AEFT" Port="6908" />

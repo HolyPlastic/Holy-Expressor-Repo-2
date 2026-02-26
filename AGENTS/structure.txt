@@ -4,7 +4,6 @@ C:.
 |   .debug
 |   .gitattributes
 |   colorpicker.html
-|   fulleditor.html
 |   index.html
 |   quickpanel.html
 |   structure.txt

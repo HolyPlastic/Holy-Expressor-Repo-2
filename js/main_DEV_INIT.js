@@ -144,15 +144,8 @@ if (typeof Holy !== "object") Holy = {};
 
 
 
-  // --- CodeMirror setup ---	
+  // --- CodeMirror setup ---
   window.addEventListener("DOMContentLoaded", () => {
-    if (window.HX_FULL_EDITOR_CONTEXT) {
-      if (window.HX_LOG_MODE === "verbose") {
-        console.log("[DEV_INIT] Skipping main editor initialization for full editor context");
-      }
-      return;
-    }
-
     console.log("CodeMirror global:", window.codemirror);
 
     // ✅ Corrected guard: only continue if CodeMirror is loaded

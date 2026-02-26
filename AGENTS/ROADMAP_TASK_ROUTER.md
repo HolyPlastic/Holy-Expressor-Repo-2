@@ -83,7 +83,7 @@ Watch-outs:
 
 Read in order:
 1. `CSXS/manifest.xml`
-2. Panel HTML entry file (`index.html`, `quickpanel.html`, `colorpicker.html`, `fulleditor.html`)
+2. Panel HTML entry file (`index.html`, `quickpanel.html`, `colorpicker.html`)
 3. `scripts/setup-cep-environment.sh` (dev install symlink/debug workflow)
 
 ---
@@ -115,16 +115,4 @@ Watch-outs:
 - Color changes can be event-driven across panel boundaries; verify both emitter and listener.
 - Window position/size persistence is shared infrastructure (`panel_state.js`) and can affect multiple panels.
 
----
 
-## 9) Full editor / CodeMirror context issues
-
-Read in order:
-1. `fulleditor.html`
-2. `js/codemirror-init.js`
-3. `js/main_DEV_INIT.js`
-4. `js/main_STATE.js`
-
-Watch-outs:
-- `window.HX_FULL_EDITOR_CONTEXT` changes startup behavior.
-- Main panel and full editor can both touch editor globals (`window.editor`), so verify context before edits.

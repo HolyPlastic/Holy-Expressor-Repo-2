@@ -44,7 +44,6 @@ Where it lives:
 - `index.html` → main panel (`com.holy.expressor.panel`)
 - `quickpanel.html` → quick snippets panel (`com.holy.expressor.quickpanel`)
 - `colorpicker.html` → color picker (`com.holy.expressor.colorpicker`)
-- `fulleditor.html` → full editor panel (`com.holy.expressor.fulleditor`)
 - Extension IDs + host/version/runtime constraints are in `CSXS/manifest.xml`.
 
 ---
@@ -82,12 +81,9 @@ These are recurring task types that agents can miss if they stop at the quick tr
 - Color picker behavior/window persistence:
   - Start with `colorpicker.html`, `js/colorpicker.js`, `js/panel_state.js`.
   - Then verify persistence links in `js/persistent-store.js` and panel launch trigger in `js/main_UI.js`.
-- Full editor / CodeMirror context issues:
-  - Start with `fulleditor.html`, `js/codemirror-init.js`, `js/main_DEV_INIT.js`, `js/main_STATE.js`.
-  - Full editor sets `window.HX_FULL_EDITOR_CONTEXT`; code paths differ from main panel.
 - Cross-panel state bleed / persistence mismatch:
   - Trace through `js/main_STATE.js`, `js/persistent-store.js`, and any panel-specific bootstrap file.
 - Host-side operation appears broken but JS click path looks fine:
   - Follow every `evalScript` call path into the corresponding `jsx/Modules/*.jsx` file before concluding root cause.
 
-Rule of thumb: if your task touches a non-main panel (`quickpanel`, `colorpicker`, `fulleditor`), do not trust main-panel-only routes.
+Rule of thumb: if your task touches a non-main panel (`quickpanel`, `colorpicker`), do not trust main-panel-only routes.
