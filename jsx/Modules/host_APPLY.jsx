@@ -633,6 +633,26 @@ try {
 
     function isDescendantOfAllowedGroup(prop) { return he_U_SC_isDescendantOfAllowedGroup(prop, allowedGroupSignatures); }
 
+    // Collect selected group objects to use as traversal roots when group scope is active.
+    // When groups are selected, start traversal FROM those groups rather than full layers,
+    // so scoping is enforced during traversal (not just as a post-filter).
+    var selectedGroupRoots = [];
+    if (allowedGroupSignatures) {
+      for (var gp = 0; gp < comp.selectedProperties.length; gp++) {
+        var selPropGp = comp.selectedProperties[gp];
+        if (!selPropGp) continue;
+        var gpType = 0;
+        try { gpType = selPropGp.propertyType; } catch (_) { gpType = 0; }
+        if ((gpType === PropertyType.INDEXED_GROUP || gpType === PropertyType.NAMED_GROUP) && !isContentsGroup(selPropGp)) {
+          var gpAlready = false;
+          for (var gi = 0; gi < selectedGroupRoots.length; gi++) {
+            if (selectedGroupRoots[gi] === selPropGp) { gpAlready = true; break; }
+          }
+          if (!gpAlready) selectedGroupRoots.push(selPropGp);
+        }
+      }
+    }
+
     function collectTarget(prop) {
       if (!prop) return;
       targets.push(prop);
@@ -674,16 +694,20 @@ for (var ti = 0; ti < rawTokens.length; ti++) {
       return JSON.stringify({ ok:false, err:"Select a layer or property to scope search" });
     }
 
-    // Determine traversal roots before traversal begins (always layer roots)
+    // Build layer-level traversal roots (used when no group scope is active).
     var traversalRoots = [];
     function pushUniqueRoot(r){for(var k=0;k<traversalRoots.length;k++)if(traversalRoots[k]===r)return;traversalRoots.push(r);}
     for (var sr=0; sr<scopeLayers.length; sr++){
       pushUniqueRoot(scopeLayers[sr]);
     }
 
+    // When groups are selected, traverse within those groups only.
+    // Otherwise traverse full layers.
+    var activeTraversalRoots = (selectedGroupRoots.length > 0) ? selectedGroupRoots : traversalRoots;
+
     var state = { applied:0, skipped:0, errors:[] };
-    for (var li=0; li<traversalRoots.length; li++){
-      var root = traversalRoots[li];
+    for (var li=0; li<activeTraversalRoots.length; li++){
+      var root = activeTraversalRoots[li];
       if (tokens.length > 1){
         var props = [];
         he_P_GS3_findPropsByTokenPath(root, tokens, 0, props);

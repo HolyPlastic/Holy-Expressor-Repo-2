@@ -3267,8 +3267,10 @@ button.target-btn {
 
 #toast {
   position: fixed;
-  left: 10px;
+  left: 50%;
   bottom: 10px;
+  transform: translateX(-50%);
+  white-space: nowrap;
   font-size: 12px;
   background: var(--G-color-1);
   color: #0a0a0a;

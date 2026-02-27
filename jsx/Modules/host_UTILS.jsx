@@ -869,7 +869,10 @@ function cy_deleteExpressions() {
         he_U_Ls_1_isLayerStyleProp(prop) && !he_U_Ls_2_styleEnabledForLeaf(prop)) {
       return false;
     }
-    if (typeof he_U_VS_isTrulyHidden === "function" && he_U_VS_isTrulyHidden(prop)) return false;
+    // NOTE: he_U_VS_isTrulyHidden is intentionally NOT called here.
+    // For delete operations we want to clear expressions from hidden/disabled layers
+    // too. The owning layer is pre-enabled by enableTrackedLayers() before traversal,
+    // and the try/catch below already handles any AE errors gracefully.
 
     var hadExpr = false;
     var exprStr = "";
@@ -968,6 +971,15 @@ function cy_deleteExpressions() {
         ownerLayer = null;
       }
       if (!ownerLayer) ownerLayer = findLayerForNode(rootNode);
+      // Heuristic fallback: when instanceof fails and propertyDepth=0 (bare layer object),
+      // findLayerForNode returns null. Check for layer-like properties directly.
+      if (!ownerLayer) {
+        try {
+          if (typeof rootNode.index === "number" && typeof rootNode.enabled !== "undefined") {
+            ownerLayer = rootNode;
+          }
+        } catch (_) {}
+      }
 
       if (ownerLayer && !__hasLayer(__layersToEnable, ownerLayer)) {
         __layersToEnable.push(ownerLayer);
@@ -1026,10 +1038,10 @@ if (result.errors && result.errors.length) { result.hadErrors = true; }
     result.toastMessage = "Delete expressions failed";
     return JSON.stringify(result);
   } finally {
+    try { restoreLayerVisibility(); } catch (_) {}
     if (undoOpen) {
       try { app.endUndoGroup(); } catch (_) {}
     }
-    try { enableTrackedLayers(); } catch (_) {}
   }
 }
 

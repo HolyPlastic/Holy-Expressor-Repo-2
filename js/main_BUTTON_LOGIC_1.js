@@ -226,7 +226,6 @@ if (typeof Holy !== "object") Holy = {};
 
             var useSearch = false;
             if (csToggle && csToggle.checked) useSearch = true;
-            if (!useSearch && csInput && csInput.value && csInput.value.trim().length > 0) useSearch = true;
 
             if (useSearch) {
               var searchVal = csInput ? csInput.value.trim() : "";
@@ -762,6 +761,24 @@ Holy.UI.toast("Expressed to selected properties");
 
 
 // ======================================
+//  Custom Search Active State
+// ======================================
+  function setCustomSearchActive(isActive) {
+    var toggle = document.querySelector("#useCustomSearch");
+    var box = document.querySelector("#customSearch");
+    var targetBox = document.querySelector("#TargetBox");
+    if (toggle) toggle.checked = !!isActive;
+    if (box) {
+      box.readOnly = !isActive;
+      box.classList.toggle("is-disabled", !isActive);
+    }
+    if (targetBox) {
+      targetBox.style.opacity = isActive ? "0.5" : "1";
+      targetBox.style.pointerEvents = isActive ? "none" : "auto";
+    }
+  }
+
+// ======================================
 //  Apply Report Helper (backward-compatible)
 // Accepts updateApplyReport(result)  or  updateApplyReport(title, result)
 // ======================================
@@ -835,7 +852,8 @@ Holy.BUTTONS = {
   HX_LOG_MODE: HX_LOG_MODE,
   wirePanelButtons: wirePanelButtons,
   updateApplyReport: updateApplyReport,
-  openApplyLogWindow: openApplyLogWindow
+  openApplyLogWindow: openApplyLogWindow,
+  setCustomSearchActive: setCustomSearchActive
 };
 
 })();

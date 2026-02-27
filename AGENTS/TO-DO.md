@@ -54,24 +54,6 @@
 
 ---
 
-## 🔎 CustomSearch
-
-- 🔍 **Scope traversal to selected groups (when applicable)**
-    
-    - If groups inside a layer are selected, traversal should be limited to those groups
-        
-    - Otherwise, traverse the full layer
-        
-- 🎨🛠 **Auto-disable Custom Search after Apply**
-    
-    - After a successful Apply, Custom Search should automatically turn off
-        
-- 🐞 **Custom Search runs even when unticked**
-    
-    - Search logic still executes despite Custom Search being disabled
-        
-    - Must strictly gate execution behind toggle state
-        
 
 ---
 
@@ -149,9 +131,16 @@
 
 ---
 
+## (MAYBE FIXED) 
+Items below have been hopefully fixed, more testing may be required to make sure:
 
 
-## 🔁 Undo / Action History
+
+
+
+
+
+## 🔁 Undo / Action History 
 
 - Mass actions (e.g., bulk delete expressions) currently require multiple individual undo steps.
     
@@ -159,3 +148,22 @@
     
 - Applies broadly to all batch operations, not just expression deletion.
 
+
+## 🔎 CustomSearch (POTENTIALLLY FIXED)
+
+- 🔍 **Scope traversal to selected groups (when applicable)**
+    
+    - If groups inside a layer are selected, traversal should be limited to those groups
+        
+    - Otherwise, traverse the full layer
+        
+- 🎨🛠 **Auto-disable Custom Search after Apply**
+    
+    - After a successful Apply, Custom Search should automatically turn off
+        
+- 🐞 **Custom Search runs even when unticked**
+    
+    - Search logic still executes despite Custom Search being disabled
+        
+    - Must strictly gate execution behind toggle state
+        

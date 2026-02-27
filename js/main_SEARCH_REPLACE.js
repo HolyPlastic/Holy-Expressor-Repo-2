@@ -34,7 +34,6 @@ if (typeof Holy !== "object") Holy = {};
     var customSearchTerm = customInput ? String(customInput.value || "").trim() : "";
     var useCustomSearch = false;
     if (customToggle && customToggle.checked) useCustomSearch = true;
-    if (!useCustomSearch && customSearchTerm) useCustomSearch = true;
     if (!customSearchTerm) useCustomSearch = false;
 
     if (!normalizedSearch.length) {
