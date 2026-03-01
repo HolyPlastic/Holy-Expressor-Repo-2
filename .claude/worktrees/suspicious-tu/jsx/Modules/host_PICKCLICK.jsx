@@ -211,32 +211,6 @@ function he_PICK_LeafProp_Snapshot() {
       if (parsed && parsed.ok && parsed.expr) exprPath = String(parsed.expr);
     } catch (_) { exprPath = ""; }
 
-    // Fallback: breadcrumb path for properties not yet covered by the formal builder
-    // (Layer Styles, Light layer options, etc.)
-    // path is used only as a unique dedup key in loadExpressionFromSelectionItems,
-    // not as AE expression syntax, so any stable non-empty unique string is fine.
-    if (!exprPath) {
-      try {
-        var fbDepth = 0;
-        try { fbDepth = leaf.propertyDepth; } catch (_) {}
-        if (fbDepth > 0) {
-          var fbParts = [];
-          var fbLayer = null;
-          try { fbLayer = leaf.propertyGroup(fbDepth); } catch (_) {}
-          if (fbLayer && fbLayer.name) fbParts.push(fbLayer.name);
-          for (var fd = fbDepth - 1; fd >= 1; fd--) {
-            var fbGroup = null;
-            try { fbGroup = leaf.propertyGroup(fd); } catch (_) {}
-            if (fbGroup && fbGroup.name) fbParts.push(fbGroup.name);
-          }
-          var fbLeafName = "";
-          try { fbLeafName = leaf.name || leaf.matchName || ""; } catch (_) {}
-          if (fbLeafName) fbParts.push(fbLeafName);
-          if (fbParts.length > 0) exprPath = fbParts.join(" > ");
-        }
-      } catch (_) {}
-    }
-
     if (!exprPath) {
       return { ok: false, reason: "Unable to build expression path", prop: leaf, expr: "" };
     }

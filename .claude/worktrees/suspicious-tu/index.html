@@ -1,0 +1,793 @@
+﻿<!DOCTYPE html>
+<html>
+
+
+<!-- #region 🔽🔽🔽 LOADING + head 🗿===================================------------------
+____________________ -------->
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Holy Expressor</title>
+
+  <!-- 🧩 CSS FIRST: ensures styled paint before JS -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- ⚙️ Core CEP dependencies (MUST stay synchronous) -->
+  <script src="./js/libs/CSInterface.js"></script>
+  <script src="./js/persistent-store.js"></script>
+
+  <!-- #region 🎨⚙️⚙️ CSS STYLE FUNCTION ===================================------------------>
+
+  <script>
+    (function STYLE_boot() {
+      try {
+        const theme = localStorage.getItem('he_theme') || 'default';
+        document.documentElement.classList.add(`theme-${theme}`);
+
+        // 💡 HEX → RGB
+        function hexToRgb(hex) {
+          const clean = hex.replace('#', '');
+          const bigint = parseInt(clean, 16);
+          const r = (bigint >> 16) & 255;
+          const g = (bigint >> 8) & 255;
+          const b = bigint & 255;
+          return { r, g, b };
+        }
+
+        // 💡 RGB → HSL
+        function rgbToHsl(r, g, b) {
+          r /= 255; g /= 255; b /= 255;
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          let h, s, l = (max + min) / 2;
+
+          if (max === min) {
+            h = s = 0; // gray
+          } else {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+              case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+              case g: h = (b - r) / d + 2; break;
+              case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+          }
+
+          return {
+            h: Math.round(h * 360),
+            s: Math.round(s * 100),
+            l: Math.round(l * 100)
+          };
+        }
+
+        function assignDerivedVariables(rootEl, explicitHex) {
+          if (!rootEl || !rootEl.style) {
+            return;
+          }
+          var nextHex = typeof explicitHex === 'string' ? explicitHex.trim() : '';
+          if (!nextHex) {
+            nextHex = getComputedStyle(rootEl).getPropertyValue('--G-color-1').trim();
+          }
+          if (!nextHex) {
+            return;
+          }
+          if (nextHex[0] !== '#') {
+            nextHex = '#' + nextHex;
+          }
+          if (!/^#?[0-9a-fA-F]{6}$/.test(nextHex)) {
+            return;
+          }
+          var rgb = hexToRgb(nextHex);
+          if (!rgb) {
+            return;
+          }
+          var r = rgb.r;
+          var g = rgb.g;
+          var b = rgb.b;
+          if (![r, g, b].every(function (channel) { return typeof channel === 'number' && isFinite(channel); })) {
+            return;
+          }
+          var hsl = rgbToHsl(r, g, b);
+          rootEl.style.setProperty('--G-colour-1-RGB', r + ', ' + g + ', ' + b);
+          rootEl.style.setProperty('--G-color-1-H', hsl.h);
+          rootEl.style.setProperty('--G-color-1-S', hsl.s + '%');
+          rootEl.style.setProperty('--G-color-1-L', hsl.l + '%');
+        }
+
+        window.updateDerivedVariables = window.updateDerivedVariables || assignDerivedVariables;
+
+        // 🧮 Read CSS var, convert, and reassign
+        const root = document.documentElement;
+        const hex = getComputedStyle(root).getPropertyValue('--G-color-1').trim();
+        assignDerivedVariables(root, hex);
+
+      } catch (e) {
+        console.warn('cy_styleBoot failed', e);
+      }
+    })();
+  </script>
+  <!-- V1.0 – Persist color to localStorage -->
+  <script>
+    /* 📍01 – apply saved theme color on startup if present */
+    (function APPLY_SAVED_THEME_COLOR() {
+      try {
+        var savedColor;
+        try {
+          if (Holy && Holy.PERSIST && typeof Holy.PERSIST.get === 'function') {
+            savedColor = Holy.PERSIST.get('he_themeColor');
+          }
+        } catch (errPersist) {
+          console.warn('[Main] Persistent store adapter failed, fallback to localStorage', errPersist);
+        }
+        if (!savedColor) {
+          try {
+            savedColor = localStorage.getItem('he_themeColor');
+          } catch (errLocal) {
+            console.warn('[Main] localStorage unavailable for theme color', errLocal);
+          }
+        }
+        if (savedColor) {
+          var root = document.documentElement;
+          root.style.setProperty('--G-color-1', savedColor);
+          if (typeof window.updateDerivedVariables === 'function') {
+            // 📍02 – ensure derived vars get recalculated if function exists
+            window.updateDerivedVariables(root, savedColor);
+          }
+          console.log('[Main] Applied saved theme color', savedColor);
+        }
+      } catch (err) {
+        console.warn('[Main] Failed to apply saved theme color', err);
+      }
+    })();
+  </script>
+  <!----_-_-_-_-_-_-_---------------------------------------\--\--->
+  <!-- #endregion ^^^ end🎨⚙️⚙️ ^^^ -->
+
+  <script>
+    (function () {
+      var cs;
+      try {
+        cs = new CSInterface();
+      } catch (err) {
+        console.warn('[Main] CSInterface unavailable for color sync', err);
+        return;
+      }
+      cs.addEventListener('holy.color.change', function (e) {
+        // 📍03 – event handler snippet to apply color and persist
+        try {
+          var data = (typeof e.data === 'string') ? JSON.parse(e.data || '{}') : e.data;
+          if (data && typeof data.hex === 'string') {
+            var root = document.documentElement;
+            root.style.setProperty('--G-color-1', data.hex);
+
+            // persist selection via CEP persistent data (fallback to localStorage)
+            var persisted = false;
+            if (Holy && Holy.PERSIST && typeof Holy.PERSIST.set === 'function') {
+              try {
+                persisted = Holy.PERSIST.set('he_themeColor', data.hex);
+              } catch (errPersist) {
+                console.warn('[Main] Failed to persist theme color via adapter', errPersist);
+              }
+            }
+            if (!persisted) {
+              try {
+                localStorage.setItem('he_themeColor', data.hex);
+              } catch (errLocal) {
+                console.warn('[Main] Fallback persist via localStorage failed', errLocal);
+              }
+            }
+
+            if (typeof window.updateDerivedVariables === 'function') {
+              window.updateDerivedVariables(root, data.hex);
+            }
+          }
+        } catch (err) {
+          console.warn('[Main] Failed to apply color event', err);
+        }
+      });
+    })();
+  </script>
+
+
+
+  <script src="js/json2.js"></script>
+
+  <!-- 🧠 Core editor bundle (CodeMirror) -->
+  <script defer src="js/codemirror/codemirror-bundle.js"></script>
+  <!-- 💡 CM bundle is loaded above -->
+  <link rel="stylesheet" href="css/codemirror_styles.css"> <!-- uses globals from styles.css -->
+  <!-- 🧩 Plugin modules (safe to defer) -->
+  <script defer src="js/main_UTILS.js"></script>
+  <script defer src="js/main_STATE.js"></script>
+  <script defer src="js/main_FLYO.js"></script>
+  <script defer src="js/main_MENU.js"></script>
+  <script defer src="js/main_UI.js"></script>
+  <script defer src="js/main_EXPRESS.js"></script>
+  <script defer src="js/main_PICKCLICK.js"></script>
+  <script defer src="js/main_BUTTON_LOGIC_1.js"></script>
+  <script defer src="js/main_SNIPPETS.js"></script>
+  <script defer src="js/main_SEARCH_REPLACE.js"></script>
+  <script defer src="js/main_DEV_INIT.js"></script>
+
+  <!-- 🚀 Final entrypoint -->
+  <script defer src="js/main.js"></script>
+</head>
+
+
+
+<body>
+
+
+  <div id="appRoot" class="appRoot">
+
+
+
+
+    <div id="pickClickVeil" class="pickclick-veil" role="button" aria-label="PickClick active. Click to cancel."
+      tabindex="0">
+      <div class="pickclick-veil-content">
+        <div class="pickclick-veil-text f18-c">Pick Click armed
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+    <header class="hdr hide-when-editor-maximized">
+      <h2></h2>
+    </header>
+
+
+
+    <section class="tabs hide-when-editor-maximized">
+
+      <!-- V1 — Flyover Trigger Button -->
+
+
+
+
+
+
+
+    </section>
+
+    <!----_-_-_-_-_-_-_---------------------------------------\--\--->
+    <!-- #endregion ^^^ EnndLoading 🔽 + head 🗿 ^^^ -->
+
+
+
+    <!-- #region ✂️✂️✂️ SNIPPETS ===================================------------------
+____________________ -------->
+
+    <!-- ============================ 
+       ✂️✂️✂️✂️SNIPPETS
+       ============================ -->
+
+
+    <!-- V1: Snippets Bar (single button) -->
+    <div id="snippetsBar" class="panel hide-when-editor-maximized">
+
+
+
+      <!-- 🟧 Bank Header Compact + Dropdown Icon -->
+      <div id="bankHeader" class=>
+
+        <!-- Dropdown button (icon version) -->
+
+
+
+        <button id="bankSelectBtn" class="btn-clearSVG" title="Select Bank">
+          <svg viewBox="-0.55 -0.56 9.05 11.88" class="btn-icon">
+            <path
+              d="M1.34,1.34h0c1.46-1.46,3.82-1.46,5.27,0h0c.7.7,1.09,1.65,1.09,2.64v2.82c0,.31-.12.61-.35.83l-2.55,2.55c-.46.46-1.21.46-1.67,0L.6,7.63c-.22-.22-.35-.52-.35-.83v-2.82c0-.99.39-1.94,1.09-2.64Z"
+              fill="currentColor" stroke-miterlimit="10"></path>
+            <line class="inner-contents" x1="5.62" y1="6.85" x2="2.35" y2="3.58" fill="none" stroke-linecap="round"
+              stroke-linejoin="round"></line>
+            <line class="inner-contents" x1="4.03" y1="7.5" x2="2.56" y2="6.03" fill="none" stroke-linecap="round"
+              stroke-linejoin="round"></line>
+            <line class="inner-contents" x1="5.38" y1="4.43" x2="3.92" y2="2.97" fill="none" stroke-linecap="round"
+              stroke-linejoin="round"></line>
+          </svg>
+        </button>
+
+        <!-- Bank name (editable text) -->
+        <span id="bankNameLabel" class="f18-c">Bank 1</span>
+
+        <label class="checkbox-layercontrols checkbox-Diamond">
+          <input id="snipLoadControls" type="checkbox">
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="12.47" height="12.47"
+            viewBox="0 0 12.47 12.47">
+            <g id="checkbox-diamond">
+              <rect x="1.76" y="1.74" width="8.95" height="8.98" rx="1.46" ry="1.46"
+                transform="translate(6.23 -2.58) rotate(45)" fill="currentColor" stroke-miterlimit="10" />
+            </g>
+          </svg>
+        </label>
+
+        <!-- Context menu for bank actions -->
+        <ul id="bankSelectMenu" class="context-menu"></ul>
+      </div>
+
+
+      <div class="snippetsRow" id="snippetsRow"></div>
+
+    </div>
+
+    <!-- Context menu for snippet buttons -->
+    <ul id="snippetContextMenu" class="context-menu snippet-menu hide-when-editor-maximized">
+      <li><button data-action="edit">Edit</button></li>
+      <li><button data-action="express">Express...</button></li>
+    </ul>
+
+    <!----_-_-_-_-_-_-_---------------------------------------\--\--->
+    <!-- #endregion ^^^ End Snippets ✂️ ^^^ -->
+
+
+
+    <!-- ============================-->
+
+
+
+
+    <section id="modePanel" class="he-mode-panel" aria-label="Expression Tools">
+
+
+      <div class="modePanel-inner">
+
+
+        <!-- 🎛️ Unified Mode Switcher (old look, new system) -->
+        <div class="modeSwitchBar f18-c heading-1" role="group" aria-label="Choose between Express and Rewrite modes">
+          <div class="mode-switch-cluster">
+            <!-- Express button -->
+            <button id="modeExpressBtn" class="mode-btn" type="button" aria-pressed="true" role="tab"
+              aria-selected="true" aria-controls="modeViewExpress">
+              EXPRESS
+            </button>
+
+            <!-- Middle switcher icon -->
+
+            <button id="btnModeSwitch" class="mode-switch-btn" type="button" aria-label="Switch to rewrite mode"
+              title="Switch to rewrite mode">
+              <!-- Rewrite Mode Icon -->
+              <svg class="mode-switch-svg modeSwitchSvg modeSwitch-rewrite" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 14.88 12.27" aria-hidden="true" focusable="false">
+                <g>
+                  <polygon id="rewrite-inactivearrow" fill="currentColor" points="7.44 0 0 6.35 7.46 12.27 7.44 0" />
+                  <polygon id="rewrite-bigarrow" fill="currentColor" points="7.44 0 14.88 6.35 7.42 12.27 7.44 0" />
+                  <polygon id="rewrite-lilarrow" fill="currentColor" points="7.44 0 11.85 6.35 7.42 12.27 7.44 0" />
+                </g>
+              </svg>
+
+              <!-- Express Mode Icon -->
+              <svg class="mode-switch-svg modeSwitchSvg modeSwitch-express" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 14.88 12.27" aria-hidden="true" focusable="false">
+                <g>
+                  <polygon id="express-inactivearrow" fill="currentColor"
+                    points="7.44 0 14.88 6.35 7.42 12.27 7.44 0" />
+                  <polygon id="express-bigarrow" fill="currentColor" points="7.44 0 0 6.35 7.46 12.27 7.44 0" />
+                  <polygon id="express-lilarrow" fill="currentColor" points="7.44 0 3.03 6.35 7.46 12.27 7.44 0" />
+                </g>
+              </svg>
+            </button>
+
+            <!-- Rewrite button -->
+            <button id="modeRewriteBtn" class="mode-btn" type="button" aria-pressed="false" role="tab"
+              aria-selected="false" aria-controls="modeViewRewrite">
+              REWRITE
+            </button>
+          </div>
+
+          <button id="editorMaximizeBtn" class="mode-utility-btn btn-discreet" type="button"
+            aria-label="Maximize editor" aria-pressed="false" title="Maximize editor">
+            <span class="icon icon-expand" aria-hidden="true">
+              <svg xmlns="http://www.w3 .org/2000/svg" width="8.49" height="8.54" viewBox="0 0 8.49 8.54">
+                <g>
+                  <path d="M.82,4.02V1.13c0-.41.34-.75.75-.75h5.79c.41,0,.75.34.75.75v5.79c0,.41-.34.75-.75.75h-2.9"
+                    stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                  <line x1=".38" y1="8.16" x2="4.53" y2="4.01" stroke-linecap="round" stroke-linejoin="round" />
+                  <path
+                    d="M5.47,5.33l-2.26-2.26c-.17-.17-.05-.46.19-.46h2.26c.15,0,.27.12.27.27v2.26c0,.24-.29.36-.46.19Z"
+                    stroke-width="0px" />
+                </g>
+              </svg>
+            </span>
+            <span class="icon icon-collapse" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="8.49" height="8.54" viewBox="0 0 8.49 8.54">
+                <g>
+                  <path d="M.82,4.02V1.13c0-.41.34-.75.75-.75h5.79c.41,0,.75.34.75.75v5.79c0,.41-.34.75-.75.75h-2.9"
+                    stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                  <line x1=".38" y1="8.16" x2="4.53" y2="4.01" stroke-linecap="round" stroke-linejoin="round" />
+                  <path
+                    d="M5.47,5.33l-2.26-2.26c-.17-.17-.05-.46.19-.46h2.26c.15,0,.27.12.27.27v2.26c0,.24-.29.36-.46.19Z"
+                    stroke-width="0px" />
+                </g>
+              </svg>
+            </span>
+            <span class="sr-only">Maximize editor</span>
+          </button>
+        </div>
+        <div id="modeViewExpress" class="he-mode-view panel" role="tabpanel" aria-labelledby="modeExpressBtn">
+
+
+
+
+        </div>
+
+        <div class="he-mode-views">
+
+
+          <!-- V2: pick UI removed -->
+          <!-- Editor row -->
+          <div id="codeEditor"></div>
+
+
+
+          <button id="loadFromSelectionBtn" class="btn-clearSVG express-editor-overlay-btn" type="button"
+            aria-label="Load expression from selection" title="Load expression from selection">
+            <svg viewBox="-0.42 -0.43 19.59 19.02" class="btn-icon">
+              <path
+                d="M18.37,9.67v8.12s-9.29,0-9.29,0L.52,9.22c-.09-.09-.14-.22-.14-.34V.86c0-.27.22-.49.49-.49h8.01c.13,0,.25.05.34.14l9.15,9.15Z"
+                fill="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width=".75" />
+              <g>
+                <line class="inner-contents" x1="12.63" y1="8.09" x2="6.3" y2="8.09" fill="currentColor"
+                  stroke-linecap="round" stroke-linejoin="round" stroke-width=".75" />
+                <line class="inner-contents" x1="11.71" y1="10.26" x2="8.88" y2="10.26" fill="currentColor"
+                  stroke-linecap="round" stroke-linejoin="round" stroke-width=".75" />
+                <line class="inner-contents" x1="10.05" y1="5.99" x2="7.22" y2="5.99" fill="currentColor"
+                  stroke-linecap="round" stroke-linejoin="round" stroke-width=".75" />
+              </g>
+            </svg>
+          </button>
+
+
+
+
+
+
+
+
+          <!-- Overlay action buttons anchored to the bottom-right of the Express area -->
+          <div class="express-editor-overlay" role="group" aria-label="Editor quick actions">
+
+            <div class="express-editor-overlay-checkbox">
+              <label class="checkbox-Diamond">
+                <input id="useAbsoluteComp" type="checkbox">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="12.47" height="12.47"
+                  viewBox="0 0 12.47 12.47">
+                  <g id="checkbox-diamond">
+                    <rect x="1.76" y="1.74" width="8.95" height="8.98" rx="1.46" ry="1.46"
+                      transform="translate(6.23 -2.58) rotate(45)" fill="currentColor" stroke-miterlimit="10" />
+                  </g>
+                </svg>
+              </label>
+            </div>
+
+            <div class="express-editor-overlay-buttons">
+              <button id="loadPathFromSelectionBtn" class="btn-clearSVG express-editor-overlay-btn" type="button"
+                aria-label="Load path from selection" title="Load path from selection">
+                <svg class="btn-icon" viewBox="-0.42 -0.43 19.59 19.02">
+                  <path
+                    d="M18.37,9.67v8.12s-9.29,0-9.29,0L.52,9.22c-.09-.09-.14-.22-.14-.34V.86c0-.27.22-.49.49-.49h8.01c.13,0,.25.05.34.14l9.15,9.15Z"
+                    fill="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+
+                  <line class="inner-contents" x1="5.9" y1="5.2" x2="12.85" y2="12.15" fill="currentColor"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                  <circle class="inner-contents" cx="9.37" cy="8.67" r="1.88" fill="currentColor" stroke-linecap="round"
+                    stroke-linejoin="round" />
+
+                </svg>
+              </button>
+
+              <button id="editorClearBtn" class="btn-clearSVG express-editor-overlay-btn" type="button"
+                aria-label="Clear editor" title="Clear editor">
+                <svg viewBox="-0.43 -0.42 25.71 52.68" class="btn-icon">
+                  <path
+                    d="M24.48,26.26c-9.38.66-14.29,6.21-23.15,25.2,7.75-19.06,7.67-24.83-.96-25.88,9.38-.66,14.29-6.21,23.15-25.2-7.75,19.06-7.67,24.83.96,25.88Z"
+                    fill="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+
+          </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <div id="modeViewRewrite" class="he-mode-view panel search-replace-panel is-hidden" role="tabpanel"
+            aria-labelledby="modeRewriteBtn" hidden>
+            <!--  <div id="rewriteUnderlay" aria-hidden="true">
+          <div class="rewrite-underlay-line"></div>
+          <div class="rewrite-underlay-line"></div>
+          <div class="rewrite-underlay-line"></div>
+        </div>
+-->
+
+            <div id="rewriteSearchWrapper">
+              <label for="searchField" class="text-sm block-label">Search</label>
+              <input type="text" id="searchField" class="text-input" />
+              <div class="rewrite-edge-line-top" aria-hidden="true"></div>
+              <div class="rewrite-gradient-down" aria-hidden="true"></div>
+              <span class="rewrite-label-search f69" aria-hidden="true">SEARCH</span>
+            </div>
+
+            <div id="rewriteReplaceWrapper">
+              <span class="rewrite-label-replace f69" aria-hidden="true">REPLACE</span>
+              <div class="rewrite-edge-line-bottom" aria-hidden="true"></div>
+              <div class="rewrite-gradient-up" aria-hidden="true"></div>
+              <label for="replaceField" class="text-sm block-label">Replace</label>
+              <input type="text" id="replaceField" class="text-input" />
+              <div class="rewrite-gradient-down" aria-hidden="true"></div>
+            </div>
+            <div id="rewriteOverlay">
+
+              <button id="rewriteClearBtn" class="btn-clearSVG" type="button"
+                aria-label="Clear search and replace fields" title="Clear search and replace fields">
+                <svg viewBox="-0.43 -0.42 25.71 52.68" class="btn-icon">
+                  <path
+                    d="M24.48,26.26c-9.38.66-14.29,6.21-23.15,25.2,7.75-19.06,7.67-24.83-.96-25.88,9.38-.66,14.29-6.21,23.15-25.2-7.75,19.06-7.67,24.83.96,25.88Z"
+                    fill="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+
+
+          </div>
+        </div> <!-- end of modeviews-->
+
+        <div id="pickClickVeil" class="pickclick-veil" role="button" aria-label="PickClick active. Click to cancel."
+          tabindex="0"></div>
+    </section>
+    <!-- #endregion ^^^ End Express 🖥️ ^^^ -->
+
+
+    <!-- #region 🎛️🎛️🎛️ Express CONTROLS ===================================------------------
+____________________ -------->
+
+
+    <!-- =============== Main button Row ==============-->
+    <!-- =======================[+]=====================-->
+
+
+    <!-- Custom Search controls -->
+    <div id="customSearch-Master" class="customSearch-master">
+      <div class="row">
+        <label class="checkbox-label text-sm checkbox-Diamond customSearch-checkbox">
+          <input id="useCustomSearch" type="checkbox">
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="12.47" height="12.47"
+            viewBox="0 0 12.47 12.47">
+            <g id="checkbox-diamond">
+              <rect x="1.76" y="1.74" width="8.95" height="8.98" rx="1.46" ry="1.46"
+                transform="translate(6.23 -2.58) rotate(45)" fill="currentColor" stroke-miterlimit="10" />
+            </g>
+          </svg>
+        </label>
+      </div>
+      <div class="row">
+        <div class="customSearch-textBox-frame disabled">
+          <div class="customSearch-frame-row" aria-hidden="true">
+            <svg class="cap-left" xmlns="http://www.w3.org/2000/svg" width="16.82" height="19.09"
+              viewBox="0 0 16.82 19.09" focusable="false">
+              <path d="M16.82,18.59H1.89c-1.02,0-1.7-1.07-1.25-1.99L13.89,1.81c.75-.83,1.82-1.31,2.94-1.31" fill="none"
+                stroke="currentColor" stroke-miterlimit="10" vector-effect="non-scaling-stroke" />
+            </svg>
+            <svg class="cap-mid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 19.09" preserveAspectRatio="none"
+              focusable="false">
+              <line x1="0" y1="0.5" x2="100" y2="0.5" stroke="currentColor" stroke-miterlimit="10"
+                vector-effect="non-scaling-stroke" />
+              <line x1="0" y1="18.59" x2="100" y2="18.59" stroke="currentColor" stroke-miterlimit="10"
+                vector-effect="non-scaling-stroke" />
+            </svg>
+            <svg class="cap-right" xmlns="http://www.w3.org/2000/svg" width="7.71" height="19.09"
+              viewBox="0 0 7.71 19.09" focusable="false">
+              <path d="M0,18.59c1.26,0,2.4-.76,2.87-1.93L7.71,4.77c.83-2.04-.67-4.27-2.87-4.27H0" fill="none"
+                stroke="currentColor" stroke-miterlimit="10" vector-effect="non-scaling-stroke" />
+            </svg>
+          </div>
+
+
+          <input type="text" id="customSearch" placeholder="e.g. Stroke 1 > Opacity" />
+        </div>
+      </div>
+    </div>
+
+
+    <div id="expressControls" class="express-controls">
+
+      <!----_-_-_-_-_-_-_---------------------------------------\--\--->
+      <!-- #endregion ^^^ End Controls ^^^ -->
+
+
+      <!-- #region 🔵🔵🔵 APPLY ===================================------------------
+____________________ -------->
+
+
+      <!-- Apply buttons -->
+      <div id="expressApplyRow" class="express-apply">
+        <div class="row btns apply-row">
+
+
+
+          <!-- 🟧🟧🟧 Rhombus Button -->
+          <!-- 🟧 Unified rhombus button -->
+          <button id="applyBtn" class="btn-rhombus f18-c holy-glow">
+            <svg class="rhombus-icon" xmlns="http://www.w3.org/2000/svg" width="63.25" height="20.08"
+              viewBox="-0.75 -0.75 63.25 20.08">
+
+              <!-- Left section -->
+              <g class="rhombus-left">
+                <path d="M7.47.5h-3.69C1.54.5-.04,2.69.67,4.82l3.69,11.02c.45,1.34,1.7,2.24,3.11,2.24" />
+              </g>
+
+              <!-- Middle section -->
+              <g class="rhombus-mid">
+                <rect x="7.47" y="0.5" width="46.8" height="18.08" fill="currentColor" stroke="none" />
+                <line x1="7.47" y1="0.5" x2="54.27" y2="0.5" />
+                <line x1="7.47" y1="18.08" x2="54.27" y2="18.08" />
+              </g>
+
+              <!-- Right section -->
+              <g class="rhombus-right">
+                <path d="M54.27,18.08h3.69c2.24,0,3.82-2.19,3.11-4.32L57.38,2.74C56.93,1.4,55.68.5,54.27.5" />
+              </g>
+            </svg>
+
+            <span class="label">APPLY</span>
+          </button>
+
+          <button id="deleteExpressionsBtn" class="btn-clearSVG express-editor-overlay-btn" type="button"
+            aria-label="Delete selected expressions" title="Delete selected expressions">
+            <svg class="btn-icon" viewBox="0 0 34.31 27.61">
+              <path
+                d="M7.04,23.66L1.24,6.79C.27,3.96,2.37,1,5.38,1h17.76c1.87,0,3.53,1.19,4.14,2.95l5.8,16.87c.98,2.84-1.13,5.79-4.13,5.79-5.53,0-13.45,0-17.77,0-1.87,0-3.52-1.19-4.13-2.95Z"
+                fill="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+              <path class="inner-contents"
+                d="M12.67,18.83l-.61-2.27h2.42l-.58-2.15h2.42l-.55-2.04h-2.42l-.58-2.15h-2.42l-.61-2.27h2.55l.58,2.15h2.42l.58,2.15h2.29l-.58-2.15h2.42l-.58-2.15h2.55l.61,2.27h-2.42l.58,2.15h-2.42l.55,2.04h2.42l.58,2.15h2.42l.61,2.27h-2.55l-.58-2.15h-2.42l-.58-2.15h-2.29l.58,2.15h-2.42l.58,2.15h-2.55Z"
+                fill="currentColor" />
+            </svg>
+          </button>
+          <!--<button id="applyTargetBtn" class="apply-target-btn">Apply</button>-->
+        </div>
+      </div>
+
+      <!-- Dev / utility buttons -->
+      <div class="row btns dev-row">
+        <button class="tab-btn" id="reloadPanel">Reload</button>
+        <button class="tab-btn" id="exposeBtn">Expose</button>
+        <button class="tab-btn" id="NEW_forCustomer_openLogButton">History</button>
+        <button id="quickAccessLaunchBtn" class="tab-btn">QckPnl</button>
+      </div>
+
+      <!-- ================ Romby boi ==============-->
+      <!-- =======================[+]=====================-->
+
+
+
+      <!----_-_-_-_-_-_-_---------------------------------------\--\--->
+      <!-- #endregion ^^^ End Apply 🔵 ^^^ -->
+
+
+      <!-- #region ⚪⚪⚪ MISC ===================================------------------
+____________________ -------->
+
+
+
+      <!-- 
+-
+<div id="expressMisc" class="express-misc">
+    <div class="row bottom-row">
+      <button id="openApplyLog" class="log-button text-sm" title="Open Apply Log">Log</button>
+
+      <button id="openThemePicker" class="btn-theme text-sm" title="Adjust Theme Color">Theme</button>
+    </div>
+-->
+      <!-- Target box
+    <div id="TargetBox" class="panel shade-hard">
+    <div id="TargetList">No results yet</div>
+    </div>
+ -->
+      <!-- Toast -->
+      <footer id="toast"></footer>
+
+
+
+      <!-- V2: pick UI removed -->
+
+
+      <!----_-_-_-_-_-_-_---------------------------------------\--\--->
+      <!-- #endregion ^^^ End Misc ⚪ ^^^ -->
+
+    </div>
+
+  </div> <!-- end appRoot -->
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      'use strict';
+      const button = document.getElementById('openThemePicker');
+      if (!button) return;
+
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        try {
+          const cs = new CSInterface();
+          cs.requestOpenExtension('com.holy.expressor.colorpicker');
+
+
+        } catch (err) {
+          console.warn('Failed to open color picker panel', err);
+        }
+      });
+    });
+  </script>
+
+
+
+  <script>
+    /* V10.1 Global receiver for direct opener calls */
+    window.__HolyExpressorColorChange = function (hex) {
+      try {
+        if (typeof hex !== 'string') return;
+        var root = document.documentElement;
+        root.style.setProperty('--G-color-1', hex);
+        if (typeof window.updateDerivedVariables === 'function') {
+          window.updateDerivedVariables(root, hex);
+        }
+        console.log('[HolyExpressor] Theme updated via opener call:', hex);
+      } catch (err) {
+        console.warn('[HolyExpressor] Failed in __HolyExpressorColorChange', err);
+      }
+    };
+
+    /* V10.1 CEP event listener, bound after everything is loaded */
+    (function connectColorSyncOnce() {
+      if (window.__holyColorSyncAttached__) return;
+      window.__holyColorSyncAttached__ = true;
+      try {
+        var cs = new CSInterface();
+        var handler = function (evt) {
+          // 📍03 – event handler snippet to apply color and persist
+          try {
+            console.log('[HolyExpressor] Incoming evt.data =', evt.data);
+            var data = (typeof evt.data === 'string') ? JSON.parse(evt.data || '{}') : evt.data;
+            if (data && typeof data.hex === 'string') {
+              var root = document.documentElement;
+              root.style.setProperty('--G-color-1', data.hex);
+
+              if (typeof window.updateDerivedVariables === 'function') {
+                window.updateDerivedVariables(root, data.hex);
+              }
+              console.log('[HolyExpressor] Theme updated via CSEvent:', data.hex);
+            }
+          } catch (err) {
+            console.warn('[HolyExpressor] Failed to handle color change event', err);
+          }
+        };
+        cs.addEventListener('holy.color.change', handler);
+        console.log('[HolyExpressor] Color sync listener active');
+      } catch (err) {
+        console.warn('[HolyExpressor] CSInterface unavailable for color sync', err);
+      }
+    })();
+  </script>
+
+
+</body>
+
+</html>

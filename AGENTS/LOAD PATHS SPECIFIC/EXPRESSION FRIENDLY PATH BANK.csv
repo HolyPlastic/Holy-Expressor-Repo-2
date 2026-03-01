@@ -1,0 +1,32 @@
+🧠 EXPRESSION FRIENDLY PATH BANK,,,,
+,,,,
+,,,,
+Rules locked in:,,,,
+,,,,
+Categories are defined by immediate parent group.,,,,
+,,,,
+Sibling properties share the same FEP format.,,,,
+,,,,
+Effects are generic and not enumerated.,,,,
+,,,,
+"No thisLayer, layer( ), or thisComp preamble included.",,,,
+,,,,
+,,,,
+,,,,
+(Self-relative Expression Friendly Paths — no layer/comp preamble),,,,
+,,,,
+Category ID,Category (Immediate Parent Group Path),Applies To / Siblings,FEP Format (Self-Relative),Concrete Example
+T-01,Text,Source Text,text.sourceText,text.sourceText
+T-02,Text > More Options,Grouping Alignment (and siblings),text.moreOption.<property>,text.moreOption.groupingAlignment
+T-03,Text > Animator > Range Selector,"Start, End, Offset","text.animator(""<Animator>"").selector(""<Range Selector>"").<property>","text.animator(""Animator 1"").selector(""Range Selector 1"").start"
+T-04,Text > Animator > Expression Selector,Amount,"text.animator(""<Animator>"").selector(""<Expression Selector>"").<property>","text.animator(""Animator 1"").selector(""Expression Selector 1"").amount"
+T-05,Text > Animator > Properties,"Anchor Point, Position, Scale, Rotation, Opacity, Fill/Stroke props","text.animator(""<Animator>"").property.<property>","text.animator(""Animator 1"").property.scale"
+E-01,"Effects (Generic, Infinite)",ALL effect leaf properties,"effect(""<Effect Name>"")(""<Property Name>"")","effect(""Gaussian Blur"")(""Blurriness"")"
+L-01,Layer > Transform (Base),"Anchor Point, Position, Scale, Rotation, Opacity",transform.<property>,transform.scale
+LS-01,Layer Styles (Generic),"ALL Layer Styles properties (Drop Shadow, Bevel & Emboss, Gradient Overlay, etc.)",layerStyle.<style>.<property>,layerStyle.dropShadow.distance
+S-01,Shape > Contents > Modifier (Generic),"ALL Add-menu shape modifiers (Wiggle Paths, Zig Zag, Trim Paths, Repeater, etc.)","content(""<Group>"").content(""<Modifier>"").<property>[.<sub>]","content(""Rectangle 1"").content(""Offset Paths 1"").amount"
+S-02,Shape > Contents > Fill,"Color, Opacity","content(""<Group>"").content(""Fill <n>"").<property>","content(""Rectangle 1"").content(""Fill 1"").color"
+S-03,Shape > Contents > Stroke,"Color, Opacity, Stroke Width, Line Cap, Line Join, Miter Limit","content(""<Group>"").content(""Stroke <n>"").<property>","content(""Rectangle 1"").content(""Stroke 1"").strokeWidth"
+S-04,Shape > Contents > Stroke > Dashes,"Dash, Offset","content(""<Group>"").content(""Stroke <n>"").dash.<property>","content(""Rectangle 1"").content(""Stroke 1"").dash.offset"
+S-05,Shape > Contents > Stroke > Taper,"Start Length, End Length, Start Width, End Width, Start Ease, End Ease","content(""<Group>"").content(""Stroke <n>"").taper.<property>","content(""Rectangle 1"").content(""Stroke 1"").taper.endLength"
+S-06,Shape > Contents > Stroke > Wave,"Amount, Wavelength, Phase","content(""<Group>"").content(""Stroke <n>"").wave.<property>","content(""Rectangle 1"").content(""Stroke 1"").wave.amount"

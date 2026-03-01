@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Holy Expressor – Color Picker</title>
+<script>
+(function() {
+  try {
+var link = document.createElement("link");
+link.rel = "stylesheet";
+link.href = "./css/styles.css"; // relative path works inside CEP panels
+document.head.appendChild(link);
+
+    console.log("[ColorPicker] Injected stylesheet:", link.href);
+  } catch (err) {
+    console.warn("[ColorPicker] Failed to inject stylesheet", err);
+  }
+})();
+</script>
+
+  <script src="js/libs/CSInterface.js"></script>
+  <script src="js/persistent-store.js"></script>
+  <script>
+    (function STYLE_boot() {
+      try {
+        var theme = localStorage.getItem('he_theme') || 'default';
+        document.documentElement.classList.add('theme-' + theme);
+      } catch (err) {
+        console.warn('[ColorPicker] Failed to set theme', err);
+      }
+    })();
+  </script>
+  <script src="js/panel_state.js"></script>
+</head>
+<body class="theme-default">
+  <div class="holy-color-picker">
+    <input type="text" id="themeColorInput" class="color-input" maxlength="7" autocomplete="off" spellcheck="false" />
+    <canvas id="themeColorCanvas" class="color-area" width="220" height="140"></canvas>
+    <input type="range" id="themeHueSlider" class="hue-slider" min="0" max="360" value="180" />
+    <div class="picker-actions">
+      <button type="button" class="btn-apply f18-c">Apply</button>
+      <button type="button" class="btn-cancel f18-c">Cancel</button>
+    </div>
+  </div>
+
+  <script src="js/colorpicker.js"></script>
+
+</body>
+</html>

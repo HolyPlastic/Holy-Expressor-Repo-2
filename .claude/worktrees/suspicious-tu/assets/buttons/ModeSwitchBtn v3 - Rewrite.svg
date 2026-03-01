@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="uuid-87d0a939-4c80-451a-b63c-b2356d3971e6" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" width="14.88" height="12.27" viewBox="0 0 14.88 12.27">
+  <g id="uuid-c53e3f9f-c4d5-4ac8-92b7-04155ffdda51" data-name="ModeSwitchBtn-v2">
+    <g id="uuid-6ce449a1-685c-4bc9-9071-df5144709c70" data-name="Rewrite">
+      <polygon id="uuid-a6cebfb6-4ca4-4eba-ac42-2a02d18db7ef" data-name="R - inactivearrow" points="7.44 0 0 6.35 7.46 12.27 7.44 0" fill="#262626"/>
+      <polygon id="uuid-e48366c7-cf04-471b-bba9-55744b2c282f" data-name="R - bigarrow" points="7.44 0 14.88 6.35 7.42 12.27 7.44 0" fill="#17c3ff"/>
+      <polygon id="uuid-9b5e0a8f-521f-4202-bacd-897775f1e2eb" data-name="R - lilarrow" points="7.44 0 11.85 6.35 7.42 12.27 7.44 0" fill="#1d3e3f"/>
+    </g>
+  </g>
+</svg>
