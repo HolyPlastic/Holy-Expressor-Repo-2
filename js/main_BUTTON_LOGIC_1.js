@@ -651,42 +651,62 @@ Holy.UI.toast("Expressed to selected properties");
 
 
           // ==========================================================
-          // LOAD PATH BUTTON logic  (Lean ↔ Fallback switch)
+          // LOAD PATH BUTTON logic  (PickClick UX)
           // ==========================================================
           window.USE_FALLBACK_DYNAMIC_PATH = false;
 
           const loadPathBtn = document.getElementById("loadPathFromSelectionBtn");
           if (loadPathBtn) {
             loadPathBtn.addEventListener("click", function () {
+              // Toggle: clicking while armed cancels the session
+              if (loadPathBtn.classList.contains("is-armed")) {
+                Holy.PICKCLICK.cancel("user-toggle");
+                return;
+              }
+
               const useAbs = document.getElementById("useAbsoluteComp")?.checked || false;
-              Holy.UI.cs.evalScript(`he_GET_SelPath_Simple("${useAbs}")`, function (raw) {
-                if (HX_LOG_MODE === "verbose") {
-                  console.log("[LoadPath] raw result:", raw);
-                }
 
-                var parsed = null;
-                try {
-                  parsed = raw ? JSON.parse(raw) : null;
-                } catch (err) {
-                  console.error("[LoadPath] parse error", err, raw);
-                  return Holy.UI.toast("Load Path error: parse");
-                }
+              loadPathBtn.classList.add("is-armed");
 
-                if (HX_LOG_MODE === "verbose") {
-                  console.log("[LoadPath] parsed result:", parsed);
-                }
+              Holy.PICKCLICK.arm({
+                intent: "load-path",
+                onResolve: function () {
+                  loadPathBtn.classList.remove("is-armed");
+                  // Selection is still active at resolve time — re-query with correct useAbs flag
+                  Holy.UI.cs.evalScript(`he_GET_SelPath_Simple("${useAbs}")`, function (raw) {
+                    if (HX_LOG_MODE === "verbose") {
+                      console.log("[LoadPath] raw result:", raw);
+                    }
 
-                if (!parsed || parsed.ok !== true || !parsed.expr) {
-                  var errMsg = (parsed && parsed.error) ? parsed.error : "Unsupported selection";
-                  return Holy.UI.toast("Load Path error: " + errMsg);
-                }
+                    var parsed = null;
+                    try {
+                      parsed = raw ? JSON.parse(raw) : null;
+                    } catch (err) {
+                      console.error("[LoadPath] parse error", err, raw);
+                      return Holy.UI.toast("Load Path error: parse");
+                    }
 
-                try {
-                  Holy.EXPRESS.EDITOR_insertText(parsed.expr);
-                  Holy.UI.toast("Path inserted");
-                } catch (err2) {
-                  console.error("[LoadPath] insert error", err2);
-                  Holy.UI.toast("Load Path error: insert failed");
+                    if (HX_LOG_MODE === "verbose") {
+                      console.log("[LoadPath] parsed result:", parsed);
+                    }
+
+                    if (!parsed || parsed.ok !== true || !parsed.expr) {
+                      var errMsg = (parsed && parsed.error) ? parsed.error : "Unsupported selection";
+                      return Holy.UI.toast("Load Path error: " + errMsg);
+                    }
+
+                    try {
+                      Holy.EXPRESS.EDITOR_insertText(parsed.expr);
+                      Holy.UI.toast("Path inserted");
+                    } catch (err2) {
+                      console.error("[LoadPath] insert error", err2);
+                      Holy.UI.toast("Load Path error: insert failed");
+                    }
+                  });
+                },
+                onCancel: function () {
+                  loadPathBtn.classList.remove("is-armed");
+                  Holy.UI.toast("Load Path cancelled");
                 }
               });
             }); // ← end click handler

@@ -129,6 +129,22 @@ var DOT_GROUP_ACTION = {
   "ADBE Vector Taper Wave": { mode: "SKIP" }
 };
 
+// V2 — Layer style sub-group matchName → expression accessor
+// 💡 CHECKER: maps AE layer style group matchName → dot-access segment
+var LAYER_STYLE_GROUP_MAP = {
+  "dropShadow":               ".dropShadow",
+  "innerShadow":              ".innerShadow",
+  "outerGlow":                ".outerGlow",
+  "innerGlow":                ".innerGlow",
+  "bevelEmboss":              ".bevelAndEmboss",
+  "chromeFX":                 ".satin",
+  "solidFill":                ".colorOverlay",
+  "gradientFill":             ".gradientOverlay",
+  "frameFX":                  ".stroke",
+  "ADBE Blend Options Group": ".blendingOption",
+  "ADBE Adv Blend Group":     ".advancedBlending"
+};
+
 
  if (isShapeMode) {
   // parentChain is leaf → root, expressions need root → leaf
@@ -185,6 +201,8 @@ if (
 
      else {
       var pendingEffect = false;
+      var pendingMask = false;
+      var pendingLayerStyle = false;
       for (var m = parentChain.length - 1; m >= 0; m--) {
         var gg = parentChain[m];
         var mm = "";
@@ -192,25 +210,69 @@ if (
         try { mm = gg.matchName || ""; } catch (_) {}
         try { nm = gg.name || ""; } catch (_) {}
 
+        // Transform
         if (mm === "ADBE Transform Group") {
           groupSegments.push(".transform");
           pendingEffect = false;
           continue;
         }
 
-if (mm === "ADBE Layer Styles") {
-  return JSON.stringify({
-    ok: false,
-    error: "Layer Styles not supported yet"
-  });
-}
+        // Audio
+        if (mm === "ADBE Audio Group") {
+          groupSegments.push(".audio");
+          continue;
+        }
 
+        // Camera options
+        if (mm === "ADBE Camera Options Group") {
+          groupSegments.push(".cameraOption");
+          continue;
+        }
 
+        // Light options
+        if (mm === "ADBE Light Options Group") {
+          groupSegments.push(".lightOption");
+          continue;
+        }
+
+        // Material options
+        if (mm === "ADBE Material Options Group") {
+          groupSegments.push(".materialOption");
+          continue;
+        }
+
+        // Masks — container flags pending; individual mask group emits accessor using display name
+        if (mm === "ADBE Mask Parade") {
+          pendingMask = true;
+          continue;
+        }
+        if (pendingMask) {
+          groupSegments.push('.mask("' + he_escapeExprString(nm) + '")');
+          pendingMask = false;
+          continue;
+        }
+
+        // Layer styles — root group pushes .layerStyle; sub-groups resolved via LAYER_STYLE_GROUP_MAP
+        // pendingLayerStyle stays true through nested sub-groups (e.g. blendingOption > advancedBlending)
+        if (mm === "ADBE Layer Styles") {
+          groupSegments.push(".layerStyle");
+          pendingLayerStyle = true;
+          continue;
+        }
+        if (pendingLayerStyle) {
+          var styleAccessor = LAYER_STYLE_GROUP_MAP[mm];
+          if (styleAccessor) {
+            groupSegments.push(styleAccessor);
+            continue;
+          }
+          return JSON.stringify({ ok: false, error: "Unsupported layer style group", matchName: mm, displayName: nm });
+        }
+
+        // Effects
         if (mm === "ADBE Effect Parade") {
           pendingEffect = true;
           continue;
         }
-
         if (pendingEffect) {
           groupSegments.push('.effect("' + he_escapeExprString(nm) + '")');
           pendingEffect = false;
@@ -261,13 +323,173 @@ var LEAF_ACCESSORS = {
   "ADBE Vector Stroke Wave Phase": ".wave.phase",
   "ADBE Vector Stroke Wave Wavelength": ".wave.wavelength",
 
-  // ---- Transform ----
-  "ADBE Position": ".position",
-  "ADBE Scale": ".scale",
-  "ADBE Rotation": ".rotation",
-  "ADBE Rotate Z": ".rotation",
+  // ---- Transform (base) ----
+  "ADBE Position":     ".position",
+  "ADBE Scale":        ".scale",
+  "ADBE Rotation":     ".rotation",
   "ADBE Anchor Point": ".anchorPoint",
-  "ADBE Opacity": ".opacity"
+  "ADBE Opacity":      ".opacity",
+
+  // ---- Transform (3D) ----
+  "ADBE Orientation":  ".orientation",
+  "ADBE Rotate X":     ".xRotation",
+  "ADBE Rotate Y":     ".yRotation",
+  "ADBE Rotate Z":     ".zRotation",
+
+  // ---- Time Remap ----
+  "ADBE Time Remapping": ".timeRemap",
+
+  // ---- Audio ----
+  "ADBE Audio Levels": ".audioLevels",
+
+  // ---- Camera Options ----
+  "ADBE Camera Zoom":                 ".zoom",
+  "ADBE Camera Depth of Field":       ".depthOfField",
+  "ADBE Camera Focus Distance":       ".focusDistance",
+  "ADBE Camera Aperture":             ".aperture",
+  "ADBE Camera Blur Level":           ".blurLevel",
+  "ADBE Iris Shape":                  ".irisShape",
+  "ADBE Iris Rotation":               ".irisRotation",
+  "ADBE Iris Roundness":              ".irisRoundness",
+  "ADBE Iris Aspect Ratio":           ".irisAspectRatio",
+  "ADBE Iris Diffraction Fringe":     ".irisDiffractionFringe",
+  "ADBE Iris Highlight Gain":         ".highlightGain",
+  "ADBE Iris Highlight Threshold":    ".highlightThreshold",
+  "ADBE Iris Hightlight Saturation":  ".highlightSaturation",
+
+  // ---- Light Options ----
+  "ADBE Light Intensity":             ".intensity",
+  "ADBE Light Color":                 ".color",
+  "ADBE Light Cone Angle":            ".coneAngle",
+  "ADBE Light Cone Feather 2":        ".coneFeather",
+  "ADBE Light Falloff Type":          ".falloff",
+  "ADBE Light Falloff Start":         ".radius",
+  "ADBE Light Falloff Distance":      ".falloffDistance",
+  "ADBE Light Shadow Darkness":       ".shadowDarkness",
+  "ADBE Light Shadow Diffusion":      ".shadowDiffusion",
+
+  // ---- Material Options ----
+  "ADBE Light Transmission":          ".lightTransmission",
+  "ADBE Ambient Coefficient":         ".ambient",
+  "ADBE Diffuse Coefficient":         ".diffuse",
+  "ADBE Specular Coefficient":        ".specularIntensity",
+  "ADBE Shininess Coefficient":       ".specularShininess",
+  "ADBE Metal Coefficient":           ".metal",
+
+  // ---- Masks ----
+  "ADBE Mask Shape":   ".maskPath",
+  "ADBE Mask Feather": ".maskFeather",
+  "ADBE Mask Opacity": ".maskOpacity",
+  "ADBE Mask Offset":  ".maskExpansion",
+
+  // ---- Layer Styles: Blending Options ----
+  "ADBE Global Angle2":       ".globalLightAngle",
+  "ADBE Global Altitude2":    ".globalLightAltitude",
+  "ADBE Layer Fill Opacity2": ".fillOpacity",
+  "ADBE R Channel Blend":     ".red",
+  "ADBE G Channel Blend":     ".green",
+  "ADBE B Channel Blend":     ".blue",
+  "ADBE Blend Interior":      ".blendInteriorStylesAsGroup",
+  "ADBE Blend Ranges":        ".useBlendRangesFromSource",
+
+  // ---- Layer Styles: Drop Shadow ----
+  "dropShadow/mode2":             ".blendMode",
+  "dropShadow/color":             ".color",
+  "dropShadow/opacity":           ".opacity",
+  "dropShadow/useGlobalAngle":    ".useGlobalLight",
+  "dropShadow/localLightingAngle":".angle",
+  "dropShadow/distance":          ".distance",
+  "dropShadow/chokeMatte":        ".spread",
+  "dropShadow/blur":              ".size",
+  "dropShadow/noise":             ".noise",
+  "dropShadow/layerConceals":     ".layerKnocksOutDropShadow",
+
+  // ---- Layer Styles: Inner Shadow ----
+  "innerShadow/mode2":              ".blendMode",
+  "innerShadow/color":              ".color",
+  "innerShadow/opacity":            ".opacity",
+  "innerShadow/useGlobalAngle":     ".useGlobalLight",
+  "innerShadow/localLightingAngle": ".angle",
+  "innerShadow/distance":           ".distance",
+  "innerShadow/chokeMatte":         ".choke",
+  "innerShadow/blur":               ".size",
+  "innerShadow/noise":              ".noise",
+
+  // ---- Layer Styles: Outer Glow ----
+  "outerGlow/mode2":              ".blendMode",
+  "outerGlow/opacity":            ".opacity",
+  "outerGlow/noise":              ".noise",
+  "outerGlow/AEColorChoice":      ".colorType",
+  "outerGlow/color":              ".color",
+  "outerGlow/gradientSmoothness": ".gradientSmoothness",
+  "outerGlow/glowTechnique":      ".technique",
+  "outerGlow/chokeMatte":         ".spread",
+  "outerGlow/blur":               ".size",
+  "outerGlow/inputRange":         ".range",
+  "outerGlow/shadingNoise":       ".jitter",
+
+  // ---- Layer Styles: Inner Glow ----
+  "innerGlow/mode2":              ".blendMode",
+  "innerGlow/opacity":            ".opacity",
+  "innerGlow/noise":              ".noise",
+  "innerGlow/AEColorChoice":      ".colorType",
+  "innerGlow/color":              ".color",
+  "innerGlow/gradientSmoothness": ".gradientSmoothness",
+  "innerGlow/glowTechnique":      ".technique",
+  "innerGlow/innerGlowSource":    ".source",
+  "innerGlow/chokeMatte":         ".choke",
+  "innerGlow/blur":               ".size",
+  "innerGlow/inputRange":         ".range",
+  "innerGlow/shadingNoise":       ".jitter",
+
+  // ---- Layer Styles: Bevel & Emboss ----
+  "bevelEmboss/bevelStyle":             ".style",
+  "bevelEmboss/bevelTechnique":         ".technique",
+  "bevelEmboss/strengthRatio":          ".depth",
+  "bevelEmboss/bevelDirection":         ".direction",
+  "bevelEmboss/blur":                   ".size",
+  "bevelEmboss/softness":               ".soften",
+  "bevelEmboss/useGlobalAngle":         ".useGlobalLight",
+  "bevelEmboss/localLightingAngle":     ".angle",
+  "bevelEmboss/localLightingAltitude":  ".altitude",
+  "bevelEmboss/highlightMode":          ".highlightMode",
+  "bevelEmboss/highlightColor":         ".highlightColor",
+  "bevelEmboss/highlightOpacity":       ".highlightOpacity",
+  "bevelEmboss/shadowMode":             ".shadowMode",
+  "bevelEmboss/shadowColor":            ".shadowColor",
+  "bevelEmboss/shadowOpacity":          ".shadowOpacity",
+
+  // ---- Layer Styles: Satin ----
+  "chromeFX/mode2":             ".blendMode",
+  "chromeFX/color":             ".color",
+  "chromeFX/opacity":           ".opacity",
+  "chromeFX/localLightingAngle":".angle",
+  "chromeFX/distance":          ".distance",
+  "chromeFX/blur":              ".size",
+  "chromeFX/invert":            ".invert",
+
+  // ---- Layer Styles: Color Overlay ----
+  "solidFill/mode2":   ".blendMode",
+  "solidFill/color":   ".color",
+  "solidFill/opacity": ".opacity",
+
+  // ---- Layer Styles: Gradient Overlay ----
+  "gradientFill/mode2":              ".blendMode",
+  "gradientFill/opacity":            ".opacity",
+  "gradientFill/gradientSmoothness": ".gradientSmoothness",
+  "gradientFill/angle":              ".angle",
+  "gradientFill/type":               ".style",
+  "gradientFill/reverse":            ".reverse",
+  "gradientFill/align":              ".alignWithLayer",
+  "gradientFill/scale":              ".scale",
+  "gradientFill/offset":             ".offset",
+
+  // ---- Layer Styles: Stroke (frameFX) ----
+  "frameFX/mode2":   ".blendMode",
+  "frameFX/color":   ".color",
+  "frameFX/size":    ".size",
+  "frameFX/opacity": ".opacity",
+  "frameFX/style":   ".position"
 };
 
 

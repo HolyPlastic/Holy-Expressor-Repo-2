@@ -30,3 +30,137 @@ S-03,Shape > Contents > Stroke,"Color, Opacity, Stroke Width, Line Cap, Line Joi
 S-04,Shape > Contents > Stroke > Dashes,"Dash, Offset","content(""<Group>"").content(""Stroke <n>"").dash.<property>","content(""Rectangle 1"").content(""Stroke 1"").dash.offset"
 S-05,Shape > Contents > Stroke > Taper,"Start Length, End Length, Start Width, End Width, Start Ease, End Ease","content(""<Group>"").content(""Stroke <n>"").taper.<property>","content(""Rectangle 1"").content(""Stroke 1"").taper.endLength"
 S-06,Shape > Contents > Stroke > Wave,"Amount, Wavelength, Phase","content(""<Group>"").content(""Stroke <n>"").wave.<property>","content(""Rectangle 1"").content(""Stroke 1"").wave.amount"
+,,,,
+,,,,
+,Category/Layer Type,matchName,Display Name,Expression Path
+,Time Remap / AVLayer,ADBE Time Remapping,Time Remap,timeRemap
+,Audio / AVLayer,ADBE Audio Levels,Audio Levels,audio.audioLevels
+,Camera Options / CameraLayer,ADBE Camera Zoom,Zoom,cameraOption.zoom
+,Camera Options / CameraLayer,ADBE Camera Depth of Field,Depth of Field,cameraOption.depthOfField
+,Camera Options / CameraLayer,ADBE Camera Focus Distance,Focus Distance,cameraOption.focusDistance
+,Camera Options / CameraLayer,ADBE Camera Aperture,Aperture,cameraOption.aperture
+,Camera Options / CameraLayer,ADBE Camera Blur Level,Blur Level,cameraOption.blurLevel
+,Camera Options / CameraLayer,ADBE Iris Shape,Iris Shape,cameraOption.irisShape
+,Camera Options / CameraLayer,ADBE Iris Rotation,Iris Rotation,cameraOption.irisRotation
+,Camera Options / CameraLayer,ADBE Iris Roundness,Iris Roundness,cameraOption.irisRoundness
+,Camera Options / CameraLayer,ADBE Iris Aspect Ratio,Iris Aspect Ratio,cameraOption.irisAspectRatio
+,Camera Options / CameraLayer,ADBE Iris Diffraction Fringe,Iris Diffraction Fringe,cameraOption.irisDiffractionFringe
+,Camera Options / CameraLayer,ADBE Iris Highlight Gain,Highlight Gain,cameraOption.highlightGain
+,Camera Options / CameraLayer,ADBE Iris Highlight Threshold,Highlight Threshold,cameraOption.highlightThreshold
+,Camera Options / CameraLayer,ADBE Iris Hightlight Saturation,Highlight Saturation,cameraOption.highlightSaturation
+,Light Options / LightLayer,ADBE Light Intensity,Intensity,lightOption.intensity
+,Light Options / LightLayer,ADBE Light Color,Color,lightOption.color
+,Light Options / LightLayer,ADBE Light Cone Angle,Cone Angle,lightOption.coneAngle
+,Light Options / LightLayer,ADBE Light Cone Feather 2,Cone Feather,lightOption.coneFeather
+,Light Options / LightLayer,ADBE Light Falloff Type,Falloff,lightOption.falloff
+,Light Options / LightLayer,ADBE Light Falloff Start,Radius,lightOption.radius
+,Light Options / LightLayer,ADBE Light Falloff Distance,Falloff Distance,lightOption.falloffDistance
+,Light Options / LightLayer,ADBE Light Shadow Darkness,Shadow Darkness,lightOption.shadowDarkness
+,Light Options / LightLayer,ADBE Light Shadow Diffusion,Shadow Diffusion,lightOption.shadowDiffusion
+,Masks / AVLayer,ADBE Mask Shape,Mask Path,"mask(""Mask 1"").maskPath"
+,Masks / AVLayer,ADBE Mask Feather,Mask Feather,"mask(""Mask 1"").maskFeather"
+,Masks / AVLayer,ADBE Mask Opacity,Mask Opacity,"mask(""Mask 1"").maskOpacity"
+,Masks / AVLayer,ADBE Mask Offset,Mask Expansion,"mask(""Mask 1"").maskExpansion"
+,Transform / AVLayer,ADBE Anchor Point,Anchor Point,transform.anchorPoint
+,Transform / AVLayer,ADBE Position,Position,transform.position
+,Transform / AVLayer,ADBE Scale,Scale,transform.scale
+,Transform / AVLayer,ADBE Orientation,Orientation,transform.orientation
+,Transform / AVLayer,ADBE Rotate X,X Rotation,transform.xRotation
+,Transform / AVLayer,ADBE Rotate Y,Y Rotation,transform.yRotation
+,Transform / AVLayer,ADBE Rotate Z,Z Rotation,transform.zRotation
+,Transform / AVLayer,ADBE Opacity,Opacity,transform.opacity
+,Layer Styles / AVLayer,ADBE Global Angle2,Global Light Angle,layerStyle.blendingOption.globalLightAngle
+,Layer Styles / AVLayer,ADBE Global Altitude2,Global Light Altitude,layerStyle.blendingOption.globalLightAltitude
+,Layer Styles / AVLayer,ADBE Layer Fill Opacity2,Fill Opacity,layerStyle.blendingOption.advancedBlending.fillOpacity
+,Layer Styles / AVLayer,ADBE R Channel Blend,Red,layerStyle.blendingOption.advancedBlending.red
+,Layer Styles / AVLayer,ADBE G Channel Blend,Green,layerStyle.blendingOption.advancedBlending.green
+,Layer Styles / AVLayer,ADBE B Channel Blend,Blue,layerStyle.blendingOption.advancedBlending.blue
+,Layer Styles / AVLayer,ADBE Blend Interior,Blend Interior Styles as Group,layerStyle.blendingOption.advancedBlending.blendInteriorStylesAsGroup
+,Layer Styles / AVLayer,ADBE Blend Ranges,Use Blend Ranges from Source,layerStyle.blendingOption.advancedBlending.useBlendRangesFromSource
+,Layer Styles / AVLayer,dropShadow/mode2,Blend Mode,layerStyle.dropShadow.blendMode
+,Layer Styles / AVLayer,dropShadow/color,Color,layerStyle.dropShadow.color
+,Layer Styles / AVLayer,dropShadow/opacity,Opacity,layerStyle.dropShadow.opacity
+,Layer Styles / AVLayer,dropShadow/useGlobalAngle,Use Global Light,layerStyle.dropShadow.useGlobalLight
+,Layer Styles / AVLayer,dropShadow/localLightingAngle,Angle,layerStyle.dropShadow.angle
+,Layer Styles / AVLayer,dropShadow/distance,Distance,layerStyle.dropShadow.distance
+,Layer Styles / AVLayer,dropShadow/chokeMatte,Spread,layerStyle.dropShadow.spread
+,Layer Styles / AVLayer,dropShadow/blur,Size,layerStyle.dropShadow.size
+,Layer Styles / AVLayer,dropShadow/noise,Noise,layerStyle.dropShadow.noise
+,Layer Styles / AVLayer,dropShadow/layerConceals,Layer Knocks Out Drop Shadow,layerStyle.dropShadow.layerKnocksOutDropShadow
+,Layer Styles / AVLayer,innerShadow/mode2,Blend Mode,layerStyle.innerShadow.blendMode
+,Layer Styles / AVLayer,innerShadow/color,Color,layerStyle.innerShadow.color
+,Layer Styles / AVLayer,innerShadow/opacity,Opacity,layerStyle.innerShadow.opacity
+,Layer Styles / AVLayer,innerShadow/useGlobalAngle,Use Global Light,layerStyle.innerShadow.useGlobalLight
+,Layer Styles / AVLayer,innerShadow/localLightingAngle,Angle,layerStyle.innerShadow.angle
+,Layer Styles / AVLayer,innerShadow/distance,Distance,layerStyle.innerShadow.distance
+,Layer Styles / AVLayer,innerShadow/chokeMatte,Choke,layerStyle.innerShadow.choke
+,Layer Styles / AVLayer,innerShadow/blur,Size,layerStyle.innerShadow.size
+,Layer Styles / AVLayer,innerShadow/noise,Noise,layerStyle.innerShadow.noise
+,Layer Styles / AVLayer,outerGlow/mode2,Blend Mode,layerStyle.outerGlow.blendMode
+,Layer Styles / AVLayer,outerGlow/opacity,Opacity,layerStyle.outerGlow.opacity
+,Layer Styles / AVLayer,outerGlow/noise,Noise,layerStyle.outerGlow.noise
+,Layer Styles / AVLayer,outerGlow/AEColorChoice,Color Type,layerStyle.outerGlow.colorType
+,Layer Styles / AVLayer,outerGlow/color,Color,layerStyle.outerGlow.color
+,Layer Styles / AVLayer,outerGlow/gradientSmoothness,Gradient Smoothness,layerStyle.outerGlow.gradientSmoothness
+,Layer Styles / AVLayer,outerGlow/glowTechnique,Technique,layerStyle.outerGlow.technique
+,Layer Styles / AVLayer,outerGlow/chokeMatte,Spread,layerStyle.outerGlow.spread
+,Layer Styles / AVLayer,outerGlow/blur,Size,layerStyle.outerGlow.size
+,Layer Styles / AVLayer,outerGlow/inputRange,Range,layerStyle.outerGlow.range
+,Layer Styles / AVLayer,outerGlow/shadingNoise,Jitter,layerStyle.outerGlow.jitter
+,Layer Styles / AVLayer,innerGlow/mode2,Blend Mode,layerStyle.innerGlow.blendMode
+,Layer Styles / AVLayer,innerGlow/opacity,Opacity,layerStyle.innerGlow.opacity
+,Layer Styles / AVLayer,innerGlow/noise,Noise,layerStyle.innerGlow.noise
+,Layer Styles / AVLayer,innerGlow/AEColorChoice,Color Type,layerStyle.innerGlow.colorType
+,Layer Styles / AVLayer,innerGlow/color,Color,layerStyle.innerGlow.color
+,Layer Styles / AVLayer,innerGlow/gradientSmoothness,Gradient Smoothness,layerStyle.innerGlow.gradientSmoothness
+,Layer Styles / AVLayer,innerGlow/glowTechnique,Technique,layerStyle.innerGlow.technique
+,Layer Styles / AVLayer,innerGlow/innerGlowSource,Source,layerStyle.innerGlow.source
+,Layer Styles / AVLayer,innerGlow/chokeMatte,Choke,layerStyle.innerGlow.choke
+,Layer Styles / AVLayer,innerGlow/blur,Size,layerStyle.innerGlow.size
+,Layer Styles / AVLayer,innerGlow/inputRange,Range,layerStyle.innerGlow.range
+,Layer Styles / AVLayer,innerGlow/shadingNoise,Jitter,layerStyle.innerGlow.jitter
+,Layer Styles / AVLayer,bevelEmboss/bevelStyle,Style,layerStyle.bevelAndEmboss.style
+,Layer Styles / AVLayer,bevelEmboss/bevelTechnique,Technique,layerStyle.bevelAndEmboss.technique
+,Layer Styles / AVLayer,bevelEmboss/strengthRatio,Depth,layerStyle.bevelAndEmboss.depth
+,Layer Styles / AVLayer,bevelEmboss/bevelDirection,Direction,layerStyle.bevelAndEmboss.direction
+,Layer Styles / AVLayer,bevelEmboss/blur,Size,layerStyle.bevelAndEmboss.size
+,Layer Styles / AVLayer,bevelEmboss/softness,Soften,layerStyle.bevelAndEmboss.soften
+,Layer Styles / AVLayer,bevelEmboss/useGlobalAngle,Use Global Light,layerStyle.bevelAndEmboss.useGlobalLight
+,Layer Styles / AVLayer,bevelEmboss/localLightingAngle,Angle,layerStyle.bevelAndEmboss.angle
+,Layer Styles / AVLayer,bevelEmboss/localLightingAltitude,Altitude,layerStyle.bevelAndEmboss.altitude
+,Layer Styles / AVLayer,bevelEmboss/highlightMode,Highlight Mode,layerStyle.bevelAndEmboss.highlightMode
+,Layer Styles / AVLayer,bevelEmboss/highlightColor,Highlight Color,layerStyle.bevelAndEmboss.highlightColor
+,Layer Styles / AVLayer,bevelEmboss/highlightOpacity,Highlight Opacity,layerStyle.bevelAndEmboss.highlightOpacity
+,Layer Styles / AVLayer,bevelEmboss/shadowMode,Shadow Mode,layerStyle.bevelAndEmboss.shadowMode
+,Layer Styles / AVLayer,bevelEmboss/shadowColor,Shadow Color,layerStyle.bevelAndEmboss.shadowColor
+,Layer Styles / AVLayer,bevelEmboss/shadowOpacity,Shadow Opacity,layerStyle.bevelAndEmboss.shadowOpacity
+,Layer Styles / AVLayer,chromeFX/mode2,Blend Mode,layerStyle.satin.blendMode
+,Layer Styles / AVLayer,chromeFX/color,Color,layerStyle.satin.color
+,Layer Styles / AVLayer,chromeFX/opacity,Opacity,layerStyle.satin.opacity
+,Layer Styles / AVLayer,chromeFX/localLightingAngle,Angle,layerStyle.satin.angle
+,Layer Styles / AVLayer,chromeFX/distance,Distance,layerStyle.satin.distance
+,Layer Styles / AVLayer,chromeFX/blur,Size,layerStyle.satin.size
+,Layer Styles / AVLayer,chromeFX/invert,Invert,layerStyle.satin.invert
+,Layer Styles / AVLayer,solidFill/mode2,Blend Mode,layerStyle.colorOverlay.blendMode
+,Layer Styles / AVLayer,solidFill/color,Color,layerStyle.colorOverlay.color
+,Layer Styles / AVLayer,solidFill/opacity,Opacity,layerStyle.colorOverlay.opacity
+,Layer Styles / AVLayer,gradientFill/mode2,Blend Mode,layerStyle.gradientOverlay.blendMode
+,Layer Styles / AVLayer,gradientFill/opacity,Opacity,layerStyle.gradientOverlay.opacity
+,Layer Styles / AVLayer,gradientFill/gradientSmoothness,Gradient Smoothness,layerStyle.gradientOverlay.gradientSmoothness
+,Layer Styles / AVLayer,gradientFill/angle,Angle,layerStyle.gradientOverlay.angle
+,Layer Styles / AVLayer,gradientFill/type,Style,layerStyle.gradientOverlay.style
+,Layer Styles / AVLayer,gradientFill/reverse,Reverse,layerStyle.gradientOverlay.reverse
+,Layer Styles / AVLayer,gradientFill/align,Align with Layer,layerStyle.gradientOverlay.alignWithLayer
+,Layer Styles / AVLayer,gradientFill/scale,Scale,layerStyle.gradientOverlay.scale
+,Layer Styles / AVLayer,gradientFill/offset,Offset,layerStyle.gradientOverlay.offset
+,Layer Styles / AVLayer,frameFX/mode2,Blend Mode,layerStyle.stroke.blendMode
+,Layer Styles / AVLayer,frameFX/color,Color,layerStyle.stroke.color
+,Layer Styles / AVLayer,frameFX/size,Size,layerStyle.stroke.size
+,Layer Styles / AVLayer,frameFX/opacity,Opacity,layerStyle.stroke.opacity
+,Layer Styles / AVLayer,frameFX/style,Position,layerStyle.stroke.position
+,Material Options / AVLayer,ADBE Light Transmission,Light Transmission,materialOption.lightTransmission
+,Material Options / AVLayer,ADBE Ambient Coefficient,Ambient,materialOption.ambient
+,Material Options / AVLayer,ADBE Diffuse Coefficient,Diffuse,materialOption.diffuse
+,Material Options / AVLayer,ADBE Specular Coefficient,Specular Intensity,materialOption.specularIntensity
+,Material Options / AVLayer,ADBE Shininess Coefficient,Specular Shininess,materialOption.specularShininess
+,Material Options / AVLayer,ADBE Metal Coefficient,Metal,materialOption.metal

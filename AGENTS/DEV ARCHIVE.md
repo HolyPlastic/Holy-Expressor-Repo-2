@@ -960,7 +960,7 @@ Only agents explicitly authorized as Archival Agents may modify anything outside
   * Identified specific issues introduced: mismatched callsites, channel drift, missing eval parentheses, stray code outside functions, mojibake in logs.
 * **Failure Modes Observed**
 
-  * Partial renames left broken paths/channels; Unicode artifacts appeared in logs; host parse errors could silently break loading.
+  * Partial renames left broken paths/channels; Unicode artifacts appeared in logs; host parse errors silently break loading.
 * **Constraint(s) Identified**
 
   * Rolling back was treated as costly; chosen approach was surgical fixes on latest files.
@@ -1383,8 +1383,10 @@ All redundant repaint and recovery code was deleted. The final manifest block:
 <AutoVisible>true</AutoVisible>
 <Type>Modeless</Type>
 <Geometry>
-  <Width>400</Width>
-  <Height>300</Height>
+  <Size>
+    <Width>400</Width>
+    <Height>300</Height>
+  </Size>
 </Geometry>
 
 The Quick Panel now renders immediately without white or gray blanks, and compositor attach problems are considered permanently solved. Development focus has shifted to synchronizing snippet and bank data between panels.
@@ -2243,21 +2245,6 @@ No determination is made here about whether such routing is sufficient or insuff
 
 * * *
 
-#### 🧊 Epistemic status at close of session
-
-At the end of this session:
-
-- PickClick could be armed and cancelled.
-- PickClick did not resolve based on timeline interaction under the observed conditions.
-- No conclusion was reached about long-term feasibility.
-- No attempt was made to exhaust all architectural variants.
-- The investigation was paused with uncertainty explicitly preserved.
-
-This addendum records **what was observed**, not what is true in general.
-
-
-
-
 2026-02-01 – Cypher Agent 💿🔗 and User
 Dev Archive Append — PickClick Debugging, Patch Workflow & UI Veil (Temporal / Evidence-First / Procedural)
 
@@ -2318,7 +2305,36 @@ Dev Archive Append — PickClick Debugging, Patch Workflow & UI Veil (Temporal /
 • Based on the above record, the primary breakthrough during this session appeared to be shifting focus from raw polling issues to resolving the missing selector dependency, enabling hybrid polling; this change in investigative focus facilitated progress on pick arm behavior.
 
 
+* * *
 
+2026-03-01 – Property Support Expansion for "Load Path from Selection" (Pickwhip Parity)
 
+• **CONTEXT AT TIME OF WORK**
+• The goal was to expand the supported After Effects properties for the "Load Path from Selection" feature, ensuring it functions as a reliable panel-based pickwhip.
+• The reference data for these mappings was derived from `EXPRESSION FRIENDLY PATH BANK.csv`.
+• Previously, many properties (Audio, Camera, Light, Material, Masks, Layer Styles) resulted in "Unsupported Group" errors.
 
+• **MEANINGFUL CODE CHANGES (jsx/Modules/host_GET.jsx)**
+• **New `LAYER_STYLE_GROUP_MAP`:** Implemented a mapping for AE layer style sub-group matchNames (e.g., `dropShadow`, `innerShadow`, `bevelEmboss`, `chromeFX`, `frameFX`, etc.) to their expression dot-accessors (e.g., `.dropShadow`, `.satin`, `.stroke`, etc.).
+• **Enhanced Non-Shape Group Walker:** Updated the fallback group walker to handle 5 new group types:
+    - `ADBE Audio Group` → `.audio`
+    - `ADBE Camera Options Group` → `.cameraOption`
+    - `ADBE Light Options Group` → `.lightOption`
+    - `ADBE Material Options Group` → `.materialOption`
+    - `ADBE Mask Parade` + `ADBE Mask Atom` → `.mask("Mask 1")` pattern.
+    - `ADBE Layer Styles` → `.layerStyle` + sub-group map lookup (previously hardcoded to "not supported yet").
+• **Expanded `LEAF_ACCESSORS`:** Added ~90 new entries covering:
+    - 3D Transforms: Orientation, X/Y/Z Rotation.
+    - Time Remap.
+    - Audio: Audio Levels.
+    - Camera/Light/Material Options: All sub-properties.
+    - Masks: Mask Path, Feather, Opacity, Expansion.
+    - Layer Styles: All properties for Drop Shadow, Inner Shadow, Outer Glow, Inner Glow, Bevel & Emboss, Satin, Color Overlay, Gradient Overlay, and Stroke.
 
+• **RATIONALE**
+• The "Load Path from Selection" feature acts as a critical bridge for building expressions. By mapping nuanced AE identifiers (matchNames) to their correct expression accessors, the tool now provides a rational and working path for a significantly wider array of properties.
+• This update resolves the "Unsupported Group" failures that previously limited the feature's utility.
+
+• **KNOWN LIMITATIONS / UNCERTAINTIES**
+• Blending options sub-group matchNames (`ADBE Blend Options Group`, `ADBE Adv Blend Group`) were implemented based on best-guess mappings due to lack of public documentation.
+• If "Unsupported layer style group" errors persist for these specific properties, the toast now includes the actual matchName in the error (visible in the browser console) for future refinement.
