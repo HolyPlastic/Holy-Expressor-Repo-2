@@ -294,7 +294,7 @@ ____________________ -------->
         </button>
 
         <!-- Bank name (editable text) -->
-        <span id="bankNameLabel" class="f18-c">Bank 1</span>
+        <span id="bankNameLabel">Bank 1</span>
 
         <label class="checkbox-layercontrols checkbox-Diamond">
           <input id="snipLoadControls" type="checkbox">
@@ -339,7 +339,7 @@ ____________________ -------->
 
 
         <!-- 🎛️ Unified Mode Switcher (old look, new system) -->
-        <div class="modeSwitchBar f18-c heading-1" role="group" aria-label="Choose between Express and Rewrite modes">
+        <div class="modeSwitchBar" role="group" aria-label="Choose between Express and Rewrite modes">
           <div class="mode-switch-cluster">
             <!-- Express button -->
             <button id="modeExpressBtn" class="mode-btn" type="button" aria-pressed="true" role="tab"
@@ -625,28 +625,7 @@ ____________________ -------->
 
           <!-- 🟧🟧🟧 Rhombus Button -->
           <!-- 🟧 Unified rhombus button -->
-          <button id="applyBtn" class="btn-rhombus f18-c holy-glow">
-            <svg class="rhombus-icon" xmlns="http://www.w3.org/2000/svg" width="63.25" height="20.08"
-              viewBox="-0.75 -0.75 63.25 20.08">
-
-              <!-- Left section -->
-              <g class="rhombus-left">
-                <path d="M7.47.5h-3.69C1.54.5-.04,2.69.67,4.82l3.69,11.02c.45,1.34,1.7,2.24,3.11,2.24" />
-              </g>
-
-              <!-- Middle section -->
-              <g class="rhombus-mid">
-                <rect x="7.47" y="0.5" width="46.8" height="18.08" fill="currentColor" stroke="none" />
-                <line x1="7.47" y1="0.5" x2="54.27" y2="0.5" />
-                <line x1="7.47" y1="18.08" x2="54.27" y2="18.08" />
-              </g>
-
-              <!-- Right section -->
-              <g class="rhombus-right">
-                <path d="M54.27,18.08h3.69c2.24,0,3.82-2.19,3.11-4.32L57.38,2.74C56.93,1.4,55.68.5,54.27.5" />
-              </g>
-            </svg>
-
+          <button id="applyBtn" class="btn-primary">
             <span class="label">APPLY</span>
           </button>
 

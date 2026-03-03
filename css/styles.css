@@ -122,33 +122,6 @@ var(--G-color-1);
 /* V1 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Pixel font metrics override
    ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â VALIDATOR: Chromium-based CEF supports these; Safari is irrelevant for CEP. */
 @font-face {
-  font-family: "Pixel";
-  /* default metrics */
-  src: url("../fonts/Pixel.ttf") format("truetype");
-  ascent-override: normal;
-  descent-override: normal;
-  line-gap-override: normal;
-}
-
-@font-face {
-  font-family: "Pixel-Corrected";
-  /* corrected metrics */
-  src: url("../fonts/Pixel.ttf") format("truetype");
-  ascent-override: 100%;
-  descent-override: 22%;
-  line-gap-override: 0%;
-}
-
-@font-face {
-  font-family: "FreePixel";
-  /* default metrics */
-  src: url("../fonts/FreePixel.ttf") format("truetype");
-  ascent-override: normal;
-  descent-override: normal;
-  line-gap-override: normal;
-}
-
-@font-face {
   font-family: "Dosis";
   src: url("../fonts/Dosis-VariableFont_wght.ttf") format("truetype");
   font-weight: normal;
@@ -156,374 +129,10 @@ var(--G-color-1);
   font-display: swap;
 }
 
-/*#region*  ye*/
-
-
-
-@font-face {
-  font-family: "Hooked Up 101";
-  src: url("../fonts/Hooked Up 101.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "TOSTADA";
-  src: url("../fonts/TOSTADA.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "TOSTADA Italic";
-  src: url("../fonts/TOSTADA Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "puree____2";
-  src: url("../fonts/puree____2.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "BPdotsUnicaseSquareBold";
-  src: url("../fonts/BPdotsUnicaseSquareBold.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Montserrat-Regular";
-  src: url("../fonts/Montserrat-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "PLANK__";
-  src: url("../fonts/PLANK__.TTF") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "tycho";
-  src: url("../fonts/tycho___.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* --- ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Added Fonts --- */
-
-@font-face {
-  font-family: "COURIERO";
-  src: url("../fonts/COURIERO.TTF") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "0927____";
-  src: url("../fonts/0927____.TTF") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "6809 Chargen";
-  src: url("../fonts/6809 Chargen.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Deftone Stylus";
-  src: url("../fonts/Deftone Stylus.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "GlitchGoblin";
-  src: url("../fonts/GlitchGoblin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "kleenblades_ldr";
-  src: url("../fonts/kleenblades_ldr.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "mionta";
-  src: url("../fonts/mionta.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "nymonak";
-  src: url("../fonts/nymonak.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-
-
-@font-face {
-  font-family: "V Dub";
-  src: url("../fonts/V Dub.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Zelega Zenega";
-  src: url("../fonts/Zelega Zenega.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Zero Hour";
-  src: url("../fonts/Zero Hour.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-/*#endregion ye*/
-
-/* #endregion */
-
-/*#region - FONT --roots  */
-/* ================================
-   ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Â¨ Global Font Variables
-   ================================ */
-
-:root {
-  --f-pixel: "Pixel", monospace;
-  --f-pixel-c: "Pixel-Corrected", monospace;
-  --f-Fpixel: "FreePixel", monospace;
-
-  /*#region  ye*/
-  --f-hooked: "Hooked Up 101", sans-serif;
-  --f-tost: "TOSTADA", sans-serif;
-  --f-tostitalic: "TOSTADA Italic", sans-serif;
-  --f-puree: "puree____2", sans-serif;
-  --f-dots: "BPdotsUnicaseSquareBold", sans-serif;
-  --f-mont: "Montserrat-Regular", sans-serif;
-  --f-plank: "PLANK__", sans-serif;
-  --f-tycho: "tycho", sans-serif;
-
-  /* ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ New Additions */
-  --f-couriero: "COURIERO", monospace;
-  --f-pixboss: "0927____", monospace;
-  --f-6809: "6809 Chargen", monospace;
-  --f-deftone: "Deftone Stylus", cursive;
-  --f-glitch: "GlitchGoblin", sans-serif;
-  --f-kleen: "kleenblades_ldr", sans-serif;
-  --f-mionta: "mionta", sans-serif;
-  --f-nymonak: "nymonak", sans-serif;
-  --f-pixel: "Pixel", monospace;
-  --f-vdub: "V Dub", sans-serif;
-  --f-zelega: "Zelega Zenega", sans-serif;
-  --f-zero: "Zero Hour", sans-serif;
-  /*#endregion*/
-}
-
-/* #endregion */
-
 /*#region - ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â© Font Utility Classes Pack */
 /* ================================
     ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Direct Reference Version
    ================================ */
-
-.f18,
-.f18-c {
-  font-weight: normal;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: geometricPrecision;
-  font-smooth: never;
-
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-
-  display: inline-block;
-  /* Make inlineÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âblock so alignment works */
-  vertical-align: middle;
-  /* baseline / middle alignment of inline box */
-  transform: translateY(0.1em);
-  /* small translate downward: adjust value as needed */
-  line-height: 1;
-  /* avoid altering extra vertical padding from lineÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âheight */
-}
-
-.f18 {
-  font-family: var(--f-pixel);
-}
-
-
-.f69 {
-  font-family: var(--f-Fpixel);
-}
-
-.f18-c {
-  /* font shifted down */
-  font-family: var(--f-pixel-c);
-}
-
-
-
-.f21 {
-  font-family: "Dosis", sans-serif;
-  font-weight: normal;
-
-}
-
-.f20 {
-  font-family: "Zero Hour", sans-serif;
-  font-weight: normal;
-
-}
-
-
-/*#region - ye*/
-.f1 {
-  font-family: "V Dub", sans-serif;
-  font-weight: normal;
-}
-
-.f2 {
-  font-family: "Hooked Up 101", sans-serif;
-  font-weight: normal;
-}
-
-.f3 {
-  font-family: "TOSTADA", sans-serif;
-  font-weight: normal;
-}
-
-.f4 {
-  font-family: "TOSTADA Italic", sans-serif;
-  font-weight: normal;
-}
-
-.f5 {
-  font-family: "puree____2", sans-serif;
-  font-weight: normal;
-}
-
-.f6 {
-  font-family: "BPdotsUnicaseSquareBold", sans-serif;
-  font-weight: normal;
-}
-
-.f7 {
-  font-family: "Montserrat-Regular", sans-serif;
-  font-weight: normal;
-}
-
-.f8 {
-  font-family: "PLANK__", sans-serif;
-  font-weight: normal;
-}
-
-.f9 {
-  font-family: "tycho", sans-serif;
-  font-weight: normal;
-}
-
-.f10 {
-  font-family: "COURIERO", monospace;
-  font-weight: normal;
-}
-
-.f11 {
-  font-family: "0927____", monospace;
-  font-weight: normal;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: grayscale;
-  font-smooth: never;
-}
-
-.f12 {
-  font-family: "6809 Chargen", monospace;
-  font-weight: normal;
-
-}
-
-.f13 {
-  font-family: "Deftone Stylus", cursive;
-  font-weight: normal;
-}
-
-.f14 {
-  font-family: "GlitchGoblin", sans-serif;
-  font-weight: normal;
-}
-
-.f15 {
-  font-family: "kleenblades_ldr", sans-serif;
-  font-weight: normal;
-}
-
-.f16 {
-  font-family: "mionta", sans-serif;
-  font-weight: normal;
-}
-
-.f17 {
-  font-family: "nymonak", sans-serif;
-  font-weight: normal;
-}
-
-.f19 {
-  font-family: "Zelega Zenega", sans-serif;
-  font-weight: normal;
-}
-
-
-/* ===defunkt font utils?==========================
-   ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â¤ Utility: Fonts
-   ============================= 
-.font-sans { font-family: Arial, sans-serif !important; }
-.font-mono { font-family: ui-monospace, Menlo, Consolas, monospace !important; }
-.font-alt  { font-family: "BPdotsUnicaseSquareBold", sans-serif !important; }
-.font-serif { font-family: Georgia, serif !important; }
-.font-mycustom { font-family: "MyCustomFont", sans-serif !important; }
-.font-dotsbold { font-family: "BPdotsUnicaseSquareBold", sans-serif !important; }
-*/
-/*#endregion*/
-
-
-
-/*#endregion*/
 
 /*#region - HEADINGs ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒâ€šÃ‚Â¼ ============================== */
 /*____________________________________________________*/
@@ -539,8 +148,7 @@ h2 {
 
 /* Dedicated heading override for Holy Expressor title */
 .hdr h2 {
-  font-family: "PLANK__", sans-serif;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 
@@ -551,23 +159,6 @@ h2 {
   letter-spacing: 0.25em;
   vertical-align: top !important;
   ;
-}
-
-h4 {
-
-  margin: 6px 0;
-  font-size: 13px;
-  font-family: var(--f-pixel) !important;
-  font-size: 20px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-
-  font-weight: normal;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: geometricPrecision;
-  font-smooth: never;
-
 }
 
 
@@ -582,39 +173,6 @@ h4 {
 
 
 
-.checkbox-Diamond {
-  --size: 25px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  cursor: pointer;
-  color: var(--AE-theme-darkest);
-  stroke: var(--G-color-1);
-  transition: color 0.2s ease-out, transform 0.2s ease-out;
-
-
-  transform: translateZ(0);
-
-}
-
-.checkbox-Diamond input {
-  display: none;
-}
-
-.checkbox-Diamond input:checked+svg rect {
-  fill: var(--G-color-1-midup);
-}
-
-.checkbox-Diamond svg:hover {
-  stroke: var(--G-color-1-midlight2);
-  transform: scale(1.2);
-}
-
-.checkbox-Diamond:active {
-  transform: scale(0.95) translateZ(0);
-}
 
 
 
@@ -672,7 +230,7 @@ body {
   /* preserves same visual spacing */
       background: transparent;
     color: var(--hp-signal-white);
-    font-family: var(--hp-font-engine);
+    font-family: system-ui, -apple-system, sans-serif;
     font-size: 11px;
     letter-spacing: 0.08em;
 
@@ -680,21 +238,6 @@ body {
     user-select: none;
 }
 
-/* CRT scanline overlay — the signature depth layer */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.07) 2px,
-        rgba(0, 0, 0, 0.07) 4px
-    );
-    pointer-events: none;
-    z-index: 9999;
-}
 
 html,
 body {
@@ -2359,67 +1902,6 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
    - Includes hover animation
    =================================================== */
 
-/* Base */
-.holy-glow {
-  position: relative;
-  /* ensures ::after anchors correctly */
-  z-index: 1;
-  /* keeps content above glow */
-}
-
-/* Glow layer */
-.holy-glow::after {
-  content: "";
-  position: absolute;
-  inset: 0px;
-  /* how far glow extends beyond element */
-  border-radius: inherit;
-  /* adapts to rounded shapes */
-  background: var(--G-color-1);
-  opacity: 0.25;
-  filter: blur(10px);
-  pointer-events: none;
-  z-index: 0;
-  transition: opacity 0.3s ease, filter 0.3s ease;
-}
-
-/* Hover intensity */
-.holy-glow:hover::after {
-  opacity: 0.45;
-  filter: blur(10px);
-
-}
-
-.holy-glow-text {
-  position: relative;
-  color: #1b1b1b;
-  /* fallback for browsers w/out filter */
-  text-shadow:
-    0 0 4px var(--G-color-1),
-    0 0 8px var(--G-color-1),
-    0 0 12px var(--G-color-1-light);
-  transition: text-shadow 0.3s ease, color 0.3s ease;
-}
-
-.holy-glow-text:hover {
-  color: #1b1b1b;
-  text-shadow:
-    0 0 6px var(--G-color-1),
-    0 0 12px var(--G-color-1-light),
-    0 0 18px var(--G-color-1-light);
-}
-
-@keyframes slowPulse {
-  from {
-    opacity: 0.25;
-    filter: blur(6px);
-  }
-
-  to {
-    opacity: 0.6;
-    filter: blur(12px);
-  }
-}
 
 /*---------------------------------\-----*/
 /*#endregion* ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¨ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¨----------------------\----*/
@@ -2716,77 +2198,6 @@ button.btn-discreet.is-active .icon-collapse {
 
 
 
-.btn-rhombus {
-  --btn-stroke: var(--G-color-1);
-  --btn-fill: var(--G-color-1-mid);
-  --btn-text: var(--G-color-1-light);
-  color: var(--btn-stroke);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  padding: 0;
-  transform:
-    scale(1.4) translateX(10px);
-  transform-origin: center;
-  margin-top: 5px;
-  margin-bottom: 2px;
-
-
-}
-
-/*
-.f21.snippet-btn:nth-child(2) .label {
-
-top: 14px;
- 
-}  /* or 3px if you want a bit more drop */
-
-.midsnip {
-  transform: translateY(10px);
-}
-
-.btn-rhombus:hover {
-  --btn-stroke: var(--G-color-1-light);
-  --btn-fill: var(--G-color-1);
-  --btn-text: var(--G-color-1-deepdark-bg);
-  font-weight: bold;
-  background: none;
-  border-color: none;
-}
-
-
-.btn-rhombus .rhombus-icon path,
-.btn-rhombus .rhombus-icon line,
-.btn-rhombus .rhombus-icon rect {
-  stroke: var(--btn-stroke);
-  stroke-width: 1.5;
-  stroke-miterlimit: 10;
-  fill: var(--btn-fill);
-}
-
-
-
-.btn-rhombus .rhombus-icon rect {
-  stroke: none;
-  /* middle stays clean */
-}
-
-.btn-rhombus .label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--btn-text);
-  font-family: var(--f1);
-  text-transform: uppercase;
-  pointer-events: none;
-}
-
-/*#endregion*/
 
 /*#region ÃƒÆ’Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¹ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¹ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§ RHOMBUS Snippet ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â Buttons ----------*/
 
@@ -2857,7 +2268,6 @@ top: 14px;
   right: auto;
   transform: translate(23%, 144%);
   padding: 0;
-  font-family: var(--f1);
   font-size: 10.5px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
