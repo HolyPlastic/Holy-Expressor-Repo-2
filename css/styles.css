@@ -1415,73 +1415,26 @@ textarea {
 .customSearch-textBox-frame {
   position: relative;
   width: 100%;
-  height: 19px;
-  /* lock vertical */
   margin-left: 1px;
   margin-right: 1px;
-  line-height: 19px;
-  color: var(--hx-accent, #043542);
   display: block;
-  transform: translate(0px, 0px);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  color: var(--border-subtle);
 }
-
-.customSearch-frame-row {
-  display: flex;
-  align-items: center;
-  justify-content: stretch;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  color: inherit;
-}
-
-.customSearch-frame-row svg {
-  display: block;
-  height: 100%;
-  shape-rendering: geometricPrecision;
-}
-
-.customSearch-frame-row .cap-left,
-.customSearch-frame-row .cap-right {
-  flex: 0 0 auto;
-}
-
-.customSearch-frame-row .cap-left {
-  width: 16.82px;
-}
-
-.customSearch-frame-row .cap-right {
-  width: 7.71px;
-}
-
-.customSearch-frame-row .cap-mid {
-  flex: 1 1 auto;
-  width: 100%;
-  min-width: 0;
-}
-
-.customSearch-frame-row .cap-mid line {
-  vector-effect: non-scaling-stroke;
-}
-
 
 #customSearch {
   font-size: 12px;
-  transform: translateX(10px)
 }
 
-/* input overlays the SVG but is transparent */
 .customSearch-textBox-frame input#customSearch {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
-  height: 100%;
   background: transparent;
   color: var(--G-color-1-light);
   border: none;
-  padding: 0 8px;
+  padding: 2px 8px;
   outline: none;
-  pointer-events: auto;
 }
 
 #customSearch.enabled {
@@ -1503,12 +1456,12 @@ textarea {
 }
 
 /* ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â¹ Frame color states */
-.customSearch-textBox-frame.enabled .customSearch-frame-row {
+.customSearch-textBox-frame.enabled {
   color: var(--search-enabled-color, var(--G-color-1));
 }
 
-.customSearch-textBox-frame.disabled .customSearch-frame-row {
-  color: var(--search-disabled-color, #2b3d44);
+.customSearch-textBox-frame.disabled {
+  color: var(--search-disabled-color, rgba(255, 255, 255, 0.12));
 }
 
 
@@ -1853,6 +1806,7 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
   margin-top: 4px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 #snippetsRow {
@@ -2062,12 +2016,7 @@ button:disabled {
 
 }
 
-.btn-clearSVG #bankSelectBtn {
 
-  transform: scale(10px) translateZ(0);
-
-
-}
 
 
 .btn-clearSVG:hover svg {
@@ -2311,7 +2260,7 @@ button.btn-discreet.is-active .icon-collapse {
   border: 0;
   border-right: 1px solid var(--border-subtle);
   border-radius: 0;
-  background: transparent;
+  background: var(--bg-surface);
   color: var(--text-muted);
   cursor: pointer;
   transition: color var(--transition), background var(--transition);
@@ -2323,9 +2272,7 @@ button.btn-discreet.is-active .icon-collapse {
   color: var(--G-color-1);
 }
 
-.btn-rhombus2-flex {
-  display: none;
-}
+
 
 .snippet-btn .label {
   position: static;
@@ -2360,27 +2307,14 @@ button.btn-discreet.is-active .icon-collapse {
 }
 
 
-.rhombus-left {
-  --rhombus-transform: scaleX(1.23) translateX(-4%);
-}
-
-.rhombus-middle {
-  --rhombus-transform: scaleX(1.23);
-}
-
-.rhombus-right {
-  --rhombus-transform: scaleX(1.23) translateX(4%);
-}
 
 
-.rhombus-icon {
-  display: block;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  transform: var(--rhombus-transform, scaleX(1.1));
-  transform-origin: center;
-}
+
+
+
+
+
+
 
 /*#endregion*/
 
