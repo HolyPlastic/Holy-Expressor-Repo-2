@@ -1,99 +1,101 @@
-/* V2 — CodeMirror 6 overrides using Holy Expressor global variables */
-/* Scoped with theme class for specificity */
+/* Obsidian Studio — CodeMirror theme for Holy Expressor */
 
 html.theme-default .cm-editor {
-  /* Background + border tie into your global palette */
-  background-color: var(--G-color-1-deepdark-bg);
-  border: 1px solid var(--G-colour-1-opac-30);
-  border-radius: 6px;
-
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
 }
 
-/* 🧭 Scroll area — layout properties untouched */
 html.theme-default .cm-editor .cm-scroller {
   background-color: transparent;
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* Scrollbar */
+#codeEditor .cm-scroller::-webkit-scrollbar {
+  width: 5px;
 }
 
 #codeEditor .cm-scroller::-webkit-scrollbar-thumb {
-    background-color: var(--G-color-1);
-    border-radius: 3px;
-    width: 5px;
+  background-color: rgba(var(--G-colour-1-RGB), 0.35);
+  border-radius: 3px;
 }
 
-
-/* ✍️ Content area text + caret */
+/* Content area */
 html.theme-default .cm-editor .cm-content {
-  color: var(--G-color-1-offwhite);
+  color: #c8cdd4;
   caret-color: var(--G-color-1);
 }
 
-
 html.theme-default .cm-editor .cm-content,
 html.theme-default .cm-editor .cm-gutter {
-  min-height: 50px !important; /* or whatever your target is */
-
+  min-height: 50px !important;
 }
+
 html.theme-default .cm-editor {
   min-height: 50px !important;
 }
 
-.cm-gutter{
-
-  overflow:overlay;
-
-
-  
+/* Gutter layout */
+.cm-gutter {
+  overflow: overlay;
 }
 
-.cm-gutterElement{
-width:100%
-
-}
-#codeEditor  {
- min-height: 0;       /* 💡 CHECKER: allow flex parent to define height */
- max-height: none;    /* 💡 CHECKER: prevent forced overflow */
-   flex: 1 1 auto;     /* 💡 CHECKER: participate in flex sizing */
-  height: 100%;       /* 💡 CHECKER: align with parent height */
+.cm-gutterElement {
+  width: 100%;
 }
 
-/* 🧩 Gutters container */
+#codeEditor {
+  min-height: 0;
+  max-height: none;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+/* Gutters container */
 html.theme-default .cm-editor .cm-gutters {
-  background-color: #222222; /* transparent */
-  color: var(--G-color-1-offwhite);
-  border-right: 1px solid var(--G-colour-1);
+  background-color: var(--bg-base);
+  color: rgba(226, 226, 232, 0.3);
+  border-right: 1px solid var(--border-subtle);
   box-sizing: border-box;
-
+  width: auto !important;
+  min-width: calc(1ch + 0.3em);
+  padding: 0 0.04em 0 0;
+  transition: width 0.12s ease;
 }
 
 .cm-gutters { position: relative; padding-right: 0 !important; }
-.cm-lineNumbers { position: relative; z-index: 3; }   /* numbers above */
-.cm-foldGutter { position: relative; z-index: 2; 
+.cm-lineNumbers { position: relative; z-index: 3; }
+.cm-foldGutter { position: relative; z-index: 2; }
 
-}    /* fold below */
-
-/* 🔢 Gutter line numbers */
+/* Gutter elements */
 html.theme-default .cm-editor .cm-lineNumbers .cm-gutterElement {
   min-width: 5px;
-    padding-right: 0px;   /* tweak 4..10px to taste */
-  padding-left: 7px;  /* tweak this value to taste: 4..10px */
-  
-  /*  margin-right: -2px; */ 
+  padding-right: 0px;
+  padding-left: 7px;
   text-align: right;
   white-space: nowrap;
   box-sizing: border-box;
-
-  /* experiment here with different font */
-z-index: 5;
-  font-size: 10.5px;
-  color: var(--G-color-1);
+  z-index: 5;
+  font-size: 10px;
+  color: rgba(226, 226, 232, 0.25);
 }
 
-/* 🌟 Active line gutter */
+html.theme-default .cm-editor .cm-gutterElement {
+  width: auto !important;
+  min-width: calc(1ch + 0.1em);
+  text-align: right;
+  white-space: nowrap;
+  padding: 0;
+}
+
+/* Active line gutter */
 html.theme-default .cm-editor .cm-activeLineGutter {
   position: relative;
   z-index: 0;
   background-color: transparent !important;
-  /*margin: 0 -0.04em 0 -0.35em;*/
   padding: 0 0.04em 0 0.35em;
   box-sizing: border-box;
 }
@@ -102,46 +104,30 @@ html.theme-default .cm-editor .cm-activeLineGutter::before {
   content: "";
   position: absolute;
   z-index: -1;
-  top: 0;
-  bottom: 0;
+  top: 0; bottom: 0;
   left: calc(-0.35em);
   right: calc(-0.04em);
-  background-color: #353535;
+  background-color: rgba(255, 255, 255, 0.04);
 }
-/*
-.cm-gutterElement {
-  width: 5px;
+
+/* Active line highlight */
+html.theme-default .cm-editor .cm-activeLine {
+  background-color: rgba(255, 255, 255, 0.03);
 }
-*/
-/* ✨ Selection & matching text */
+
+/* Selection */
 html.theme-default .cm-editor .cm-selectionBackground {
-  background-color: var(--G-colour-1-opac-30) !important;
+  background-color: rgba(var(--G-colour-1-RGB), 0.2) !important;
 }
 
-/* ✨ Matching brackets (if feature active) */
+/* Matching brackets */
 html.theme-default .cm-editor .cm-matchingBracket {
-  background-color: var(--G-colour-1-opac-10);
-  border-bottom: 1px solid var(--G-color-1);
+  background-color: rgba(var(--G-colour-1-RGB), 0.12);
+  border-bottom: 1px solid rgba(var(--G-colour-1-RGB), 0.5);
 }
 
-/* ⚡ Focus ring alignment */
+/* Focus ring */
 html.theme-default .cm-editor.cm-focused {
-  border-color: var(--G-color-1) !important;
+  border-color: rgba(var(--G-colour-1-RGB), 0.4) !important;
   outline: none;
-}
-
-/* 🧠 Dynamic gutter scaling — Holy Expressor tweak */
-html.theme-default .cm-editor .cm-gutters {
-  width: auto !important;
-  min-width: calc(1ch + 0.3em);
-  padding: 0 0.04em 0 0;
-  transition: width 0.12s ease;
-}
-
-html.theme-default .cm-editor .cm-gutterElement {
-  width: auto !important;      /* remove fixed width */
-  min-width: calc(1ch + 0.1em);
-  text-align: right;
-  white-space: nowrap;
-  padding: 0;
 }

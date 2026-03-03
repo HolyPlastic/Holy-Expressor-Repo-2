@@ -5,83 +5,74 @@ var(--G-color-1);
 
 
 :root {
-  /* Fallback theme colour ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â used until JS overrides */
-  --G-color-1: #1effd6;
+  /* ==========================================================
+   * USER THEME — JS-managed (do not rename these)
+   * JS writes --G-colour-1-RGB and --G-color-1-H/S/L at runtime
+   * ========================================================== */
+  --G-color-1: #7c6cfa;
   --G-grey-1: #3a3a3a;
-      --hp-signal-white:  #F0F0F0;
-  /* JS will overwrite these at runtime */
   --G-color-1-H: 0;
-  --G-color-1-S: 0;
-  --G-color-1-L: 0;
+  --G-color-1-S: 0%;
+  --G-color-1-L: 0%;
   --G-colour-1-RGB: 0, 0, 0;
-  --G-color-1-mid: hsl(var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 0.75),
-      calc(var(--G-color-1-L) * 2 * 0.08));
-  --G-color-1-mid-2: hsl(
-      /* mid desat */
-      var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 0.45),
-      calc(var(--G-color-1-L) * 2 * 0.18));
-  --G-color-1-mid-3: hsl(
-      /* mid desat but darker */
-      var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 0),
-      calc(var(--G-color-1-L) * 2 * 0.15));
-  --G-color-1-mid-4: hsl(
-      /* balance of mid desat 1 and 2 */
-      var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 0.45),
-      calc(var(--G-color-1-L) * 2 * 0.18));
-  --G-color-1-dark-bg: hsl(var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 0.9),
-      calc(var(--G-color-1-L) * 2 * 0.04));
-  --G-color-1-deepdark-bg: hsl(var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 1),
-      calc(var(--G-color-1-L) * 2 * 0.02));
-  --G-color-1-lowsatdark-bg: hsl(var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 0.1),
-      calc(var(--G-color-1-L) * 2 * 0.04));
-  --G-color-1-offwhite: hsl(var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 1),
-      calc(var(--G-color-1-L) * 2 * 0.8));
-  --G-color-1-light: hsl(var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 1),
-      calc(var(--G-color-1-L) * 2 * 0.8));
-  --G-color-1-midlight: hsl(var(--G-color-1-H),
-      var(--G-color-1-S),
-      calc(var(--G-color-1-L) * 2 * 0.3));
-  --G-color-1-midlight2: hsl(var(--G-color-1-H),
-      var(--G-color-1-S),
-      calc(var(--G-color-1-L) * 2 * 0.65));
-  --G-color-1-midup: hsl(var(--G-color-1-H),
-      calc(var(--G-color-1-S) * 0.75),
-      calc(var(--G-color-1-L) * 2 * 0.2));
-  --G-colour-1-opac-75: rgba(var(--G-colour-1-RGB), 0.75);
-  --G-colour-1-opac-50: rgba(var(--G-colour-1-RGB), 0.5);
-  --G-colour-1-opac-30: rgba(var(--G-colour-1-RGB), 0.3);
-  --G-colour-1-opac-10: rgba(var(--G-colour-1-RGB), 0.1);
 
-  --G-colour-1-veilxx: rgba(var(--G-colour-1-RGB), 0.1);
-  
---G-veil-dk-r: calc(var(--G-colour-1-RGB).split(',')[0] * 0.15);
---G-veil-dk-g: calc(var(--G-colour-1-RGB).split(',')[1] * 0.15);
---G-veil-dk-b: calc(var(--G-colour-1-RGB).split(',')[2] * 0.15);
+  /* Derived theme colour scale */
+  --G-color-1-mid:           hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.75), calc(var(--G-color-1-L) * 2 * 0.08));
+  --G-color-1-mid-2:         hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.45), calc(var(--G-color-1-L) * 2 * 0.18));
+  --G-color-1-mid-3:         hsl(var(--G-color-1-H), 0%,                               calc(var(--G-color-1-L) * 2 * 0.15));
+  --G-color-1-mid-4:         hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.45), calc(var(--G-color-1-L) * 2 * 0.18));
+  --G-color-1-dark-bg:       hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.9),  calc(var(--G-color-1-L) * 2 * 0.04));
+  --G-color-1-deepdark-bg:   hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 1),    calc(var(--G-color-1-L) * 2 * 0.02));
+  --G-color-1-lowsatdark-bg: hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.1),  calc(var(--G-color-1-L) * 2 * 0.04));
+  --G-color-1-offwhite:      hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 1),    calc(var(--G-color-1-L) * 2 * 0.8));
+  --G-color-1-light:         hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 1),    calc(var(--G-color-1-L) * 2 * 0.8));
+  --G-color-1-midlight:      hsl(var(--G-color-1-H), var(--G-color-1-S),              calc(var(--G-color-1-L) * 2 * 0.3));
+  --G-color-1-midlight2:     hsl(var(--G-color-1-H), var(--G-color-1-S),              calc(var(--G-color-1-L) * 2 * 0.65));
+  --G-color-1-midup:         hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.75), calc(var(--G-color-1-L) * 2 * 0.2));
+  --G-colour-1-opac-75:      rgba(var(--G-colour-1-RGB), 0.75);
+  --G-colour-1-opac-50:      rgba(var(--G-colour-1-RGB), 0.5);
+  --G-colour-1-opac-30:      rgba(var(--G-colour-1-RGB), 0.3);
+  --G-colour-1-opac-10:      rgba(var(--G-colour-1-RGB), 0.1);
+  --G-colour-1-veil:         rgba(var(--G-colour-1-RGB), 0.12);
+  --G-colour-1-light:        var(--G-color-1-light);
 
- --G-colour-1-veil: rgba(var(--G-colour-1-RGB), 0.25);
-  --AE-theme-dark-opac: rgba(0, 0, 0, 0.397);
+  /* ==========================================================
+   * DESIGN SYSTEM TOKENS
+   * ========================================================== */
+  --bg-base:    #111214;
+  --bg-panel:   #18191d;
+  --bg-surface: #20222a;
+  --bg-input:   #0e0f12;
 
+  --text-primary: #e2e2e8;
+  --text-muted:   rgba(226, 226, 232, 0.5);
+  --text-faint:   rgba(226, 226, 232, 0.22);
 
-  --G-faded-text: rgba(255, 255, 255, 0.151);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-accent: rgba(var(--G-colour-1-RGB), 0.28);
 
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   10px;
+  --radius-pill: 999px;
 
+  --transition: 0.15s ease-in-out;
 
+  --font-ui:    system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-label: 'Dosis', system-ui, sans-serif;
+  --f-pixel:    var(--font-ui);
+  --f-pixel-c:  var(--font-ui);
 
-  /* === After Effects Theme Colors === */
-  --AE-theme-darkest: #1d1d1d;
-  --AE-theme-dark: #323232;
-
-  --AE-theme-light: #f8f8f8;
-  --outer-borders: 0.5px solid var(--G-colour-1-opac-50);
+  /* ==========================================================
+   * LEGACY COMPATIBILITY
+   * ========================================================== */
+  --hp-signal-white:    #e2e2e8;
+  --G-faded-text:       rgba(226, 226, 232, 0.22);
+  --AE-theme-darkest:   #1d1d1d;
+  --AE-theme-dark:      #323232;
+  --AE-theme-light:     #f8f8f8;
+  --AE-theme-dark-opac: rgba(0, 0, 0, 0.4);
+  --outer-borders:      1px solid var(--border-subtle);
 }
 
 /*#endregion ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Â¨ */
@@ -138,7 +129,16 @@ var(--G-color-1);
 /*____________________________________________________*/
 
 .hdr {
-  margin-bottom: -14px;
+  margin-bottom: 0;
+  padding: 4px 6px 2px;
+}
+
+.hdr h2 {
+  font-family: var(--font-label);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
 }
 
 h2 {
@@ -146,19 +146,13 @@ h2 {
   font-size: 16px;
 }
 
-/* Dedicated heading override for Holy Expressor title */
-.hdr h2 {
-  font-size: 16px;
-}
-
 
 .heading-1 {
-  font-size: 10px;
-  color: var(--G-faded-text);
-
-  letter-spacing: 0.25em;
-  vertical-align: top !important;
-  ;
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
 
@@ -228,11 +222,11 @@ body {
   margin: 0;
 
   /* preserves same visual spacing */
-      background: transparent;
-    color: var(--hp-signal-white);
-    font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
     font-size: 11px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.01em;
 
     overflow-x: hidden;
     user-select: none;
@@ -263,18 +257,9 @@ body {
 
 .shade-hard {
   position: relative;
-  background: var(--G-color-1-deepdark-bg);
-  border-radius: 6px;
-}
-
-.shade-hard::after {
-  content: "";
-  position: absolute;
-  inset: 1px -1px -2px -1px;
-  /* adjust to push down slightly */
-  border-bottom: 1px solid var(--G-color-1);
-  border-radius: inherit;
-  pointer-events: none;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
 }
 
 /*---------------------------------\-----*/
@@ -311,18 +296,13 @@ body {
 
 /* Panel styling */
 .panel {
-  background: #1f1f1f;
-
-  border: 1.3px solid var(--G-colour-1-opac-50);
-
-  border-radius: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
   padding: 6px;
   margin-top: 6px;
   position: relative;
-  /* required for absolute positioning to work */
-  background-color: #101010;
   overflow: hidden;
-  /* keeps pseudo-element edges clean */
 }
 
 /*---------------------------------\-----*/
@@ -345,17 +325,17 @@ body {
   left: 0;
   z-index: 100000 !important;
   min-width: 140px;
-  background: var(--G-color-1-deepdark-bg);
-  border-radius: 6px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
-  /* hidden by default */
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
   display: none;
   opacity: 0;
   pointer-events: none;
   transition: opacity .12s ease-out;
   transform: translate3d(0, 0, 0);
   will-change: opacity, transform;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 
@@ -390,12 +370,12 @@ body {
   background: transparent;
   border: none;
   cursor: pointer;
-  border-bottom: 1px solid var(--G-color-1);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .context-menu button:hover {
-  background: var(--G-color-1);
-  color: var(--G-color-1-deepdark-bg);
+  background: rgba(var(--G-colour-1-RGB), 0.15);
+  color: var(--G-color-1);
 }
 
 /*  ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚Â§Ãƒâ€šÃ‚Â± Context Menu Layout ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Extended Utility Set
@@ -669,11 +649,14 @@ textarea {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 12px;
+  padding: 5px 10px;
   margin: 0;
   user-select: none;
-  font-size: 8px;
-  background: #0d0d0d;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .mode-switch-cluster {
@@ -688,10 +671,14 @@ textarea {
 .modeSwitchBar .mode-btn {
   background: none;
   border: none;
-  padding: 0;
+  border-bottom: 2px solid transparent;
+  padding: 4px 6px;
   margin: 0;
   font: inherit;
-  color: var(--G-grey-1);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
   cursor: pointer;
   letter-spacing: inherit;
   transition: color 0.2s ease;
@@ -736,6 +723,7 @@ textarea {
 #modePanel[data-mode="express"] #modeExpressBtn,
 #modePanel[data-mode="rewrite"] #modeRewriteBtn {
   color: var(--G-color-1);
+  border-bottom-color: var(--G-color-1);
 }
 
 
@@ -1541,9 +1529,7 @@ textarea {
 
 
 .express-apply {
-  margin-top: 10px;
-  padding-bottom: 6px;
-  margin-top: -3px;
+  padding: 4px 8px 8px;
 }
 
 .express-misc {
@@ -1725,7 +1711,7 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
 #bankHeader {
   display: flex;
   align-items: center;
-  gap: 0px;
+  gap: 6px;
   /* minimal space between text and dropdown */
   margin-top: 0px;
   margin-left: 2px;
@@ -1736,8 +1722,9 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
 #bankHeader #bankNameLabel,
 #bankHeader input[type="text"] {
   display: inline-block;
-  font-family: var(--f-pixel-c);
-  font-size: 15px;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
   transform: translate(1px, 2px);
   color: var(--G-color-1-mid-4);
@@ -1860,13 +1847,12 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
-  /* ðŸ”’ cannot expand or shrink */
   gap: 0;
-  background: none;
+  background: var(--bg-panel);
   padding: 0;
-  margin-top: 8.6px;
-  border: var(--outer-borders);
-  border-radius: 0px 16px 0px 0px;
+  margin-top: 4px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
 }
 
 #snippetsRow {
@@ -1934,13 +1920,104 @@ button.primary {
 }
 
 button.tab-btn {
-  background: #221325;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
   margin-left: 0;
-  padding: 0px 0px;
-  width: 20%;
-  font-size: 80%;
-  color: #513a56;
-  transform: scale(0.8) translateX(19px);
+  padding: 3px 8px;
+  font-size: 10px;
+  font-family: var(--font-ui);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+button.tab-btn:hover {
+  color: var(--G-color-1);
+  border-color: var(--border-accent);
+}
+
+/* ====================================================
+   PRIMARY BUTTON — apply / main action
+   ==================================================== */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--G-color-1);
+  color: #0c0c10;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 7px 24px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity var(--transition), transform var(--transition);
+  min-width: 90px;
+}
+
+.btn-primary:hover {
+  opacity: 0.84;
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+  opacity: 1;
+}
+
+.btn-primary .label {
+  pointer-events: none;
+}
+
+/* ====================================================
+   CHECKBOX — clean CSS-only replacement for diamond
+   ==================================================== */
+.checkbox-Diamond {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: opacity var(--transition);
+}
+
+.checkbox-Diamond input {
+  display: none;
+}
+
+.checkbox-Diamond svg {
+  color: var(--text-faint);
+  transition: color var(--transition);
+}
+
+.checkbox-Diamond input:checked + svg {
+  color: var(--G-color-1);
+}
+
+.checkbox-Diamond:hover svg {
+  color: var(--text-muted);
+}
+
+/* ====================================================
+   TOAST NOTIFICATIONS
+   ==================================================== */
+#toast {
+  min-height: 0;
+  padding: 0 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+
+#toast:not(:empty) {
+  padding: 5px 8px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 
 
@@ -1957,7 +2034,7 @@ button:disabled {
   /* ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â§ Core sizing controlled by a variable for unified scaling */
   --size: 25px;
   --stroke-width: 0.8px;
-  --icon-scale: 1.7;
+  --icon-scale: 1.3;
   --icon-offset-x: 0;
   --icon-offset-y: 0;
   width: var(--size);
@@ -1993,12 +2070,10 @@ button:disabled {
 }
 
 
-.btn-clearSVG svg:hover {
+.btn-clearSVG:hover svg {
   color: var(--G-color-1);
-  stroke: var(--G-color-1-midlight2);
-  transform: scale(1.9) translateZ(0);
-
-  transition: color 0.2s ease-out, transform 0.2s
+  transform: scale(1.15) translateZ(0);
+  transition: color var(--transition), transform var(--transition);
 }
 
 .btn-clearSVG:hover .inner-contents {
@@ -2226,55 +2301,45 @@ button.btn-discreet.is-active .icon-collapse {
 .snippet-btn {
   position: relative;
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
+  align-items: center;
+  justify-content: center;
   flex: 1 1 33.3333%;
   min-width: 0;
   height: 100%;
   margin: 0;
-  padding: 0;
+  padding: 4px 6px;
   border: 0;
+  border-right: 1px solid var(--border-subtle);
   border-radius: 0;
   background: transparent;
-  color: var(--btn-Rs-fill);
-  stroke-width: 1px;
-  stroke: var(--G-color-1);
+  color: var(--text-muted);
   cursor: pointer;
-  transition: color 0.2s ease;
-  vector-effect: non-scaling-stroke;
+  transition: color var(--transition), background var(--transition);
+  overflow: hidden;
 }
 
 .snippet-btn:hover {
-  background: transparent;
-  border-color: transparent;
-  color: var(--btn-Rs-fill-hover);
+  background: rgba(var(--G-colour-1-RGB), 0.07);
+  color: var(--G-color-1);
 }
 
 .btn-rhombus2-flex {
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-}
-
-.btn-rhombus2-flex svg {
-  width: 100%;
-  height: 100%;
-  display: block;
+  display: none;
 }
 
 .snippet-btn .label {
-  position: absolute;
-  top: auto;
-  right: auto;
-  transform: translate(23%, 144%);
-  padding: 0;
-  font-size: 10.5px;
-  letter-spacing: 0.5px;
+  position: static;
+  transform: none;
+  padding: 0 4px;
+  font-size: 10px;
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--btn-Rs-text);
+  color: inherit;
   pointer-events: none;
   white-space: nowrap;
-  max-width: calc(100% - 12px);
+  max-width: calc(100% - 8px);
   overflow: hidden;
   text-overflow: ellipsis;
   z-index: 1;
@@ -2282,8 +2347,7 @@ button.btn-discreet.is-active .icon-collapse {
 }
 
 .snippet-btn:hover .label {
-  color: var(--btn-Rs-text-hover);
-  font-weight: bold;
+  color: inherit;
 }
 
 .snippet-btn:focus-visible {
@@ -2614,22 +2678,29 @@ button.target-btn {
 .color-input {
   width: 100%;
   text-align: center;
-  background: var(--G-color-1-mid);
-  border: 2px solid var(--G-color-1) !important;
-  color: var(--G-color-1);
-  border-radius: 4px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-accent) !important;
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
   padding: 6px 8px;
   text-transform: uppercase;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.color-input:focus {
+  border-color: var(--G-color-1) !important;
 }
 
 .holy-color-picker .color-area {
   width: 100%;
   height: auto;
-  border-radius: 6px;
-
-  border: 2px solid var(--G-color-1);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
   cursor: crosshair;
-  background: #222;
+  background: #1a1a1f;
   touch-action: none;
 }
 
@@ -2689,22 +2760,31 @@ button.target-btn {
 
 .holy-color-picker .btn-apply,
 .holy-color-picker .btn-cancel {
-  border-radius: 8px;
-  border: 1px solid var(--G-colour-1-opac-30);
-  background-image: none;
-
-  letter-spacing: 0.5px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: opacity var(--transition);
 }
 
 .holy-color-picker .btn-apply {
   background: var(--G-color-1);
-  color: #0a0a0a;
+  color: #0c0c10;
+  border-color: transparent;
 }
 
+.holy-color-picker .btn-apply:hover { opacity: 0.84; }
+
 .holy-color-picker .btn-cancel {
-  background: var(--G-color-1-deepdark-bg, #2b2b2b);
-  color: #ddd;
+  background: var(--bg-surface);
+  color: var(--text-muted);
 }
+
+.holy-color-picker .btn-cancel:hover { color: var(--text-primary); }
 
 /* =============================
    ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Toast Notifications
