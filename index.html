@@ -208,6 +208,7 @@ ____________________ -------->
   <script defer src="js/main_BUTTON_LOGIC_1.js"></script>
   <script defer src="js/main_SNIPPETS.js"></script>
   <script defer src="js/main_SEARCH_REPLACE.js"></script>
+  <script defer src="js/main_BG.js"></script>
   <script defer src="js/main_DEV_INIT.js"></script>
 
   <!-- 🚀 Final entrypoint -->
@@ -425,6 +426,17 @@ ____________________ -------->
 
 
 
+
+
+
+
+
+
+
+
+
+          <!-- Overlay action buttons anchored to the bottom-right of the Express area -->
+          <div class="express-editor-overlay" role="group" aria-label="Editor quick actions">
           <button id="loadFromSelectionBtn" class="btn-clearSVG express-editor-overlay-btn" type="button"
             aria-label="Load expression from selection" title="Load expression from selection">
             <svg viewBox="-0.42 -0.43 19.59 19.02" class="btn-icon">
@@ -441,17 +453,6 @@ ____________________ -------->
               </g>
             </svg>
           </button>
-
-
-
-
-
-
-
-
-          <!-- Overlay action buttons anchored to the bottom-right of the Express area -->
-          <div class="express-editor-overlay" role="group" aria-label="Editor quick actions">
-
             <div class="express-editor-overlay-checkbox">
               <label class="checkbox-Diamond">
                 <input id="useAbsoluteComp" type="checkbox">

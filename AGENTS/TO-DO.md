@@ -5,7 +5,31 @@
 ## 🧩 Snippets
 
 - 🎨 **Snippet controls button UI**
-    
+
+- 🎨 **Snippet bank title/label readability**
+
+    - The title of the snippet bank needs to be easier to read
+
+- 🎨🧠 **Snippet controls interface expansion**
+
+    - When editing a snippet, display whether controls are saved
+
+    - Show what controls are currently saved
+
+    - Expand on the interface/method for saving and editing controls
+
+- 🎨 **Right-click snippet menu colors**
+
+    - Adapt colors for the right-click dropdown menu on snippet buttons
+
+- 🎨🧠 **Duplicate bank function**
+
+    - Add ability to duplicate a snippet bank
+
+    - Implement via right-click on banks dropdown menu item or dedicated icon
+
+    - Exact interaction method to be determined
+
 
 ---
 

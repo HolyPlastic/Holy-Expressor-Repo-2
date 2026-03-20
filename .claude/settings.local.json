@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /b \"C:\\\\Users\\\\Ben\\\\NEXUS\\\\_GRID\\\\PLUGINS\\\\HOLY EXPRESSOR\\\\Holy-Expressor-Repo-2\\\\scripts\"\")",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
