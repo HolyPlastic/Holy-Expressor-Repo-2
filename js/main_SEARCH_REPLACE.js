@@ -5,7 +5,14 @@ if (typeof Holy !== "object") Holy = {};
 
   function getFieldValue(selector) {
     var el = document.querySelector(selector);
-    return el ? el.value : "";
+    if (!el) return "";
+    if (window.codemirror && el.classList.contains('rewrite-codemirror')) {
+      var editor = el._codemirror;
+      if (editor && editor.state) {
+        return editor.state.doc.toString();
+      }
+    }
+    return el.value || "";
   }
 
   function getCheckboxState(selector, defaultValue) {
@@ -114,6 +121,7 @@ if (typeof Holy !== "object") Holy = {};
   }
 
   function init() {
+    initRewriteEditors();
     var legacyBtn = document.querySelector("#runSearchReplace");
     if (legacyBtn && !legacyBtn.dataset.cySearchBound) {
       legacyBtn.dataset.cySearchBound = "true";
@@ -129,8 +137,24 @@ if (typeof Holy !== "object") Holy = {};
         var searchEl = document.getElementById("searchField");
         var replaceEl = document.getElementById("replaceField");
 
-        if (searchEl) searchEl.value = "";
-        if (replaceEl) replaceEl.value = "";
+        if (searchEl) {
+          if (searchEl._codemirror) {
+            searchEl._codemirror.dispatch({
+              changes: { from: 0, to: searchEl._codemirror.state.doc.length, insert: "" }
+            });
+          } else {
+            searchEl.value = "";
+          }
+        }
+        if (replaceEl) {
+          if (replaceEl._codemirror) {
+            replaceEl._codemirror.dispatch({
+              changes: { from: 0, to: replaceEl._codemirror.state.doc.length, insert: "" }
+            });
+          } else {
+            replaceEl.value = "";
+          }
+        }
 
         try {
           var ev = new Event("input", { bubbles: true });
@@ -139,6 +163,56 @@ if (typeof Holy !== "object") Holy = {};
         } catch (e) {}
 
         if (searchEl && searchEl.focus) searchEl.focus();
+      });
+    }
+  }
+
+  function initRewriteEditors() {
+    if (!window.codemirror || !window.codemirror.EditorState) {
+      console.warn("[SEARCH_REPLACE] CodeMirror not available");
+      return;
+    }
+
+    var searchContainer = document.getElementById("searchField");
+    var replaceContainer = document.getElementById("replaceField");
+
+    if (searchContainer && !searchContainer._codemirror) {
+      var searchState = window.codemirror.EditorState.create({
+        doc: "",
+        extensions: [
+          window.codemirror.basicSetup,
+          window.codemirror.javascript(),
+          window.codemirror.oneDark,
+          window.codemirror.EditorView.lineWrapping,
+          window.codemirror.EditorView.theme({
+            "&": { height: "auto", minHeight: "24px", maxHeight: "80px" },
+            ".cm-scroller": { overflow: "auto", minHeight: "20px", maxHeight: "80px" }
+          })
+        ]
+      });
+      searchContainer._codemirror = new window.codemirror.EditorView({
+        state: searchState,
+        parent: searchContainer
+      });
+    }
+
+    if (replaceContainer && !replaceContainer._codemirror) {
+      var replaceState = window.codemirror.EditorState.create({
+        doc: "",
+        extensions: [
+          window.codemirror.basicSetup,
+          window.codemirror.javascript(),
+          window.codemirror.oneDark,
+          window.codemirror.EditorView.lineWrapping,
+          window.codemirror.EditorView.theme({
+            "&": { height: "auto", minHeight: "24px", maxHeight: "80px" },
+            ".cm-scroller": { overflow: "auto", minHeight: "20px", maxHeight: "80px" }
+          })
+        ]
+      });
+      replaceContainer._codemirror = new window.codemirror.EditorView({
+        state: replaceState,
+        parent: replaceContainer
       });
     }
   }

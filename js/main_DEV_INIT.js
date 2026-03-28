@@ -54,24 +54,29 @@ if (typeof Holy !== "object") Holy = {};
       "/jsx/Modules/host_PICKCLICK.jsx",
       "/jsx/Modules/host_APPLY.jsx",
       "/jsx/Modules/host_DEV.jsx",
-      "/jsx/Modules/host_FLYO.jsx", // 🆕 added for flyover launcher
-      "/jsx/host.jsx" // load main host last
+      "/jsx/host.jsx",
+      "/jsx/Modules/host_AGENT_API.jsx" // holyAPI_* surface for Holy Agent
     ];
 
+    var loaded = 0;
     hostModules.forEach(function (file) {
-      Holy.UI.cs.evalScript('$.evalFile("' + p(file) + '")');
+      Holy.UI.cs.evalScript('$.evalFile("' + p(file) + '")', function () {
+        loaded++;
+        if (loaded === hostModules.length) {
+          onAllLoaded();
+        }
+      });
     });
 
-    // Console pings to confirm ExtendScript linkage
-    Holy.UI.cs.evalScript('(typeof he_U_SS_getSelectionSummary)', function (res) {
-      console.log("he_U_SS_getSelectionSummary typeof:", res);
-    });
-
-    Holy.UI.cs.evalScript('(typeof he_U_getSelectedPaths)', function (res) {
-      console.log("he_U_getSelectedPaths typeof:", res);
-    });
-
-    console.log("✅ loadJSX(): All host modules loaded into ExtendScript.");
+    function onAllLoaded() {
+      Holy.UI.cs.evalScript('(typeof he_U_SS_getSelectionSummary)', function (res) {
+        console.log("he_U_SS_getSelectionSummary typeof:", res);
+      });
+      Holy.UI.cs.evalScript('(typeof holyAPI_applyToTarget)', function (res) {
+        console.log("holyAPI_applyToTarget typeof:", res);
+      });
+      console.log("✅ loadJSX(): All host modules loaded into ExtendScript.");
+    }
   }
 
 

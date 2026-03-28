@@ -1,5 +1,7 @@
 # 🧾 HOLY EXPRESSOR — TODO
 
+> **📋 Cross-repo status:** This document may not always reflect the very latest completion state. If you're unsure whether something is done, check `HOLY REPOS COLLATED/BEN'S TODO.md` — Ben crosses items off there as work is completed, and it sometimes captures progress that hasn't yet been formally noted here.
+
 ---
 
 ## 🧩 Snippets
@@ -81,29 +83,29 @@
 
 ---
 
-## 🧠 Load Path / Pick-Click
+## ~~🧠 Load Path / Pick-Click~~ ✅ DONE
 
-- 🧠 **(new system)**
+- ~~🧠 **(new system)**~~
     
-    - Cleaner implementation identified
+    - ~~Cleaner implementation identified~~
         
-    - Needs finishing
+    - ~~Needs finishing~~
         
-    - Requires adding remaining entries into internal tables
+    - ~~Requires adding remaining entries into internal tables~~
         
-- 🧠🎯 **Pick-click UX (pickwhip-inspired)**
+- ~~🧠🎯 **Pick-click UX (pickwhip-inspired)**~~
     
-    - Click the button, then click a property in the AE timeline
+    - ~~Click the button, then click a property in the AE timeline~~
         
-    - Aims to match pickwhip ergonomics as closely as possible
+    - ~~Aims to match pickwhip ergonomics as closely as possible~~
         
-- 🎨 **Load Path button UI update**
+- ~~🧠🎯 **Pick-click parity for Load Expression**~~
     
-    - Button likely changes to a pseudo pickwhip-style icon
-        
-- 🧠🎯 **Pick-click parity for Load Expression**
+    - ~~If pick-click is used for Load Path, Load Expression should adopt the same interaction model~~
+
+- 🎨 **Load Path / Load Expression button icon update** *(still pending)*
     
-    - If pick-click is used for Load Path, Load Expression should adopt the same interaction model
+    - New icon: straight-line spiral (to differentiate from AE pickwhip). Design needs finalising. Holy Agent will adopt same icon when done.
         
 
 ---
@@ -164,13 +166,22 @@ Items below have been hopefully fixed, more testing may be required to make sure
 
 
 
-## 🔁 Undo / Action History 
+## 🎨 Color Picker UI (Future Enhancement)
 
-- Mass actions (e.g., bulk delete expressions) currently require multiple individual undo steps.
+- **Issue**: The native OS color picker popup (triggered by clicking the color button) shows white/light areas that can't be styled
+- **Root cause**: `<input type="color">` opens a system dialog rendered by the OS - this is not our code and cannot be styled
+- **Options**:
+  1. Accept the limitation - OS popup will always have some OS-native styling
+  2. Build a custom canvas-based gradient picker (like the original Expressor picker had) - fully customisable but more complex
+- **Current state**: Using HLMColorPicker inline (like Holy Agent) - live updates work. White areas are in the OS popup only.
+
+## ~~🔁 Undo / Action History~~ ✅ DONE
+
+- ~~Mass actions (e.g., bulk delete expressions) currently require multiple individual undo steps.~~
     
-- Requirement: If triggered by a single user action (one button click), it must register as **one undo event**.
+- ~~Requirement: If triggered by a single user action (one button click), it must register as **one undo event**.~~
     
-- Applies broadly to all batch operations, not just expression deletion.
+- ~~Applies broadly to all batch operations, not just expression deletion.~~
 
 
 ## 🔎 CustomSearch (POTENTIALLLY FIXED)

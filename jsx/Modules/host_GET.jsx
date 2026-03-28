@@ -18,9 +18,22 @@
 
 function he_escapeExprString(str) {
   if (str === undefined || str === null) return "";
-  return String(str).replace(/\\/g, "\\\\").replace(/\"/g, "\\\"");
+  return String(str).replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
 }
 
+function he_GET_ProjectPath() {
+  try {
+    if (!app.project || !app.project.file) {
+      return JSON.stringify({ ok: false, path: null, error: "No saved project" });
+    }
+    return JSON.stringify({ ok: true, path: app.project.file.fullName });
+  } catch (err) {
+    return JSON.stringify({ ok: false, path: null, error: String(err) });
+  }
+}
+
+// ==========================================================
+// SIMPLE LOAD PATH BUILDER (deterministic, no legacy heuristics)
 // ==========================================================
 // SIMPLE LOAD PATH BUILDER (deterministic, no legacy heuristics)
 // ==========================================================

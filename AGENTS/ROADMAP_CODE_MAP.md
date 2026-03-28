@@ -38,8 +38,8 @@ Loaded by `main_DEV_INIT.js` in this order:
 4. `host_PICKCLICK.jsx`
 5. `host_APPLY.jsx`
 6. `host_DEV.jsx`
-7. `host_FLYO.jsx`
-8. `jsx/host.jsx`
+7. `jsx/host.jsx`
+8. `host_AGENT_API.jsx` ← Holy Agent public API surface
 
 Responsibility snapshot:
 - `host_UTILS.jsx` → utility wrappers/logging helpers.
@@ -47,7 +47,8 @@ Responsibility snapshot:
 - `host_GET.jsx` → selection/path extraction helpers.
 - `host_APPLY.jsx` → apply expression operations in AE host context.
 - `host_PICKCLICK.jsx` → PickClick polling/signature/dispatch logic (**quarantined**).
-- `host_DEV.jsx` / `host_FLYO.jsx` / `host.jsx` → dev and auxiliary host wiring.
+- `host_DEV.jsx` / `host.jsx` → dev and auxiliary host wiring.
+- `host_AGENT_API.jsx` → exposes `holyAPI_getBanks`, `holyAPI_saveSnippet`, `holyAPI_applyToTarget` for Holy Agent. Loaded last so all Expressor functions are available. Agent-facing only — Expressor has no knowledge of Holy Agent.
 
 ## D) Manifest and environment
 

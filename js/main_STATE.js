@@ -29,6 +29,24 @@ if (typeof Holy !== "object") {
   var state = Object.assign({}, defaultState);
   var listeners = [];
 
+  var lastProjectPath = null;
+
+  function fetchCurrentProjectPath(callback) {
+    var csInterface = safeCSInterface();
+    if (!csInterface || typeof csInterface.evalScript !== "function") {
+      callback(null);
+      return;
+    }
+    csInterface.evalScript("he_GET_ProjectPath()", function (res) {
+      try {
+        var data = typeof res === "string" ? JSON.parse(res) : res;
+        callback(data && data.ok ? data.path : null);
+      } catch (e) {
+        callback(null);
+      }
+    });
+  }
+
   function log() {
     if (window.HX_LOG_MODE === "verbose") {
       var args = Array.prototype.slice.call(arguments);
@@ -111,6 +129,7 @@ if (typeof Holy !== "object") {
       var payload = {
         version: 1,
         updatedAt: Date.now(),
+        projectPath: lastProjectPath,
         state: persistedState
       };
       var res = Holy.UTILS.cy_writeJSONFile(path, payload);
@@ -263,21 +282,35 @@ if (typeof Holy !== "object") {
     var options = opts || {};
     if (!isInitialized) {
       hydrateDefaults();
-      var disk = readStateFromDisk();
-      if (disk && typeof disk === "object") {
-        var incoming = disk.state && typeof disk.state === "object" ? disk.state : disk;
-        if (Object.prototype.hasOwnProperty.call(incoming, "customSearch")) {
-          delete incoming.customSearch;
+      fetchCurrentProjectPath(function (currentProjectPath) {
+        var disk = readStateFromDisk();
+        if (disk && typeof disk === "object") {
+          var incoming = disk.state && typeof disk.state === "object" ? disk.state : disk;
+          if (Object.prototype.hasOwnProperty.call(incoming, "customSearch")) {
+            delete incoming.customSearch;
+          }
+          var storedProjectPath = disk.projectPath || null;
+          var sameProject = storedProjectPath && currentProjectPath && storedProjectPath === currentProjectPath;
+          if (!sameProject) {
+            delete incoming.expressionText;
+            delete incoming.useCustomSearch;
+          }
+          applyState(incoming, {
+            origin: "disk",
+            skipBroadcast: true,
+            skipPersist: true
+          });
+          lastProjectPath = currentProjectPath;
+        } else {
+          scheduleSave();
         }
-        applyState(incoming, {
-          origin: "disk",
-          skipBroadcast: true,
-          skipPersist: true
-        });
-      } else {
-        scheduleSave();
-      }
-      isInitialized = true;
+        isInitialized = true;
+        ensureEventListener();
+        if (options.panel) {
+          log("Initialized for panel", options.panel);
+        }
+      });
+      return getState();
     }
     ensureEventListener();
     if (options.panel) {
@@ -618,6 +651,26 @@ if (!window.__holyStateLiveSyncHooked) {
 
   Holy.State = {
     init: init,
+    reload: function () {
+      fetchCurrentProjectPath(function (currentProjectPath) {
+        var disk = readStateFromDisk();
+        if (disk && typeof disk === "object") {
+          var incoming = disk.state && typeof disk.state === "object" ? disk.state : disk;
+          var storedProjectPath = disk.projectPath || null;
+          var sameProject = storedProjectPath && currentProjectPath && storedProjectPath === currentProjectPath;
+          if (!sameProject) {
+            delete incoming.expressionText;
+            delete incoming.useCustomSearch;
+          }
+          applyState(incoming, {
+            origin: "reload",
+            skipBroadcast: true,
+            skipPersist: true
+          });
+          lastProjectPath = currentProjectPath;
+        }
+      });
+    },
     isReady: function () { return isInitialized; },
     getInstanceId: function () { return instanceId; },
     getState: getState,

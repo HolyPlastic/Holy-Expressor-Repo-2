@@ -454,7 +454,7 @@ body {
 
 /* Variants */
 .context-menu.snippet-menu {
-  background: #ff6e5a;
+  background: var(--bg-surface);
 }
 
 
@@ -1147,24 +1147,43 @@ textarea {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
-  gap: 0px;
+  gap: 4px;
   z-index: 1;
+  padding-top: 20px;
 }
 
 #rewriteSearchWrapper {
-  padding: 0px;
+  padding: 20px 0 0 0;
 }
 
 #rewriteReplaceWrapper {
-  padding: 0px;
+  padding: 20px 0 0 0;
 }
 
 #rewriteSearchWrapper .text-input,
 #rewriteReplaceWrapper .text-input {
   width: 100%;
   box-sizing: border-box;
+}
+
+.rewrite-codemirror {
+  min-height: 24px;
+  height: auto;
+  overflow: hidden;
+}
+
+.rewrite-codemirror .cm-editor {
+  height: auto;
+  min-height: 24px;
+  background: var(--bg-input);
+}
+
+.rewrite-codemirror .cm-scroller {
+  overflow: auto;
+  min-height: 20px;
+  max-height: 80px;
 }
 
 #rewriteSearchWrapper>label.block-label,
@@ -1195,6 +1214,22 @@ textarea {
   text-transform: uppercase;
   color: var(--G-color-1);
   -webkit-font-smoothing: none;
+}
+
+.rewrite-label-search {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  transform: scale(0.65);
+  transform-origin: top left;
+}
+
+.rewrite-label-replace {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  transform: scale(0.65);
+  transform-origin: top right;
 }
 
 .rewrite-label-search {
@@ -1727,7 +1762,7 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
   font-weight: 600;
   text-transform: uppercase;
   transform: translate(1px, 2px);
-  color: var(--G-color-1-mid-4);
+  color: var(--G-color-1);
   background: transparent;
   border: none;
   outline: none;
@@ -1769,8 +1804,33 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
   width: 100%;
   text-align: left;
   padding-right: 24px;
-  /* space for the delete buttonÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢s visual area */
+  /* space for the side buttons */
   box-sizing: border-box;
+  flex: 1;
+}
+
+/* Side buttons in flex row */
+#bankSelectMenu li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+#bankSelectMenu .menu-side-btn {
+  position: relative;
+  right: auto;
+  top: auto;
+  transform: none;
+  z-index: auto;
+  pointer-events: auto;
+  padding: 2px 4px;
+  min-width: 20px;
+}
+
+#bankSelectMenu .bank-name-btn {
+  position: relative;
+  z-index: 1;
 }
 
 /* Delete button positioned on top (same x/y as before) */
@@ -1974,6 +2034,12 @@ button.tab-btn:hover {
 /* ====================================================
    CHECKBOX — clean CSS-only replacement for diamond
    ==================================================== */
+
+/*
+  ORIGINAL DIAMOND SHAPE (saved for reference):
+  <rect x="1.76" y="1.74" width="8.95" height="8.98" rx="1.46" ry="1.46"
+    transform="translate(6.23 -2.58) rotate(45)" fill="currentColor" stroke-miterlimit="10" />
+*/
 .checkbox-Diamond {
   display: inline-flex;
   align-items: center;
@@ -1994,12 +2060,24 @@ button.tab-btn:hover {
   transition: color var(--transition);
 }
 
-.checkbox-Diamond input:checked + svg {
-  color: var(--G-color-1);
+.checkbox-Diamond svg circle {
+  transition: all var(--transition);
+}
+
+.checkbox-Diamond input:checked + svg circle.checkbox-checked {
+  fill: var(--G-color-1);
+}
+
+.checkbox-Diamond input:not(:checked) + svg circle.checkbox-checked {
+  fill: transparent;
 }
 
 .checkbox-Diamond:hover svg {
   color: var(--text-muted);
+}
+
+.checkbox-Diamond:hover svg circle:first-child {
+  stroke: var(--G-color-1);
 }
 
 /* ====================================================
@@ -2084,6 +2162,26 @@ button:disabled {
   transform: scale(0.95) translateZ(0);
 }
 
+/* Theme color picker button */
+.btn-icon-only {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-muted);
+  transition: color var(--transition);
+  margin-left: 6px;
+}
+
+.btn-icon-only:hover {
+  color: var(--G-color-1);
+}
+
 /* ==================================================
    SVG inside the button
    ================================================== */
@@ -2126,6 +2224,12 @@ button:disabled {
 }
 
 #editorClearBtn {
+  height: 45px !important;
+  width: auto !important;
+  aspect-ratio: unset !important;
+}
+
+#rewriteClearBtn {
   height: 45px !important;
   width: auto !important;
   aspect-ratio: unset !important;
@@ -2820,6 +2924,126 @@ button.target-btn {
   gap: 8px;
 }
 
+
+/* ============================================================
+   HLM Color Picker (standalone panel version)
+   ============================================================ */
+.holy-color-picker {
+  padding: 12px;
+  background: var(--bg-panel);
+  border-radius: var(--radius-md);
+}
+
+.color-picker-popup {
+  position: relative;
+  z-index: 1000;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.cp-top-row {
+  display: flex;
+  gap: var(--radius-sm);
+  margin-bottom: var(--radius-sm);
+}
+
+.cp-ok-btn, .cp-reset-btn {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.cp-ok-btn {
+  background: var(--G-color-1);
+  color: var(--bg-base);
+  border-color: var(--G-color-1);
+}
+
+.cp-ok-btn:hover {
+  background: var(--G-color-1-mid);
+  border-color: var(--G-color-1-mid);
+}
+
+.cp-reset-btn {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.cp-reset-btn:hover {
+  background: var(--bg-input);
+}
+
+.cp-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--radius-sm);
+  margin-bottom: var(--radius-sm);
+}
+
+.cp-native-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.cp-native-btn:hover {
+  border-color: var(--G-color-1);
+}
+
+.cp-hash {
+  color: var(--text-muted);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+#cpHexInput {
+  flex: 1;
+  padding: 6px 8px;
+  font-family: monospace;
+  font-size: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+#cpHexInput:focus {
+  outline: none;
+  border-color: var(--G-color-1);
+}
+
+.cp-swatch-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cp-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+
+.cp-swatch:hover {
+  border-color: var(--G-color-1);
+}
 
 
 /*---------------------------------\-----*/

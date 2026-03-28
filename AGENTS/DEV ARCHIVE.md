@@ -2338,3 +2338,56 @@ Dev Archive Append — PickClick Debugging, Patch Workflow & UI Veil (Temporal /
 • **KNOWN LIMITATIONS / UNCERTAINTIES**
 • Blending options sub-group matchNames (`ADBE Blend Options Group`, `ADBE Adv Blend Group`) were implemented based on best-guess mappings due to lack of public documentation.
 • If "Unsupported layer style group" errors persist for these specific properties, the toast now includes the actual matchName in the error (visible in the browser console) for future refinement.
+
+---
+
+## holyAPI_* Public Surface (2025-03-21)
+
+### Summary
+Added `jsx/Modules/host_AGENT_API.jsx` — a new JSX module exposing a public `holyAPI_*` surface for Holy Agent to call via the shared ExtendScript runtime. This is the implementation of the Conductor Architecture decision from Holy Agent Session 3: Holy Agent should call into the other plugins rather than reimplementing their functionality.
+
+### What was built
+Three functions added to `host_AGENT_API.jsx`, loaded last in the JSX chain (after `host.jsx`):
+
+- **`holyAPI_getBanks()`** — Returns bank list. Takes optional `{ banksPath }` argument; defaults to ExtendScript's `Folder.userData/HolyExpressor/banks.json` when not provided.
+
+- **`holyAPI_saveSnippet(jsonStr)`** — Saves expression to bank. Writes directly to `banks.json` using ExtendScript's File API. After successful write, dispatches `com.holy.expressor.banksUpdated` so Expressor's own UI refreshes automatically.
+
+- **`holyAPI_applyToTarget(jsonStr)`** — Applies expression to named property on layers matched by name and/or type. Uses Expressor's layer type detection patterns (solid via `source.color`, etc.) and visibility tracking (temporarily enables disabled layers during apply). Returns self-reporting manifest `{ attempted, succeeded, failed: [{name, reason}], warnings }` plus compat fields for Holy Agent's existing handlers.
+
+### CSEvent listener added
+`main_SNIPPETS.js` now listens for `com.holy.agent.banksUpdated`. When Holy Agent writes to `banks.json` directly (fallback path when Expressor is not open), Expressor reloads from disk and re-renders its snippet UI.
+
+### Load order
+`host_AGENT_API.jsx` added to `hostModules` array in `main_DEV_INIT.js` after `host.jsx`. The file uses `@include` directives to pull in all other modules, so functions defined in `host_UTILS.jsx`, `host_APPLY.jsx`, `host_GET.jsx`, etc. are all available when the API functions execute.
+
+### Relationship to Holy Agent
+Holy Agent's `host.jsx` bridges all three `holyAgent_*` functions to `holyAPI_*` when available, falling back to its own implementations when Expressor is closed. See Holy Agent Session 4 in `SESSION_HISTORY.md`.
+
+---
+
+## holyAPI_* Load Fix — Silent Parse Failure (2025-03-22)
+
+### Summary
+`host_AGENT_API.jsx` was never loading into the ExtendScript engine despite the file existing on disk and `$.evalFile` returning no error. All three `holyAPI_*` functions were always `undefined` at runtime.
+
+### Root causes (in order of discovery)
+
+1. **Duplicate `function layerMatchesType` declaration inside `try` block** — Two copies of the function were declared with `function` keyword inside a `try` block inside `holyAPI_applyToTarget`. ES3/ExtendScript does not permit function declarations inside block statements. Removed duplicate; converted both inner functions (`layerMatchesType`, `findAndApply`) to `var` function expressions, which ARE valid inside blocks.
+
+2. **`"null"` key unquoted in object literal (line 310)** — `debugInfo.push({ ..., null: dbgNull, ... })` used `null` as an unquoted object literal key. This is valid ES5+ but illegal in ES3/ExtendScript, which throws `SyntaxError: Illegal use of reserved word` and silently aborts the entire file parse before a single function is registered. Fixed by quoting the key: `"null": dbgNull`. **This was the true fatal error** — it survived all other fixes because it was introduced in a debug object after the duplicate function was added, and the parser never reached it while the duplicate was present.
+
+3. **`host_FLYO.jsx` phantom reference in `main_DEV_INIT.js`** — `hostModules` array included `/jsx/Modules/host_FLYO.jsx` (pos 7, before `host_AGENT_API.jsx` at pos 9). This file does not exist on disk. Removed from load list.
+
+4. **`host_APPLY_test.jsx` phantom `@include` in `host.jsx`** — `@include "Modules/host_APPLY_test.jsx"` referenced a non-existent file. Removed.
+
+### Solid type detection fix
+`holyAPI_applyToTarget`'s solid layer check used `layer.source.color` which is not a property on `FootageItem`. The correct path is `layer.source.mainSource.color` (a `SolidSource` object). Fixed in both the `layerMatchesType` function and the debug loop.
+
+### How the root cause was found
+`$.evalFile` was returning no error and no result. A bare `try/catch` wrapper around the `$.evalFile` call with string concatenation (avoiding `JSON.stringify` which requires the json2 polyfill) revealed: `THREW: SyntaxError: Illegal use of reserved word`. A Python byte-level scan of the file then identified the unquoted `null` key as the only ES3-illegal construct in code (as opposed to strings/comments).
+
+### Files changed
+- `jsx/Modules/host_AGENT_API.jsx` — duplicate function removed, inner functions converted to `var` expressions, `null` key quoted, solid check corrected to `mainSource.color`
+- `js/main_DEV_INIT.js` — `host_FLYO.jsx` removed from `hostModules`
+- `jsx/host.jsx` — `@include "Modules/host_APPLY_test.jsx"` removed

@@ -208,6 +208,7 @@ ____________________ -------->
   <script defer src="js/main_BUTTON_LOGIC_1.js"></script>
   <script defer src="js/main_SNIPPETS.js"></script>
   <script defer src="js/main_SEARCH_REPLACE.js"></script>
+  <script defer src="js/colorpicker.js"></script>
   <script defer src="js/main_BG.js"></script>
   <script defer src="js/main_DEV_INIT.js"></script>
 
@@ -297,16 +298,27 @@ ____________________ -------->
         <!-- Bank name (editable text) -->
         <span id="bankNameLabel">Bank 1</span>
 
-        <label class="checkbox-layercontrols checkbox-Diamond">
+        <label class="checkbox-layercontrols checkbox-Diamond" title="Load controls with snippet">
           <input id="snipLoadControls" type="checkbox">
-          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="12.47" height="12.47"
-            viewBox="0 0 12.47 12.47">
-            <g id="checkbox-diamond">
-              <rect x="1.76" y="1.74" width="8.95" height="8.98" rx="1.46" ry="1.46"
-                transform="translate(6.23 -2.58) rotate(45)" fill="currentColor" stroke-miterlimit="10" />
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+            viewBox="0 0 14 14">
+            <g id="checkbox-circle">
+              <circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <circle class="checkbox-checked" cx="7" cy="7" r="3" fill="currentColor"/>
             </g>
           </svg>
         </label>
+
+        <button id="openThemePicker" class="btn-icon-only" title="Change theme color">
+          <svg class="btn-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"
+               stroke-width="1.2" stroke-linecap="round">
+            <circle cx="5" cy="5" r="3.6"/>
+            <line x1="5" y1=".3" x2="5" y2="1.3"/>
+            <line x1="5" y1="8.7" x2="5" y2="9.7"/>
+            <line x1=".3" y1="5" x2="1.3" y2="5"/>
+            <line x1="8.7" y1="5" x2="9.7" y2="5"/>
+          </svg>
+        </button>
 
         <!-- Context menu for bank actions -->
         <ul id="bankSelectMenu" class="context-menu"></ul>
@@ -456,11 +468,11 @@ ____________________ -------->
             <div class="express-editor-overlay-checkbox">
               <label class="checkbox-Diamond">
                 <input id="useAbsoluteComp" type="checkbox">
-                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="12.47" height="12.47"
-                  viewBox="0 0 12.47 12.47">
-                  <g id="checkbox-diamond">
-                    <rect x="1.76" y="1.74" width="8.95" height="8.98" rx="1.46" ry="1.46"
-                      transform="translate(6.23 -2.58) rotate(45)" fill="currentColor" stroke-miterlimit="10" />
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                  viewBox="0 0 14 14">
+                  <g id="checkbox-circle">
+                    <circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                    <circle class="checkbox-checked" cx="7" cy="7" r="3" fill="currentColor"/>
                   </g>
                 </svg>
               </label>
@@ -521,7 +533,7 @@ ____________________ -------->
 
             <div id="rewriteSearchWrapper">
               <label for="searchField" class="text-sm block-label">Search</label>
-              <input type="text" id="searchField" class="text-input" />
+              <div id="searchField" class="text-input rewrite-codemirror"></div>
               <div class="rewrite-edge-line-top" aria-hidden="true"></div>
               <div class="rewrite-gradient-down" aria-hidden="true"></div>
               <span class="rewrite-label-search f69" aria-hidden="true">SEARCH</span>
@@ -532,7 +544,7 @@ ____________________ -------->
               <div class="rewrite-edge-line-bottom" aria-hidden="true"></div>
               <div class="rewrite-gradient-up" aria-hidden="true"></div>
               <label for="replaceField" class="text-sm block-label">Replace</label>
-              <input type="text" id="replaceField" class="text-input" />
+              <div id="replaceField" class="text-input rewrite-codemirror"></div>
               <div class="rewrite-gradient-down" aria-hidden="true"></div>
             </div>
             <div id="rewriteOverlay">
@@ -570,11 +582,11 @@ ____________________ -------->
       <div class="row">
         <label class="checkbox-label text-sm checkbox-Diamond customSearch-checkbox">
           <input id="useCustomSearch" type="checkbox">
-          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="12.47" height="12.47"
-            viewBox="0 0 12.47 12.47">
-            <g id="checkbox-diamond">
-              <rect x="1.76" y="1.74" width="8.95" height="8.98" rx="1.46" ry="1.46"
-                transform="translate(6.23 -2.58) rotate(45)" fill="currentColor" stroke-miterlimit="10" />
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+            viewBox="0 0 14 14">
+            <g id="checkbox-circle">
+              <circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <circle class="checkbox-checked" cx="7" cy="7" r="3" fill="currentColor"/>
             </g>
           </svg>
         </label>
@@ -703,18 +715,84 @@ ____________________ -------->
       const button = document.getElementById('openThemePicker');
       if (!button) return;
 
+      // Get current theme color
+      var currentColor = localStorage.getItem('he_themeColor') || '7c6cfa';
+
+      // Initialize HLM Color Picker
+      if (typeof HLMColorPicker !== 'undefined') {
+        HLMColorPicker.init({
+          fetchSwatches: function(callback) { callback([]); },
+          onApply: function(targetId, hex) {
+            applyThemeColor(hex);
+          },
+          onReset: function(targetId) {
+            applyThemeColor('#7c6cfa');
+          },
+          onPreview: function(targetId, hex) {
+            applyThemeColor(hex);
+          }
+        });
+      }
+
       button.addEventListener('click', (event) => {
         event.preventDefault();
-        try {
-          const cs = new CSInterface();
-          cs.requestOpenExtension('com.holy.expressor.colorpicker');
-
-
-        } catch (err) {
-          console.warn('Failed to open color picker panel', err);
+        event.stopPropagation();
+        if (typeof HLMColorPicker !== 'undefined') {
+          var savedColor = localStorage.getItem('he_themeColor') || '7c6cfa';
+          HLMColorPicker.open('theme', button, savedColor);
         }
       });
     });
+
+    function applyThemeColor(hex) {
+      var rgb = hexToRgb(hex);
+      if (!rgb) return;
+      
+      var root = document.documentElement;
+      root.style.setProperty('--G-color-1', hex);
+      root.style.setProperty('--G-colour-1-RGB', rgb.r + ', ' + rgb.g + ', ' + rgb.b);
+      
+      var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+      root.style.setProperty('--G-color-1-H', hsl.h);
+      root.style.setProperty('--G-color-1-S', hsl.s + '%');
+      root.style.setProperty('--G-color-1-L', hsl.l + '%');
+      
+      localStorage.setItem('he_themeColor', hex);
+    }
+
+    function hexToRgb(hex) {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      var max = Math.max(r, g, b), min = Math.min(r, g, b);
+      var h, s, l = (max + min) / 2;
+      
+      if (max === min) {
+        h = s = 0;
+      } else {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      
+      return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100)
+      };
+    }
   </script>
 
 

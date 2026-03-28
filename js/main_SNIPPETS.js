@@ -349,7 +349,29 @@ Holy.SNIPPETS.banks = [
           nameBtn.dataset.action = "select";
           nameBtn.dataset.bankId = b.id;
           nameBtn.classList.add("bank-name-btn");
+          nameBtn.style.flex = "1";
           li.appendChild(nameBtn);
+
+          // rename button
+          const renBtn = docCtx.createElement("button");
+          renBtn.textContent = "✎";
+          renBtn.title = "Rename bank";
+          renBtn.classList.add("menu-side-btn");
+          renBtn.dataset.action = "rename";
+          renBtn.dataset.bankId = b.id;
+          renBtn.style.marginLeft = "4px";
+          li.appendChild(renBtn);
+
+          // duplicate button
+          const dupBtn = docCtx.createElement("button");
+          dupBtn.innerHTML = "<svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\"><rect x=\"2\" y=\"2\" width=\"8\" height=\"8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"0\" y=\"0\" width=\"8\" height=\"8\" fill=\"currentColor\"/></svg>";
+          dupBtn.title = "Duplicate bank";
+          dupBtn.classList.add("menu-side-btn");
+          dupBtn.dataset.action = "duplicate";
+          dupBtn.dataset.bankId = b.id;
+          dupBtn.style.marginLeft = "4px";
+          dupBtn.style.padding = "2px 4px";
+          li.appendChild(dupBtn);
 
           // delete button (only for banks beyond #1)
           if (b.id !== 1) {
@@ -359,6 +381,7 @@ Holy.SNIPPETS.banks = [
             delBtn.classList.add("menu-side-btn");
             delBtn.dataset.action = "delete";
             delBtn.dataset.bankId = b.id;
+            delBtn.style.marginLeft = "4px";
             li.appendChild(delBtn);
           }
 
@@ -1049,6 +1072,22 @@ function holy_applySnippet(snippetId) {
         break;
       }
 
+      case "rename": {
+        if (!bankId) break;
+        const bankToRename = Holy.SNIPPETS.banks.find(b => b.id === Number(bankId));
+        if (!bankToRename) break;
+        
+        const newName = prompt("Enter new bank name:", bankToRename.name);
+        if (!newName || newName.trim() === "") break;
+        
+        bankToRename.name = newName.trim();
+        cy_saveBanksToDisk();
+        renderBankHeader();
+        Holy.UI.toast(`Bank renamed to: ${bankToRename.name}`);
+        console.log(`[Holy.SNIPPETS] Renamed bank to →`, bankToRename.name);
+        break;
+      }
+
       case "delete":
         if (!bankId || Number(bankId) === 1) {
           Holy.UI.toast("Bank 1 cannot be deleted");
@@ -1062,6 +1101,47 @@ function holy_applySnippet(snippetId) {
         renderSnippets();
         Holy.UI.toast("Bank deleted");
         break;
+
+      case "duplicate": {
+        if (!bankId) break;
+        const sourceBank = Holy.SNIPPETS.banks.find(b => b.id === Number(bankId));
+        if (!sourceBank) break;
+        
+        const maxId = Holy.SNIPPETS.banks.reduce((max, b) => {
+          const candidate = Number(b && b.id);
+          return candidate > max ? candidate : max;
+        }, 0);
+        
+        const baseName = sourceBank.name;
+        const existingDupes = Holy.SNIPPETS.banks
+          .filter(b => b.name === baseName + " 2" || b.name.match(new RegExp("^" + baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + " \\d+$")))
+          .map(b => {
+            const match = b.name.match(/ (\d+)$/);
+            return match ? parseInt(match[1], 10) : 1;
+          });
+        
+        let nextNum = 2;
+        if (existingDupes.length > 0) {
+          nextNum = Math.max(...existingDupes) + 1;
+        }
+        
+        const newName = baseName + " " + nextNum;
+        
+        const newBank = normalizeBankSnippets({
+          id: maxId + 1,
+          name: newName,
+          snippets: sourceBank.snippets.map(s => ({ ...s }))
+        });
+        
+        Holy.SNIPPETS.banks.push(newBank);
+        Holy.SNIPPETS.activeBankId = newBank.id;
+        cy_saveBanksToDisk();
+        renderBankHeader();
+        renderSnippets();
+        Holy.UI.toast(`Duplicated bank as: ${newBank.name}`);
+        console.log(`[Holy.SNIPPETS] Duplicated bank →`, newBank);
+        break;
+      }
 
 
       default:
@@ -1172,6 +1252,35 @@ function holy_applySnippet(snippetId) {
     } catch (err) {
       console.warn("[Holy.SNIPPETS] Context menu init failed:", err);
     }
+  });
+  // ---------------------------------------------------------
+  // 🧩 HOLY AGENT BRIDGE — banksUpdated listener
+  // When Holy Agent writes to banks.json, it dispatches
+  // com.holy.agent.banksUpdated. Expressor picks it up here,
+  // reloads from disk, and re-renders its snippet UI.
+  // ---------------------------------------------------------
+  cs.addEventListener("com.holy.agent.banksUpdated", function () {
+    console.log("[Holy.SNIPPETS] Holy Agent banksUpdated event received — reloading from disk");
+    try {
+      const { file } = Holy.UTILS.cy_getBanksPaths();
+      const loaded = Holy.UTILS.cy_readJSONFile(file);
+      if (loaded && Array.isArray(loaded.banks) && loaded.banks.length) {
+        Holy.SNIPPETS.banks = cy_normalizeBanksCollection(loaded.banks);
+        var hasActive = Holy.SNIPPETS.banks.some(function (bank) {
+          return bank && bank.id === loaded.activeBankId;
+        });
+        if (hasActive) {
+          Holy.SNIPPETS.activeBankId = loaded.activeBankId;
+        } else if (Holy.SNIPPETS.banks[0] && Holy.SNIPPETS.banks[0].id !== undefined) {
+          Holy.SNIPPETS.activeBankId = Holy.SNIPPETS.banks[0].id;
+        }
+        console.log("[Holy.SNIPPETS] Banks reloaded — bank count:", Holy.SNIPPETS.banks.length);
+      }
+    } catch (e) {
+      console.warn("[Holy.SNIPPETS] banksUpdated reload failed:", e);
+    }
+    try { renderBankHeader(); } catch (_) {}
+    try { renderSnippets(); } catch (_) {}
   });
   // ---------------------------------------------------------
   // 🚀 MODULE EXPORT (Preserve existing Holy.SNIPPETS.bank)

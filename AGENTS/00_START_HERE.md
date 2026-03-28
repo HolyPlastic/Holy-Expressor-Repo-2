@@ -1,5 +1,7 @@
 # 00_START_HERE — Holy Expressor Fast Start (Verified)
 
+> ⚠️ **Cross-plugin work?** If your task involves the JSX load chain, `holyAPI_*` functions, `host_AGENT_API.jsx`, or anything that interfaces with Holy Agent — read `../../HOLY REPOS COLLATED/AGENTS.md` **first**. It contains cross-cutting ExtendScript traps (including the ES3 reserved-word-as-object-key silent failure) and the master ecosystem roadmap. For self-contained Expressor work, this file is sufficient.
+
 Purpose: single "start here" map for agents. Read this first, then jump to one spoke doc only.
 
 ---
