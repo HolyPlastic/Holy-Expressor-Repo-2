@@ -3,7 +3,7 @@
 <ExtensionManifest
   Version="7.0"
   ExtensionBundleId="com.holy.expressor"
-  ExtensionBundleVersion="1.0.1"
+  ExtensionBundleVersion="1.0.2"
   ExtensionBundleName="Holy Expressor">
 
   <ExtensionList>
@@ -11,6 +11,7 @@
 
     <Extension Id="com.holy.expressor.quickpanel" />
     <Extension Id="com.holy.expressor.colorpicker" />
+    <Extension Id="com.holy.expressor.settings" />
   </ExtensionList>
 
   <ExecutionEnvironment>
@@ -168,6 +169,45 @@
 
 
 
+
+    <!-- ====================================================== -->
+    <!-- ⚙️  Holy Settings (Modeless, opened via flyout menu)  -->
+    <!-- ====================================================== -->
+    <Extension Id="com.holy.expressor.settings">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./settings.html</MainPath>
+          <CEFCommandLine>
+            <Parameter>--enable-nodejs</Parameter>
+            <Parameter>--enable-devtools</Parameter>
+            <Parameter>--remote-debugging-port=6907</Parameter>
+            <Parameter>--allow-file-access</Parameter>
+            <Parameter>--allow-file-access-from-files</Parameter>
+            <Parameter>--disable-web-security</Parameter>
+          </CEFCommandLine>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Modeless</Type>
+          <Geometry>
+            <Size>
+              <Width>420</Width>
+              <Height>310</Height>
+            </Size>
+            <MinSize>
+              <Width>300</Width>
+              <Height>200</Height>
+            </MinSize>
+            <MaxSize>
+              <Width>700</Width>
+              <Height>600</Height>
+            </MaxSize>
+          </Geometry>
+        </UI>
+      </DispatchInfo>
+    </Extension>
 
   </DispatchInfoList>
 </ExtensionManifest>

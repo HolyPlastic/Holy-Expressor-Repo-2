@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- ────────────────────────────────────────────── -->
+<!-- #region 🔽🔽🔽 HEAD
+─────────────────────────────────────────────────── -->
+<head>
+  <meta charset="UTF-8" />
+  <title>Holy Settings</title>
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="js/libs/CSInterface.js"></script>
+  <script src="js/persistent-store.js"></script>
+
+  <!-- Theme bootstrap — mirrors the pattern used in colorpicker.html -->
+  <script>
+    (function STYLE_boot() {
+      try {
+        var theme = localStorage.getItem('he_theme') || 'default';
+        document.documentElement.classList.add('theme-' + theme);
+
+        // Apply saved accent hex so CSS-derived vars pick it up at paint time
+        var hex = localStorage.getItem('he_themeColor') || '#7c6cfa';
+        var clean = hex.replace('#', '');
+        var bigint = parseInt(clean, 16);
+        var r = (bigint >> 16) & 255;
+        var g = (bigint >> 8) & 255;
+        var b = bigint & 255;
+        var r1 = r / 255, g1 = g / 255, b1 = b / 255;
+        var max = Math.max(r1, g1, b1), min = Math.min(r1, g1, b1);
+        var h = 0, s = 0, l = (max + min) / 2;
+        if (max !== min) {
+          var d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          if (max === r1)      h = (g1 - b1) / d + (g1 < b1 ? 6 : 0);
+          else if (max === g1) h = (b1 - r1) / d + 2;
+          else                 h = (r1 - g1) / d + 4;
+          h /= 6;
+        }
+        var root = document.documentElement;
+        root.style.setProperty('--G-color-1', hex);
+        root.style.setProperty('--G-color-1-H', Math.round(h * 360));
+        root.style.setProperty('--G-color-1-S', Math.round(s * 100) + '%');
+        root.style.setProperty('--G-color-1-L', Math.round(l * 100) + '%');
+        root.style.setProperty('--G-colour-1-RGB', r + ', ' + g + ', ' + b);
+      } catch (err) {
+        console.warn('[HolySettings] STYLE_boot failed', err);
+      }
+    })();
+  </script>
+
+  <!-- ────────────────────────────────────────────── -->
+  <!-- #region 🎨🎨🎨 SETTINGS PANEL STYLES
+  ─────────────────────────────────────────────────── -->
+  <style>
+    /* ────────────────────────────────────────────── */
+    /* #region 🌍🌍🌍 BASE ELEMENTS
+    ─────────────────────────────────────────────────── */
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 11px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* #endregion
+    ───────────────
+    ─────────────────────────────────────────────────── */
+    /* #region 📐📐📐 LAYOUT
+    ─────────────────────────────────────────────────── */
+
+    #hs-root {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    /* Header bar */
+    .hs-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      height: 36px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .hs-header-title {
+      font-family: var(--font-label);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--G-color-1-offwhite);
+    }
+
+    /* Scrollable settings body */
+    #hs-settings-view {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* #endregion
+    ───────────────
+    ─────────────────────────────────────────────────── */
+    /* #region 🔘🔘🔘 SECTIONS & ROWS
+    ─────────────────────────────────────────────────── */
+
+    .hs-section {
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+    }
+
+    .hs-section-heading {
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--G-color-1);
+      padding: 6px 10px 5px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--G-color-1-mid);
+    }
+
+    .hs-row {
+      display: flex;
+      align-items: center;
+      padding: 7px 10px;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .hs-row:last-child {
+      border-bottom: none;
+    }
+
+    .hs-row-label {
+      flex: 1;
+      color: var(--text-primary);
+      font-size: 11px;
+    }
+
+    /* #endregion
+    ───────────────
+    ─────────────────────────────────────────────────── */
+    /* #region 🔘🔘🔘 BUTTON STYLES
+    ─────────────────────────────────────────────────── */
+
+    /* #region 🔘🔘🔘 FORM CONTROLS
+    ─────────────────────────────────────────────────── */
+
+    .hs-checkbox {
+      accent-color: var(--G-color-1);
+      width: 13px;
+      height: 13px;
+      cursor: not-allowed;
+      opacity: 0.4;
+      flex-shrink: 0;
+    }
+
+    .hs-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 10px;
+      padding: 2px 6px;
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+
+    .hs-badge {
+      font-size: 8px;
+      font-family: var(--font-label);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      white-space: nowrap;
+    }
+
+    /* #endregion
+    ───────────────
+    ─────────────────────────────────────────────────── */
+    /* #region 🔘🔘🔘 ACTION BUTTONS
+    ─────────────────────────────────────────────────── */
+
+    .hs-row-actions {
+      display: flex;
+      gap: 6px;
+      padding: 8px 10px;
+    }
+
+    .hs-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex: 1;
+      justify-content: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 8px;
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+
+    .hs-action-btn:hover {
+      background: var(--G-color-1-mid);
+      border-color: var(--G-color-1);
+      color: var(--G-color-1-offwhite);
+    }
+
+    .hs-action-btn:hover .hs-action-icon {
+      color: var(--G-color-1-offwhite);
+    }
+
+    .hs-action-icon {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+
+    /* #endregion
+    ───────────────
+    ─────────────────────────────────────────────────── */
+    /* #region 🎨🎨🎨 COLOR PICKER VIEW
+    ─────────────────────────────────────────────────── */
+
+    #hs-picker-view {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+      padding: 8px;
+      gap: 7px;
+      min-height: 0;
+    }
+
+    #hs-spectrum {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      cursor: crosshair;
+      border: 1px solid var(--border-subtle);
+      border-radius: 2px;
+      display: block;
+    }
+
+    .hs-hue-wrap {
+      flex-shrink: 0;
+      height: 16px;
+    }
+
+    #hs-hue {
+      display: block;
+      width: 100%;
+      height: 16px;
+      cursor: ew-resize;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .hs-hex-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+      height: 26px;
+    }
+
+    .hs-hash {
+      color: var(--text-muted);
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    #hs-hex-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-size: 11px;
+      font-family: monospace;
+      padding: 3px 6px;
+      text-transform: uppercase;
+      min-width: 0;
+      height: 26px;
+      outline: none;
+    }
+
+    #hs-hex-input:focus {
+      border-color: var(--G-color-1);
+    }
+
+    .hs-picker-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+
+    /* Undo / Apply / Cancel — all sit in the hex row at 26px tall */
+    .hs-picker-btn--undo,
+    .hs-picker-btn--apply,
+    .hs-picker-btn--cancel {
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .hs-picker-btn--undo svg,
+    .hs-picker-btn--apply svg,
+    .hs-picker-btn--cancel svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .hs-picker-btn--undo:hover {
+      background: var(--G-color-1-mid);
+      border-color: var(--G-color-1);
+      color: var(--G-color-1);
+    }
+
+    .hs-picker-btn--apply:hover {
+      background: var(--G-color-1-mid);
+      border-color: var(--G-color-1);
+      color: var(--G-color-1-offwhite);
+    }
+
+    .hs-picker-btn--cancel:hover {
+      background: rgba(220, 60, 60, 0.12);
+      border-color: rgba(220, 80, 80, 0.5);
+      color: rgba(220, 100, 100, 0.95);
+    }
+
+    /* #region ⭐⭐⭐ FAVOURITES
+    ─────────────────────────────────────────────────── */
+
+    .hs-favorites-row {
+      display: flex;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      padding-top: 4px;
+      min-height: 28px;
+    }
+
+    .hs-fav-swatch {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      width: 34px;
+      height: 27px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform var(--transition);
+    }
+
+    .hs-fav-swatch:hover {
+      transform: scale(1.1);
+    }
+
+    .hs-fav-swatch svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hs-fav-default {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      width: 20px;
+      height: 27px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform var(--transition);
+      flex-shrink: 0;
+    }
+
+    .hs-fav-default:hover {
+      transform: scale(1.1);
+    }
+
+    .hs-fav-default svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hs-fav-add-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 34px;
+      height: 27px;
+      font-size: 16px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color var(--transition), color var(--transition);
+    }
+
+    .hs-fav-add-btn:hover {
+      border-color: var(--G-color-1);
+      color: var(--G-color-1);
+    }
+
+    /* #endregion
+    ───────────────
+    ─────────────────────────────────────────────────── */
+  </style>
+  <!-- #endregion
+  ───────────────
+  ─────────────────────────────────────────────────── -->
+</head>
+
+<!-- #endregion
+───────────────
+─────────────────────────────────────────────────── -->
+
+<!-- ────────────────────────────────────────────── -->
+<!-- #region 🟢🟢🟢 BODY
+─────────────────────────────────────────────────── -->
+<body>
+
+<div id="hs-root">
+
+  <!-- ────────────────────────────────────────────── -->
+  <!-- #region 🔵🔵🔵 HEADER
+  ─────────────────────────────────────────────────── -->
+  <div class="hs-header">
+    <span class="hs-header-title" id="hs-title">Holy Settings</span>
+  </div>
+  <!-- #endregion
+  ───────────────
+  ─────────────────────────────────────────────────── -->
+
+  <!-- ────────────────────────────────────────────── -->
+  <!-- #region 🟡🟡🟡 SETTINGS VIEW (default)
+  ─────────────────────────────────────────────────── -->
+  <div id="hs-settings-view">
+
+    <!-- Section: Tools -->
+    <div class="hs-section">
+      <div class="hs-section-heading">Tools</div>
+      <div class="hs-row-actions">
+
+        <button class="hs-action-btn" id="hsVibeBtn" title="Change accent color">
+          <!-- Color palette / vibe icon -->
+          <svg class="hs-action-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="5.5"/>
+            <circle cx="8" cy="4" r="1.1" fill="currentColor" stroke="none"/>
+            <circle cx="11.5" cy="10.5" r="1.1" fill="currentColor" stroke="none"/>
+            <circle cx="4.5" cy="10.5" r="1.1" fill="currentColor" stroke="none"/>
+          </svg>
+          VIBE
+        </button>
+
+        <button class="hs-action-btn" id="hsLogBtn" title="Show apply log">
+          <!-- Log / list icon -->
+          <svg class="hs-action-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+            <rect x="2.5" y="1.5" width="11" height="13" rx="1.2"/>
+            <line x1="5" y1="5.5" x2="11" y2="5.5"/>
+            <line x1="5" y1="8" x2="11" y2="8"/>
+            <line x1="5" y1="10.5" x2="8.5" y2="10.5"/>
+          </svg>
+          LOG
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+  <!-- #endregion
+  ───────────────
+  ─────────────────────────────────────────────────── -->
+
+  <!-- ────────────────────────────────────────────── -->
+  <!-- #region 🎨🎨🎨 COLOR PICKER VIEW
+  ─────────────────────────────────────────────────── -->
+  <div id="hs-picker-view">
+
+    <!-- 2D saturation/value spectrum canvas -->
+    <canvas id="hs-spectrum"></canvas>
+
+    <!-- Hue slider strip -->
+    <div class="hs-hue-wrap">
+      <canvas id="hs-hue"></canvas>
+    </div>
+
+    <!-- Hex input row — undo | # input | apply + cancel -->
+    <div class="hs-hex-row">
+      <!-- Undo -->
+      <button class="hs-picker-btn hs-picker-btn--undo" id="hs-undo-btn" title="Undo — restore previous color">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 5.5 A5 5 0 1 1 3.5 9"/>
+          <polyline points="2,5 4.5,5.5 5,3"/>
+        </svg>
+      </button>
+      <span class="hs-hash">#</span>
+      <input type="text" id="hs-hex-input" maxlength="6"
+             placeholder="rrggbb" spellcheck="false" autocomplete="off">
+      <!-- Apply -->
+      <button class="hs-picker-btn hs-picker-btn--apply" id="hs-apply-btn" title="Apply and close">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3,8.5 6.5,12 13,4.5"/>
+        </svg>
+      </button>
+      <!-- Cancel -->
+      <button class="hs-picker-btn hs-picker-btn--cancel" id="hs-cancel-btn" title="Cancel — revert and close">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <line x1="4" y1="4" x2="12" y2="12"/>
+          <line x1="12" y1="4" x2="4" y2="12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Favourite colors -->
+    <div class="hs-favorites-row" id="hs-favorites-row"></div>
+
+  </div>
+  <!-- #endregion
+  ───────────────
+  ─────────────────────────────────────────────────── -->
+
+</div>
+
+<!-- ────────────────────────────────────────────── -->
+<!-- #region ⚙️⚙️⚙️ PANEL SCRIPT
+─────────────────────────────────────────────────── -->
+<script>
+  (function () {
+
+    // ── CSInterface ─────────────────────────────────────────
+    var cs;
+    try { cs = new CSInterface(); } catch (e) { cs = null; }
+
+    // ═══════════════════════════════════════════════════════
+    // #region COLOR HELPERS
+    // ═══════════════════════════════════════════════════════
+
+    function hexToRgb(hex) {
+      var r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return r ? { r: parseInt(r[1], 16), g: parseInt(r[2], 16), b: parseInt(r[3], 16) } : null;
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      var max = Math.max(r, g, b), min = Math.min(r, g, b);
+      var h, s, l = (max + min) / 2;
+      if (max === min) {
+        h = s = 0;
+      } else {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
+    function hsvToHex(h, s, v) {
+      var r, g, b;
+      var i = Math.floor(h / 60) % 6;
+      var f = (h / 60) - Math.floor(h / 60);
+      var p = v * (1 - s);
+      var q = v * (1 - f * s);
+      var t = v * (1 - (1 - f) * s);
+      switch (i) {
+        case 0: r = v; g = t; b = p; break;
+        case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break;
+        case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break;
+        case 5: r = v; g = p; b = q; break;
+      }
+      function toH(x) {
+        var h = Math.round(x * 255).toString(16);
+        return h.length === 1 ? '0' + h : h;
+      }
+      return '#' + toH(r) + toH(g) + toH(b);
+    }
+
+    function hexToHsv(hex) {
+      var rgb = hexToRgb(hex);
+      if (!rgb) return null;
+      var r = rgb.r / 255, g = rgb.g / 255, b = rgb.b / 255;
+      var max = Math.max(r, g, b), min = Math.min(r, g, b);
+      var h, s, v = max;
+      var d = max - min;
+      s = max === 0 ? 0 : d / max;
+      if (max === min) {
+        h = 0;
+      } else {
+        if (max === r)      h = (g - b) / d + (g < b ? 6 : 0);
+        else if (max === g) h = (b - r) / d + 2;
+        else                h = (r - g) / d + 4;
+        h *= 60;
+      }
+      return { h: h, s: s, v: v };
+    }
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region COLOR BROADCASTING
+    // ═══════════════════════════════════════════════════════
+
+    // Broadcasts color to main panel via CSEvent + updates this panel's CSS.
+    // Does NOT persist to localStorage — call only during live preview.
+    function _broadcastColor(hex) {
+      var rgb = hexToRgb(hex);
+      if (!rgb) return;
+      var root = document.documentElement;
+      root.style.setProperty('--G-color-1', hex);
+      root.style.setProperty('--G-colour-1-RGB', rgb.r + ', ' + rgb.g + ', ' + rgb.b);
+      var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+      root.style.setProperty('--G-color-1-H', hsl.h);
+      root.style.setProperty('--G-color-1-S', hsl.s + '%');
+      root.style.setProperty('--G-color-1-L', hsl.l + '%');
+      if (cs) {
+        try {
+          var evt = new CSEvent('holy.color.change', 'APPLICATION');
+          evt.data = JSON.stringify({ hex: hex });
+          cs.dispatchEvent(evt);
+        } catch (e) { /* non-fatal */ }
+      }
+    }
+
+    // Broadcasts AND persists — used only on final Apply.
+    function applyVibeColor(hex) {
+      _broadcastColor(hex);
+      localStorage.setItem('he_themeColor', hex);
+    }
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region COLOR PICKER STATE
+    // ═══════════════════════════════════════════════════════
+
+    var _pickerH = 240;   // hue 0–360
+    var _pickerS = 0.70;  // saturation 0–1
+    var _pickerV = 0.90;  // value 0–1
+    var _colorBeforeOpen = '#7c6cfa';
+
+    var _draggingSpec = false;
+    var _draggingHue  = false;
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region CANVAS DRAWING
+    // ═══════════════════════════════════════════════════════
+
+    var specCanvas = document.getElementById('hs-spectrum');
+    var hueCanvas  = document.getElementById('hs-hue');
+
+    function drawSpectrum() {
+      var dpr  = window.devicePixelRatio || 1;
+      var cssW = specCanvas.offsetWidth;
+      var cssH = specCanvas.offsetHeight;
+      if (cssW < 2 || cssH < 2) return;
+
+      var pixW = Math.round(cssW * dpr);
+      var pixH = Math.round(cssH * dpr);
+      if (specCanvas.width !== pixW || specCanvas.height !== pixH) {
+        specCanvas.width  = pixW;
+        specCanvas.height = pixH;
+      }
+
+      var ctx = specCanvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // White → hue horizontal gradient (saturation axis)
+      var gradH = ctx.createLinearGradient(0, 0, cssW, 0);
+      gradH.addColorStop(0, '#ffffff');
+      gradH.addColorStop(1, 'hsl(' + _pickerH + ', 100%, 50%)');
+      ctx.fillStyle = gradH;
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Transparent → black vertical gradient (value/brightness axis)
+      var gradV = ctx.createLinearGradient(0, 0, 0, cssH);
+      gradV.addColorStop(0, 'rgba(0,0,0,0)');
+      gradV.addColorStop(1, 'rgba(0,0,0,1)');
+      ctx.fillStyle = gradV;
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Cursor circle
+      var cx = _pickerS * cssW;
+      var cy = (1 - _pickerV) * cssH;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function drawHue() {
+      var dpr  = window.devicePixelRatio || 1;
+      var cssW = hueCanvas.offsetWidth;
+      var cssH = hueCanvas.offsetHeight;
+      if (cssW < 2 || cssH < 2) return;
+
+      var pixW = Math.round(cssW * dpr);
+      var pixH = Math.round(cssH * dpr);
+      if (hueCanvas.width !== pixW || hueCanvas.height !== pixH) {
+        hueCanvas.width  = pixW;
+        hueCanvas.height = pixH;
+      }
+
+      var ctx = hueCanvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Full hue spectrum
+      var grad = ctx.createLinearGradient(0, 0, cssW, 0);
+      for (var i = 0; i <= 6; i++) {
+        grad.addColorStop(i / 6, 'hsl(' + (i * 60) + ', 100%, 50%)');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Cursor — vertical tick mark
+      var cx = (_pickerH / 360) * cssW;
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillRect(cx - 1.5, 0, 3, cssH);
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(cx - 1.5, 0, 3, cssH);
+    }
+
+    function drawAll() {
+      drawSpectrum();
+      drawHue();
+    }
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region PICKER INTERACTION
+    // ═══════════════════════════════════════════════════════
+
+    var hexInput    = document.getElementById('hs-hex-input');
+
+    function _onPickerChange() {
+      var hex = hsvToHex(_pickerH, _pickerS, _pickerV);
+      hexInput.value = hex.replace('#', '').toUpperCase();
+      _broadcastColor(hex);
+      drawAll();
+    }
+
+    function setPickerFromHex(hex) {
+      var hsv = hexToHsv(hex);
+      if (!hsv) return;
+      _pickerH = hsv.h;
+      _pickerS = hsv.s;
+      _pickerV = hsv.v;
+      hexInput.value = hex.replace('#', '').toUpperCase();
+      drawAll();
+    }
+
+    // Spectrum canvas — mouse
+    specCanvas.addEventListener('mousedown', function (e) {
+      _draggingSpec = true;
+      _updateSpecPos(e);
+    });
+
+    function _updateSpecPos(e) {
+      var rect = specCanvas.getBoundingClientRect();
+      _pickerS = Math.max(0, Math.min(1, (e.clientX - rect.left)  / rect.width));
+      _pickerV = Math.max(0, Math.min(1, 1 - (e.clientY - rect.top) / rect.height));
+      _onPickerChange();
+    }
+
+    // Hue canvas — mouse
+    hueCanvas.addEventListener('mousedown', function (e) {
+      _draggingHue = true;
+      _updateHuePos(e);
+    });
+
+    function _updateHuePos(e) {
+      var rect = hueCanvas.getBoundingClientRect();
+      _pickerH = Math.max(0, Math.min(360, (e.clientX - rect.left) / rect.width * 360));
+      _onPickerChange();
+    }
+
+    // Global drag tracking
+    document.addEventListener('mousemove', function (e) {
+      if (_draggingSpec) _updateSpecPos(e);
+      if (_draggingHue)  _updateHuePos(e);
+    });
+
+    document.addEventListener('mouseup', function () {
+      _draggingSpec = false;
+      _draggingHue  = false;
+    });
+
+    // Hex text input
+    hexInput.addEventListener('input', function (e) {
+      var val = e.target.value.trim().replace(/^#/, '');
+      if (/^[0-9a-fA-F]{6}$/.test(val)) {
+        var hsv = hexToHsv('#' + val);
+        if (hsv) {
+          _pickerH = hsv.h;
+          _pickerS = hsv.s;
+          _pickerV = hsv.v;
+          _broadcastColor('#' + val.toUpperCase());
+          drawAll();
+        }
+      }
+    });
+
+    hexInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') document.getElementById('hs-apply-btn').click();
+    });
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region FOOTER BUTTONS
+    // ═══════════════════════════════════════════════════════
+
+    function saveWindowPos() {
+      try {
+        var x = typeof window.screenX === 'number' ? window.screenX : window.screenLeft;
+        var y = typeof window.screenY === 'number' ? window.screenY : window.screenTop;
+        localStorage.setItem(POS_KEY, JSON.stringify({ x: x, y: y }));
+      } catch (_) {}
+    }
+
+    // Apply — save to localStorage + close
+    document.getElementById('hs-apply-btn').addEventListener('click', function () {
+      var hex = hsvToHex(_pickerH, _pickerS, _pickerV);
+      applyVibeColor(hex);   // persists + CSEvent
+      saveWindowPos();
+      window.close();
+    });
+
+    // Cancel — revert to color before picker opened + close
+    document.getElementById('hs-cancel-btn').addEventListener('click', function () {
+      applyVibeColor(_colorBeforeOpen);  // restore + persist original back
+      saveWindowPos();
+      window.close();
+    });
+
+    // Undo — revert picker UI to color from before picker was opened
+    document.getElementById('hs-undo-btn').addEventListener('click', function () {
+      setPickerFromHex(_colorBeforeOpen);
+      _broadcastColor(_colorBeforeOpen);
+    });
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region VIEW SWITCHING
+    // ═══════════════════════════════════════════════════════
+
+    function showPickerView(startHex) {
+      _colorBeforeOpen = startHex;
+      document.getElementById('hs-settings-view').style.display = 'none';
+      var pv = document.getElementById('hs-picker-view');
+      pv.style.display = 'flex';
+      document.getElementById('hs-title').textContent = 'ACCENT COLOR';
+
+      // Sync picker state from current saved color
+      var hsv = hexToHsv(startHex);
+      if (hsv) {
+        _pickerH = hsv.h;
+        _pickerS = hsv.s;
+        _pickerV = hsv.v;
+      }
+      hexInput.value = startHex.replace('#', '').toUpperCase();
+
+      // RAF: wait for layout to settle so canvas.offsetWidth/Height are non-zero
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          drawAll();
+          renderFavs();
+        });
+      });
+    }
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region VIBE BUTTON
+    // ═══════════════════════════════════════════════════════
+
+    var vibeBtn = document.getElementById('hsVibeBtn');
+    if (vibeBtn) {
+      vibeBtn.addEventListener('click', function () {
+        var saved = localStorage.getItem('he_themeColor') || '#7c6cfa';
+        showPickerView(saved);
+      });
+    }
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region LOG BUTTON
+    // ═══════════════════════════════════════════════════════
+
+    var logBtn = document.getElementById('hsLogBtn');
+    if (logBtn && cs) {
+      logBtn.addEventListener('click', function () {
+        try {
+          var evt = new CSEvent('holy.settings.showLog', 'APPLICATION');
+          cs.dispatchEvent(evt);
+        } catch (e) {
+          console.warn('[HolySettings] Failed to dispatch showLog event', e);
+        }
+      });
+    }
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region FAVOURITES
+    // ═══════════════════════════════════════════════════════
+
+    var FAV_KEY = 'he_favColors';
+    var FAV_MAX = 8;
+    var FAV_TAG = 'M7.04,23.66L1.24,6.79C.27,3.96,2.37,1,5.38,1h17.76c1.87,0,3.53,1.19,4.14,2.95l5.8,16.87c.98,2.84-1.13,5.79-4.13,5.79-5.53,0-13.45,0-17.77,0-1.87,0-3.52-1.19-4.13-2.95Z';
+    var DEFAULT_HEX = '#7c6cfa';
+    var DEFAULT_TAG = 'M3.5,1H9c1.87,0,3.53,1.19,4.14,2.95l5.8,16.87c.98,2.84-1.13,5.79-4.13,5.79H3.5c-1.8,0-2.5-1.8-2.5-4V4.11C1,2.5,2,1,3.5,1Z';
+
+    function loadFavs() {
+      try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch (e) { return []; }
+    }
+    function saveFavs(favs) {
+      localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+    }
+
+    function renderFavs() {
+      var row = document.getElementById('hs-favorites-row');
+      if (!row) return;
+      row.innerHTML = '';
+
+      var defBtn = document.createElement('button');
+      defBtn.className = 'hs-fav-default';
+      defBtn.title = 'Default: ' + DEFAULT_HEX.toUpperCase();
+      defBtn.innerHTML = '<svg viewBox="0 0 19.5 27.61" xmlns="http://www.w3.org/2000/svg"><path d="' + DEFAULT_TAG + '" fill="' + DEFAULT_HEX + '"/></svg>';
+      defBtn.addEventListener('click', function () {
+        setPickerFromHex(DEFAULT_HEX);
+        _broadcastColor(DEFAULT_HEX);
+      });
+      row.appendChild(defBtn);
+
+      var favs = loadFavs();
+
+      favs.forEach(function (hex, i) {
+        var btn = document.createElement('button');
+        btn.className = 'hs-fav-swatch';
+        btn.title = '#' + hex.replace('#', '').toUpperCase() + ' — right-click to remove';
+        btn.innerHTML = '<svg viewBox="0 0 34.31 27.61" xmlns="http://www.w3.org/2000/svg"><path d="' + FAV_TAG + '" fill="' + hex + '"/></svg>';
+
+        btn.addEventListener('click', function () {
+          setPickerFromHex(hex);
+          _broadcastColor(hex);
+        });
+
+        btn.addEventListener('contextmenu', function (e) {
+          e.preventDefault();
+          var f = loadFavs();
+          f.splice(i, 1);
+          saveFavs(f);
+          renderFavs();
+        });
+
+        row.appendChild(btn);
+      });
+
+      if (favs.length < FAV_MAX) {
+        var addBtn = document.createElement('button');
+        addBtn.className = 'hs-fav-add-btn';
+        addBtn.title = 'Save current color as favourite';
+        addBtn.textContent = '+';
+        addBtn.addEventListener('click', function () {
+          var hex = hsvToHex(_pickerH, _pickerS, _pickerV);
+          var f = loadFavs();
+          if (f.indexOf(hex) === -1) { f.push(hex); saveFavs(f); }
+          renderFavs();
+        });
+        row.appendChild(addBtn);
+      }
+    }
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region STICKY WINDOW POSITION
+    // ═══════════════════════════════════════════════════════
+
+    var POS_KEY = 'he_settingsPos';
+
+    (function restorePos() {
+      try {
+        var raw = localStorage.getItem(POS_KEY);
+        if (!raw) return;
+        var pos = JSON.parse(raw);
+        if (typeof pos.x === 'number' && typeof pos.y === 'number') {
+          window.moveTo(pos.x, pos.y);
+        }
+      } catch (_) {}
+    })();
+
+    window.addEventListener('beforeunload', saveWindowPos);
+
+    // #endregion
+
+    // ═══════════════════════════════════════════════════════
+    // #region RESIZE HANDLER
+    // ═══════════════════════════════════════════════════════
+
+    window.addEventListener('resize', function () {
+      if (document.getElementById('hs-picker-view').style.display !== 'none') {
+        drawAll();
+      }
+    });
+
+    // #endregion
+
+  })();
+</script>
+<!-- #endregion
+───────────────
+─────────────────────────────────────────────────── -->
+
+</body>
+<!-- #endregion
+───────────────
+─────────────────────────────────────────────────── -->
+
+</html>

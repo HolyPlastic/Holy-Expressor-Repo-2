@@ -336,6 +336,34 @@ Holy.UI.toast("Expressed to selected properties");
             var applyBtn = Holy.UI.DOM("#applyBtn");
             if (applyBtn) {
               applyBtn.addEventListener("click", onApply);
+
+              // PickClick overlay on Apply button
+              var pcBtn = document.createElement("button");
+              pcBtn.className = "snippet-pc-btn";
+              pcBtn.setAttribute("aria-label", "PickClick apply");
+              pcBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160.59 161.62"><polyline points="94.32 66.89 76.8 49.37 49.66 76.51 83.42 110.27 132.95 60.74 76.71 4.5 4.5 76.71 84.28 157.12 156.09 84.78" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="14"/></svg>';
+              pcBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (!Holy.PICKCLICK || typeof Holy.PICKCLICK.arm !== "function") {
+                  console.warn("[Holy.BUTTONS] PickClick not available");
+                  return;
+                }
+
+                Holy.PICKCLICK.arm({
+                  intent: "apply",
+                  onResolve: function () {
+                    applyBtn.click();
+                  },
+                  onCancel: function () {
+                    if (Holy.UI && typeof Holy.UI.toast === "function") {
+                      Holy.UI.toast("PickClick cancelled");
+                    }
+                  }
+                });
+              });
+              applyBtn.appendChild(pcBtn);
             }
 
             var deleteExpressionsBtn = Holy.UI.DOM("#deleteExpressionsBtn");
@@ -560,9 +588,18 @@ Holy.UI.toast("Expressed to selected properties");
                 return;
               }
 
+              // Toggle: clicking while armed cancels the session
+              if (loadBtn.classList.contains("is-armed")) {
+                Holy.PICKCLICK.cancel("user-toggle");
+                return;
+              }
+
+              loadBtn.classList.add("is-armed");
+
               Holy.PICKCLICK.arm({
                 intent: "loadExpressionFromSelection",
                 onResolve: function (payload) {
+                  loadBtn.classList.remove("is-armed");
                   try {
                     var items = (payload && payload.items) ? payload.items : [];
                     loadExpressionFromSelectionItems(items);
@@ -570,6 +607,9 @@ Holy.UI.toast("Expressed to selected properties");
                     console.error("Load From Selection failed:", e);
                     Holy.UI.toast("Failed to load from selection");
                   }
+                },
+                onCancel: function () {
+                  loadBtn.classList.remove("is-armed");
                 }
               });
             });

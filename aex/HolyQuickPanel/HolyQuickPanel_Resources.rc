@@ -1,0 +1,8 @@
+// HolyQuickPanel_Resources.rc
+// Embedded assets for the HolyQuickPanel .aex plugin.
+// Separate from HolyQuickPanel_PiPL.rc (which is regenerated each build by
+// the PiPL custom build step). This file is hand-authored and stable.
+
+#include "resource.h"
+
+IDR_FONT_DOSIS  RCDATA  "..\\..\\fonts\\Dosis-VariableFont_wght.ttf"

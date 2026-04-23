@@ -155,7 +155,6 @@ if (typeof window.Holy !== "object" || window.Holy === null) {
       "/jsx/modules/host_GET.jsx",
       "/jsx/modules/host_APPLY.jsx",
       "/jsx/modules/host_DEV.jsx",
-      "/jsx/modules/host_FLYO.jsx",
       "/jsx/host.jsx"
     ];
 

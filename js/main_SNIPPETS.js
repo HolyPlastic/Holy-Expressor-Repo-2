@@ -5,10 +5,7 @@
 // ---------------------------------------------------------
 if (typeof Holy !== "object") Holy = {};
 
-const SNIPPETS_PER_BANK = 3;
-
 if (!Holy.SNIPPETS) Holy.SNIPPETS = {};
-Holy.SNIPPETS.SNIPPETS_PER_BANK = SNIPPETS_PER_BANK;
 Holy.SNIPPETS.banks = [
   {
     id: 1,
@@ -35,6 +32,8 @@ Holy.SNIPPETS.banks = [
 
 (function () {
   "use strict";
+  const SNIPPETS_PER_BANK = 3;
+  Holy.SNIPPETS.SNIPPETS_PER_BANK = SNIPPETS_PER_BANK;
 
   var cs = new CSInterface();
   var HX_LOG_MODE = window.HX_LOG_MODE || "verbose";
@@ -497,6 +496,60 @@ Holy.SNIPPETS.banks = [
       const btn = createRhombusButton(snippet.name, index);
       btn.dataset.id = snippetId; // keep only this
 
+      // Mark button if snippet has saved controls
+      const hasControls = snippet.controls
+        && Array.isArray(snippet.controls.effects)
+        && snippet.controls.effects.length > 0;
+      if (hasControls) btn.classList.add("has-controls");
+
+      // PickClick overlay button
+      var pcBtn = doc.createElement("button");
+      pcBtn.className = "snippet-pc-btn";
+      pcBtn.setAttribute("aria-label", "PickClick apply: " + (snippet.name || "snippet"));
+      pcBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160.59 161.62"><polyline points="94.32 66.89 76.8 49.37 49.66 76.51 83.42 110.27 132.95 60.74 76.71 4.5 4.5 76.71 84.28 157.12 156.09 84.78" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="14"/></svg>';
+      pcBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (!Holy.PICKCLICK || typeof Holy.PICKCLICK.arm !== "function") {
+          console.warn("[Holy.SNIPPETS] PickClick not available");
+          return;
+        }
+
+        var pcSnippet = snippet;
+        var pcSnippetId = snippetId;
+        var pcHasControls = hasControls;
+
+        Holy.PICKCLICK.arm({
+          intent: "snippet-apply",
+          onResolve: function () {
+            var loadCheckbox = doc.getElementById("snipLoadControls");
+            var shouldApplyControls = !!(loadCheckbox && loadCheckbox.checked);
+
+            if (shouldApplyControls && pcHasControls && cs && typeof cs.evalScript === "function") {
+              var idLit = typeof pcSnippetId === "number" && isFinite(pcSnippetId)
+                ? pcSnippetId
+                : JSON.stringify(String(pcSnippetId));
+              cs.evalScript("holy_applyControlsJSON(" + idLit + ", true)", function (res) {
+                console.log("[Holy.SNIPPETS] PickClick controls apply:", res);
+              });
+            }
+
+            cy_evalApplyExpression(pcSnippet.expr, function (res) {
+              if (res && res.ok) {
+                Holy.UI.toast("PickClick applied: " + pcSnippet.name);
+              } else {
+                Holy.UI.toast("PickClick apply failed: " + ((res && res.err) || "unknown"));
+              }
+            });
+          },
+          onCancel: function () {
+            Holy.UI.toast("PickClick cancelled");
+          }
+        });
+      });
+      btn.appendChild(pcBtn);
+
       // 🖱 Left-click → apply expression
         btn.addEventListener("click", () => {
           const loadCheckbox = doc.getElementById("snipLoadControls");
@@ -932,6 +985,196 @@ function holy_applySnippet(snippetId) {
 
 
 
+  // ─── Snippet Manager ───────────────────────────────────────────
+  function smAutoResize(el) {
+    el.style.height = "auto";
+    var maxH = 18 * 5 + 12; // 5 lines × 18px + vertical padding
+    var newH = Math.min(el.scrollHeight, maxH);
+    el.style.height = newH + "px";
+    el.style.overflowY = el.scrollHeight > maxH ? "auto" : "hidden";
+  }
+
+  function cy_openSnippetManager() {
+    const doc = cy_resolveDoc();
+    const bankOptions = Holy.SNIPPETS.banks.map(b =>
+      `<option value="${b.id}" ${b.id === Holy.SNIPPETS.activeBankId ? 'selected' : ''}>${b.name}</option>`
+    ).join('');
+    const panel = Holy.UTILS.cy_createForegroundPanel("snippetManagerPanel", {
+      title: "Snippet Manager",
+      innerHTML: `
+        <div class="sm-bank-row">
+          <label class="sm-section-label">Bank</label>
+          <select id="smBankSelect" class="sm-bank-select">${bankOptions}</select>
+        </div>
+        <div class="sm-tabs-container">
+          <div class="sm-tab-bar" id="smTabBar"></div>
+          <div id="smSnippetRows"></div>
+        </div>
+        <div class="sm-manager-footer">
+          <button id="smCancelBtn" class="button">Cancel</button>
+          <button id="smSaveBtn" class="btn snippet-editor-save">Save</button>
+        </div>
+      `
+    });
+    function smRenderRows(bankId) {
+      const bank = Holy.SNIPPETS.banks.find(b => b.id === bankId);
+      if (!bank) return;
+      normalizeBankSnippets(bank);
+      const container = panel.querySelector("#smSnippetRows");
+      const tabBar = panel.querySelector("#smTabBar");
+      container.innerHTML = "";
+      tabBar.innerHTML = "";
+      const docCtx = cy_resolveDoc();
+      const total = bank.snippets.length;
+      bank.snippets.forEach(function(snip, si) {
+        cy_normalizeSnippet(snip);
+        const row = smBuildSnippetRow(snip, si);
+        row.style.display = si === 0 ? "" : "none";
+        container.appendChild(row);
+        const tab = docCtx.createElement("button");
+        tab.className = "sm-tab" + (si === 0 ? " active" : "");
+        tab.textContent = String(si + 1);
+        tab.addEventListener("click", function() {
+          tabBar.querySelectorAll(".sm-tab").forEach(function(t) { t.classList.remove("active"); });
+          tab.classList.add("active");
+          container.querySelectorAll(".sm-snippet-row").forEach(function(r, ri) {
+            r.style.display = ri === si ? "" : "none";
+          });
+          var shownRow = container.querySelectorAll(".sm-snippet-row")[si];
+          var ta = shownRow && shownRow.querySelector(".sm-snip-expr");
+          if (ta) smAutoResize(ta);
+        });
+        tabBar.appendChild(tab);
+      });
+      container.querySelectorAll(".sm-snip-expr").forEach(function(ta) {
+        smAutoResize(ta);
+        ta.addEventListener("input", function() { smAutoResize(this); });
+      });
+    }
+    smRenderRows(Holy.SNIPPETS.activeBankId);
+    panel.querySelector("#smBankSelect").addEventListener("change", function () {
+      smRenderRows(Number(this.value));
+    });
+    panel.querySelector("#smSaveBtn").addEventListener("click", () => {
+      smCommitChanges(panel);
+      cy_saveBanksToDisk();
+      Holy.SNIPPETS.renderSnippets();
+      panel.remove();
+      if (Holy.UI && Holy.UI.toast) Holy.UI.toast("Snippet Manager: saved");
+    });
+    panel.querySelector("#smCancelBtn").addEventListener("click", () => panel.remove());
+  }
+  function smBuildSnippetRow(snip, index) {
+    const doc = cy_resolveDoc();
+    const row = doc.createElement("div");
+    row.className = "sm-snippet-row";
+    row.dataset.snipId = snip.id;
+    const nameInput = doc.createElement("input");
+    nameInput.type = "text";
+    nameInput.className = "sm-snip-name snippet-editor-input";
+    nameInput.value = snip.name;
+    nameInput.dataset.snipId = snip.id;
+    row.appendChild(nameInput);
+    const exprLabel = doc.createElement("div");
+    exprLabel.className = "sm-section-label";
+    exprLabel.textContent = "Expression";
+    row.appendChild(exprLabel);
+    const exprInput = doc.createElement("textarea");
+    exprInput.className = "sm-snip-expr snippet-editor-textarea";
+    exprInput.value = snip.expr;
+    exprInput.dataset.snipId = snip.id;
+    exprInput.rows = 1;
+    row.appendChild(exprInput);
+    const ctrlLabel = doc.createElement("div");
+    ctrlLabel.className = "sm-section-label";
+    ctrlLabel.textContent = "Controls";
+    row.appendChild(ctrlLabel);
+    const effects = (snip.controls && Array.isArray(snip.controls.effects))
+      ? snip.controls.effects : [];
+    if (effects.length === 0) {
+      const noCtrl = doc.createElement("span");
+      noCtrl.className = "sm-no-controls";
+      noCtrl.textContent = "No controls saved";
+      row.appendChild(noCtrl);
+    } else {
+      effects.forEach((fx, ei) => {
+        const fxEl = doc.createElement("div");
+        fxEl.className = "sm-effect-entry";
+        const fxName = doc.createElement("div");
+        fxName.className = "sm-effect-name";
+        fxName.textContent = fx.name || fx.matchName;
+        fxEl.appendChild(fxName);
+        const propsContainer = doc.createElement("div");
+        propsContainer.className = "sm-props-container";
+        (fx.properties || []).forEach((prop, pi) => {
+          const propRow = doc.createElement("div");
+          propRow.className = "sm-prop-row";
+          const propName = doc.createElement("span");
+          propName.className = "sm-prop-name";
+          propName.textContent = prop.name;
+          propRow.appendChild(propName);
+          const isNumeric = typeof prop.value === "number";
+          const valInput = doc.createElement("input");
+          valInput.type = isNumeric ? "number" : "text";
+          valInput.className = "sm-prop-value";
+          valInput.value = isNumeric ? prop.value : JSON.stringify(prop.value);
+          valInput.dataset.effectIdx = ei;
+          valInput.dataset.propIdx = pi;
+          valInput.dataset.snipId = snip.id;
+          propRow.appendChild(valInput);
+          if (prop.expression) {
+            const exprLbl = doc.createElement("span");
+            exprLbl.className = "sm-prop-expr-label";
+            exprLbl.textContent = "expr:";
+            propRow.appendChild(exprLbl);
+            const exprIn = doc.createElement("input");
+            exprIn.type = "text";
+            exprIn.className = "sm-prop-expr";
+            exprIn.value = prop.expression;
+            exprIn.dataset.effectIdx = ei;
+            exprIn.dataset.propIdx = pi;
+            exprIn.dataset.snipId = snip.id;
+            propRow.appendChild(exprIn);
+          }
+          propsContainer.appendChild(propRow);
+        });
+        fxEl.appendChild(propsContainer);
+        row.appendChild(fxEl);
+      });
+    }
+    return row;
+  }
+  function smCommitChanges(panel) {
+    const selectedBankId = Number(panel.querySelector("#smBankSelect").value);
+    const bank = Holy.SNIPPETS.banks.find(b => b.id === selectedBankId);
+    if (!bank) return;
+    panel.querySelectorAll(".sm-snippet-row").forEach(row => {
+      const snipId = row.dataset.snipId;
+      const snip = bank.snippets.find(s => String(s.id) === String(snipId));
+      if (!snip) return;
+      const nameEl = row.querySelector(".sm-snip-name");
+      if (nameEl && nameEl.value.trim()) snip.name = nameEl.value.trim();
+      const exprEl = row.querySelector(".sm-snip-expr");
+      if (exprEl) snip.expr = exprEl.value;
+      row.querySelectorAll(".sm-prop-value").forEach(input => {
+        const ei = Number(input.dataset.effectIdx);
+        const pi = Number(input.dataset.propIdx);
+        const fx = snip.controls && snip.controls.effects && snip.controls.effects[ei];
+        const prop = fx && fx.properties && fx.properties[pi];
+        if (!prop) return;
+        prop.value = input.type === "number" ? Number(input.value) : input.value;
+      });
+      row.querySelectorAll(".sm-prop-expr").forEach(input => {
+        const ei = Number(input.dataset.effectIdx);
+        const pi = Number(input.dataset.propIdx);
+        const fx = snip.controls && snip.controls.effects && snip.controls.effects[ei];
+        const prop = fx && fx.properties && fx.properties[pi];
+        if (!prop) return;
+        prop.expression = input.value;
+      });
+    });
+  }
+
   // ---------------------------------------------------------
   // 💡 Main button wiring
   // ---------------------------------------------------------
@@ -1249,6 +1492,12 @@ function holy_applySnippet(snippetId) {
       console.log("[Holy.SNIPPETS] DOMContentLoaded → Context menu actions initialized ✅");
       bankBinder();       // ✅ corrected name — attaches rename + select listeners
       renderBankHeader(); // render menu entries and label
+      const doc = cy_resolveDoc();
+      const managerBtn = doc.getElementById("openSnippetManager");
+      if (managerBtn && !managerBtn.dataset.cyBound) {
+        managerBtn.dataset.cyBound = "1";
+        managerBtn.addEventListener("click", () => cy_openSnippetManager());
+      }
     } catch (err) {
       console.warn("[Holy.SNIPPETS] Context menu init failed:", err);
     }
@@ -1293,6 +1542,7 @@ function holy_applySnippet(snippetId) {
 
   Holy.SNIPPETS.cy_sendToExpressArea = cy_sendToExpressArea;
   Holy.SNIPPETS.openSnippetEditUI = openSnippetEditUI;
+  Holy.SNIPPETS.cy_openSnippetManager = cy_openSnippetManager;
 
   Holy.SNIPPETS.contextM_SNIPPETS_actionHandler = contextM_SNIPPETS_actionHandler;
 

@@ -38,6 +38,8 @@ cs.addEventListener(
   var cancelListener = null;
   var veilEl = null;
   var veilListenerBound = false;
+  var safetyTimer = null;
+  var SAFETY_TIMEOUT_MS = 10000; // 10-second safety cancel (pick-click audit 2026-04-13)
 
   function getVeilEl() {
     if (!veilEl) {
@@ -100,6 +102,13 @@ cs.addEventListener(
     cancelListener = null;
   }
 
+  function clearSafetyTimer() {
+    if (safetyTimer) {
+      clearTimeout(safetyTimer);
+      safetyTimer = null;
+    }
+  }
+
   function resetState() {
     active = false;
     sessionId = "";
@@ -107,6 +116,7 @@ cs.addEventListener(
     cancelHandler = null;
     setVeilActive(false);
     removeListeners();
+    clearSafetyTimer();
   }
 
   function cancelPickClick(reason) {
@@ -150,6 +160,13 @@ cs.addEventListener(
 
     ensureVeilListener();
     setVeilActive(true);
+
+    // Safety timeout — cancel after 10 s if user does nothing.
+    // Complements backend MAX_POLL_TICKS cap in host_PICKCLICK.jsx: frontend
+    // timeout catches cases where the backend hangs or CSXS events don't deliver.
+    safetyTimer = setTimeout(function () {
+      cancelPickClick("timeout");
+    }, SAFETY_TIMEOUT_MS);
 
     resolveListener = function (event) {
       var payload = parseEventData(event);

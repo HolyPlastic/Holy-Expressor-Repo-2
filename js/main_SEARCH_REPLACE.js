@@ -122,6 +122,7 @@ if (typeof Holy !== "object") Holy = {};
 
   function init() {
     initRewriteEditors();
+    attachRewriteExpandListeners();
     var legacyBtn = document.querySelector("#runSearchReplace");
     if (legacyBtn && !legacyBtn.dataset.cySearchBound) {
       legacyBtn.dataset.cySearchBound = "true";
@@ -185,8 +186,8 @@ if (typeof Holy !== "object") Holy = {};
           window.codemirror.oneDark,
           window.codemirror.EditorView.lineWrapping,
           window.codemirror.EditorView.theme({
-            "&": { height: "auto", minHeight: "24px", maxHeight: "80px" },
-            ".cm-scroller": { overflow: "auto", minHeight: "20px", maxHeight: "80px" }
+            "&": { height: "auto", minHeight: "24px", maxHeight: "64px" },
+            ".cm-scroller": { overflow: "auto", minHeight: "20px", maxHeight: "64px" }
           })
         ]
       });
@@ -205,8 +206,8 @@ if (typeof Holy !== "object") Holy = {};
           window.codemirror.oneDark,
           window.codemirror.EditorView.lineWrapping,
           window.codemirror.EditorView.theme({
-            "&": { height: "auto", minHeight: "24px", maxHeight: "80px" },
-            ".cm-scroller": { overflow: "auto", minHeight: "20px", maxHeight: "80px" }
+            "&": { height: "auto", minHeight: "24px", maxHeight: "64px" },
+            ".cm-scroller": { overflow: "auto", minHeight: "20px", maxHeight: "64px" }
           })
         ]
       });
@@ -215,6 +216,38 @@ if (typeof Holy !== "object") Holy = {};
         parent: replaceContainer
       });
     }
+  }
+
+  function attachRewriteExpandListeners() {
+    var cm = window.codemirror;
+    if (!cm || !cm.EditorView || !cm.StateEffect) return;
+
+    var pairs = [
+      { fieldId: 'searchField', wrapperId: 'rewriteSearchWrapper' },
+      { fieldId: 'replaceField', wrapperId: 'rewriteReplaceWrapper' }
+    ];
+
+    pairs.forEach(function (pair) {
+      var container = document.getElementById(pair.fieldId);
+      var wrapper = document.getElementById(pair.wrapperId);
+      if (!container || !container._codemirror || !wrapper) return;
+
+      container._codemirror.dispatch({
+        effects: cm.StateEffect.appendConfig.of(
+          cm.EditorView.updateListener.of(function (update) {
+            if (!update.docChanged && !update.geometryChanged) return;
+            var lines = update.state.doc.lines;
+            var extra = Math.max(0, lines - 1);
+            // Shift center downward as field grows — protects the label above from overlap
+            var safety = Math.min(extra * 6, 12);
+            // Subtly shrink the label towards its bottom-left as lines increase
+            var labelScale = Math.max(0.9, 1 - extra * 0.05);
+            wrapper.style.setProperty('--cm-safety', safety + 'px');
+            wrapper.style.setProperty('--cm-label-scale', labelScale);
+          })
+        )
+      });
+    });
   }
 
   if (document.readyState === "loading") {

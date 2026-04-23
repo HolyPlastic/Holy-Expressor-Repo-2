@@ -20,10 +20,10 @@ var(--G-color-1);
   --G-color-1-mid:           hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.75), calc(var(--G-color-1-L) * 2 * 0.08));
   --G-color-1-mid-2:         hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.45), calc(var(--G-color-1-L) * 2 * 0.18));
   --G-color-1-mid-3:         hsl(var(--G-color-1-H), 0%,                               calc(var(--G-color-1-L) * 2 * 0.15));
-  --G-color-1-mid-4:         hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.45), calc(var(--G-color-1-L) * 2 * 0.18));
   --G-color-1-dark-bg:       hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.9),  calc(var(--G-color-1-L) * 2 * 0.04));
   --G-color-1-deepdark-bg:   hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 1),    calc(var(--G-color-1-L) * 2 * 0.02));
   --G-color-1-lowsatdark-bg: hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.1),  calc(var(--G-color-1-L) * 2 * 0.04));
+  --G-color-1-tintdark-bg:   hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 0.36), calc(var(--G-color-1-L) * 2 * 0.071));
   --G-color-1-offwhite:      hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 1),    calc(var(--G-color-1-L) * 2 * 0.8));
   --G-color-1-light:         hsl(var(--G-color-1-H), calc(var(--G-color-1-S) * 1),    calc(var(--G-color-1-L) * 2 * 0.8));
   --G-color-1-midlight:      hsl(var(--G-color-1-H), var(--G-color-1-S),              calc(var(--G-color-1-L) * 2 * 0.3));
@@ -41,8 +41,9 @@ var(--G-color-1);
    * ========================================================== */
   --bg-base:    #111214;
   --bg-panel:   #18191d;
-  --bg-surface: #20222a;
-  --bg-input:   #0e0f12;
+  --bg-surface:     #1c1d22;
+  --bg-surface-sub: #151516;
+  --bg-input:       #0e0f12;
 
   --text-primary: #e2e2e8;
   --text-muted:   rgba(226, 226, 232, 0.5);
@@ -185,9 +186,6 @@ h2 {
 .checkbox-layercontrols {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-left: auto !important;
-  transform: translateX(-10px) translateY(2px) translateZ(0);
 }
 
 
@@ -494,43 +492,41 @@ body {
   position: fixed;
   inset: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.55);
+  background: transparent;
   z-index: 99999;
   animation: fgFadeIn 0.2s ease forwards;
 }
 
 .foreground-panel-box {
-
   background: var(--G-color-1-deepdark-bg);
-  border: 1px solid var(--G-color-1);
-  border-radius: 8px;
-  padding: 12px;
-  /* min-width: 280px; */
-  max-width: -135px;
-  box-shadow: 0 4px 24px rgb(0 0 0 / 60%);
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 11px;
+  flex: 1;
+  overflow: hidden;
   animation: fgPopIn 0.2s ease forwards;
+}
 
+.foreground-panel-content {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+}
 
-  /*
-  background:var(--G-color-1-deepdark-bg);
-  border: 1px solid var(--G-color-1);
-  border-radius: 8px;
-  padding: 12px;
-  min-width: 280px;
-  max-width: 480px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  animation: fgPopIn 0.2s ease forwards;
-*/
-
+.foreground-panel-content::-webkit-scrollbar {
+  width: 4px;
+}
+.foreground-panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.foreground-panel-content::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--G-colour-1-RGB), 0.35);
+  border-radius: 3px;
+}
+.foreground-panel-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--G-colour-1-RGB), 0.55);
 }
 
 .foreground-panel-title {
@@ -649,7 +645,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 10px;
+  padding: 5px 6px;
   margin: 0;
   user-select: none;
   font-size: 10px;
@@ -664,15 +660,18 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 
 /* === Tab buttons (Express | Rewrite) ============================ */
 .modeSwitchBar .mode-btn {
+  position: relative;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  padding: 4px 6px;
+  border-bottom: none;
+  padding: 4px 6px 10px;
   margin: 0;
   font: inherit;
   font-size: 10px;
@@ -685,6 +684,9 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* === Middle diamond button ====================================== */
@@ -698,12 +700,14 @@ textarea {
 
 
 .modeSwitchBar .mode-utility-btn {
-  margin-left: auto;
+  position: absolute;
+  right: 3px;
+  top: 2px;
+  transform: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  scale: 10px;
-  transform: translate(7px, -2px);
+  z-index: 1;
 }
 
 /* Diamond SVG sizing */
@@ -723,19 +727,53 @@ textarea {
 #modePanel[data-mode="express"] #modeExpressBtn,
 #modePanel[data-mode="rewrite"] #modeRewriteBtn {
   color: var(--G-color-1);
-  border-bottom-color: var(--G-color-1);
 }
 
 
 
-/* Optional subtle glow for active state 
-.modeSwitchBar .mode-btn.active .mode-switch-svg,
-#modePanel[data-mode="express"] .mode-switch-svg,
-#modePanel[data-mode="rewrite"] .mode-switch-svg {
-  filter: drop-shadow(0 0 2px var(--G-color-1));
-}*/
+/* === Mode switch underlayer SVG ================================= */
+/* Locked to panel center — both SVGs hug the midpoint, outer edges clip at panel boundary */
+.mode-switch-underlayer {
+  position: absolute;
+  bottom: 0;
+  width: 320.93px;
+  height: 6.99px;
+  display: block;
+  pointer-events: none;
+  color: var(--G-color-1-mid-2);
+  transition: color 0.2s ease;
+}
 
+/* Express (left) — right edge pinned 7px left of center */
+.mode-switch-underlayer--express {
+  right: calc(50% + 7px);
+}
 
+/* Rewrite (right) — left edge pinned 7px right of center */
+.mode-switch-underlayer--rewrite {
+  left: calc(50% + 7px);
+}
+
+/* Active tab — underlayer lights up */
+#modePanel[data-mode="express"] .mode-switch-underlayer--express,
+#modePanel[data-mode="rewrite"] .mode-switch-underlayer--rewrite {
+  color: var(--G-color-1);
+}
+
+/* === Mode switch centre button ================================== */
+.modeSwitchBar .mode-switch-btn .mode-switch-svg {
+  color: var(--G-color-1-mid-2);
+  stroke-width: 1px;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.modeSwitchBar .mode-switch-btn:hover .mode-switch-svg {
+  color: var(--G-color-1);
+}
+
+.modeSwitchBar .mode-switch-btn:active .mode-switch-svg {
+  transform: scale(0.88);
+}
 
 /* Mode switch arrow v2 */
 .modeSwitchBar .mode-switch-svg.modeSwitchSvg {
@@ -750,67 +788,7 @@ textarea {
 }
 
 
-/* =====================================================
-   Mode Switch Button — SVG Visibility (STABLE)
-   ===================================================== */
-
-/* Default state: rewrite mode */
-.modeSwitch-rewrite {
-  display: block;
-}
-
-.modeSwitch-express {
-  display: none;
-}
-
-/* Express mode active */
-#modePanel[data-mode="express"] .modeSwitch-rewrite {
-  display: none;
-}
-
-#modePanel[data-mode="express"] .modeSwitch-express {
-  display: block;
-}
-
-
-/* Rewrite mode active */
-#modePanel[data-mode="rewrite"] .modeSwitch-rewrite {
-  display: block;
-}
-
-#modePanel[data-mode="rewrite"] .modeSwitch-express {
-  display: none;
-}
-
-
-
-/* =====================================================
-   Mode Switch Button — COLOURING
-   ===================================================== */
-
-
-/* =====================================================
-   Mode Switch Button — Triangle Colouring (FINAL)
-   ===================================================== */
-
-.modeSwitchSvg polygon[id$="bigarrow"] {
-  color: var(--G-color-1);
-  transition: color 0.25s ease;
-}
-
-.modeSwitchSvg polygon[id$="lilarrow"] {
-  color: var(--G-color-1-mid);
-  transition: color 0.25s ease;
-  stroke: currentColor;
-  stroke-width: 0.5px;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.modeSwitchSvg polygon[id$="inactivearrow"] {
-  color: var(--G-grey-1);
-  transition: color 0.25s ease;
-}
+/* Mode switch visibility/triangle rules removed — replaced by single-SVG button */
 
 
 #modePanel[data-mode="rewrite"] {
@@ -823,13 +801,14 @@ textarea {
   border: var(--outer-borders);
   border-radius: 0px 0px 0px 16px;
   position: relative;
+  z-index: 1; /* creates stacking context so #rewriteOverlay can paint above #customSearch-Master */
   display: flex;
   flex-direction: column;
   margin-top: 5px;
   flex: 1 1 auto;
-  /* ðŸ‘ˆ NEW */
+  /* ðŸ’ˆ NEW */
   min-height: 0;
-  /* ðŸ‘ˆ so children can shrink */
+  /* ðŸ’ˆ so children can shrink */
 }
 
 
@@ -852,6 +831,7 @@ textarea {
   padding: 0px;
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto; /* grow to fill #modePanel so bottom:0 overlay lands at actual bottom */
   min-height: 0;
 }
 
@@ -908,62 +888,87 @@ textarea {
 }
 
 
-/* Overlay button group that floats on the panel border */
+/* Overlay button group that floats on the panel border — spans full width */
 .express-editor-overlay {
-
-  padding: 4px 6px;
-
-  border-radius: 999px;
-
+  padding: 4px 12px 4px 6px;
   background: none;
-
   border: none;
-
   position: absolute;
-
-  right: 12px;
-
+  left: 0;
+  right: 0;
   bottom: 0;
-
   display: flex;
-
   align-items: center;
-
-  gap: 6px;
-
-  transform: translateY(39%) translateX(17px);
-  /* required */
-
+  justify-content: space-between;
+  transform: translateY(39%);
   z-index: 100;
-  /* overlay above the document UI */
 }
 
-
-
-
-
-
-/* === Checkbox container (always above buttons) === */
-.express-editor-overlay-checkbox {
-  position: relative;
-  transform: translateX(31.5px) translateY(4px) translateZ(0);
-  /* its own stacking context */
-  z-index: 10;
-  /* guarantees entire checkbox plane renders above buttons */
-}
-
-
-/* === Buttons container === */
-.express-editor-overlay-buttons {
+/* Left cluster: checkbox + load-path + load-expression buttons */
+.eeo-left-group {
   display: flex;
   align-items: center;
   gap: 6px;
-  transform: translateZ(0);
-  /* creates its own stacking context for buttons */
-  position: relative;
-  z-index: 1;
-  /* sits below the checkbox block */
+  transform: translateX(-10px);
 }
+
+
+
+
+
+
+/* === Checkbox wrapper with line === */
+.checkbox-with-line {
+  --checkbox-width: 27.82px;
+  --checkbox-offset-y: 2px;
+  --checkbox-offset-x: 7px;
+  --checkbox-stroke: 3px;
+
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--G-color-1-mid-2);
+  transition: color var(--transition);
+  translate: var(--checkbox-offset-x) var(--checkbox-offset-y);
+}
+
+.checkbox-with-line input {
+  display: none;
+}
+
+.checkbox-with-line svg {
+    width: var(--checkbox-width);
+    height: 17.92px;
+    flex-shrink: 0;
+    margin-left: 69%;
+    margin-left: 47%;
+    transform: translateY(7px);
+}
+
+.checkbox-with-line circle,
+.checkbox-with-line line {
+  stroke-width: var(--checkbox-stroke);
+}
+
+.checkbox-with-line input:not(:checked) + svg circle.checkbox-checked {
+  fill: transparent;
+}
+
+.checkbox-with-line input:checked + svg {
+  color: var(--G-color-1);
+}
+
+.checkbox-with-line input:checked + svg circle.checkbox-checked {
+  fill: var(--G-color-1);
+}
+
+.checkbox-with-line:hover {
+  color: var(--G-color-1);
+}
+
+
+
+/* .express-editor-overlay-buttons removed — replaced by .eeo-left-group */
 
 
 
@@ -999,22 +1004,57 @@ textarea {
   pointer-events: auto;
 }
 
-.pickclick-veil-content { 
-  position: relative; 
-  z-index: 1; text-align: 
-  center; 
-  color: var(--G-color-1); 
-  user-select: none; }
+.pickclick-veil-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: var(--G-color-1);
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.pickclick-veil-icon {
+  width: 80px;
+  height: auto;
+  display: block;
+  color: var(--G-color-1);
+  filter: drop-shadow(0 0 8px rgba(var(--G-colour-1-RGB), 0.5));
+}
+
+.pickclick-veil-text {
+  font-family: var(--font-label);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--G-color-1);
+}
+
+.pickclick-veil-sub {
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.pickclick-veil-cancel {
+  font-family: var(--font-label);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
 
 
 #modeViewRewrite {
   position: relative;
-  padding: 0px;
-  display: flex;
-  flex-direction: column;
-  gap: 0px;
+  padding: 0;
   overflow: visible;
-  height: 97px;
+  flex: 1 1 auto;   /* fill available panel height so bottom:0 overlay anchors to actual bottom */
+  min-height: 60px;
 }
 
 
@@ -1070,8 +1110,9 @@ textarea {
 
 #rewriteOverlay {
   position: absolute;
-  right: 20px;
-  top: 0;
+  right: 12px;
+  bottom: -21px;
+  top: auto;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1079,10 +1120,9 @@ textarea {
   border-radius: 999px;
   background: none;
   border: none;
-  transform: translateY(52px) translateX(38.4px) scale(0.7);
   pointer-events: none;
   /* allow editor interactions beneath the wrapper */
-  z-index: 6;
+  z-index: 50;
 }
 
 #rewriteOverlay>* {
@@ -1131,9 +1171,7 @@ textarea {
 }
 
 #rewriteClearBtn {
-  --size: 22px;
-  color: var(--G-color-1-midlight2);
-  stroke: var(--G-color-1-midlight2);
+  --size: 52px;
 }
 
 
@@ -1144,22 +1182,26 @@ textarea {
 
 #rewriteSearchWrapper,
 #rewriteReplaceWrapper {
-  position: relative;
+  --cm-safety: 0px;
+  --cm-label-scale: 1;
+  position: absolute;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  flex: 1;
   gap: 4px;
+  overflow: visible;
   z-index: 1;
-  padding-top: 20px;
 }
 
 #rewriteSearchWrapper {
-  padding: 20px 0 0 0;
+  top: 22%;
+  transform: translateY(-50%);
 }
 
 #rewriteReplaceWrapper {
-  padding: 20px 0 0 0;
+  top: 72%;
+  transform: translateY(-50%);
 }
 
 #rewriteSearchWrapper .text-input,
@@ -1169,21 +1211,55 @@ textarea {
 }
 
 .rewrite-codemirror {
-  min-height: 24px;
+  position: relative;
+  flex: 0 0 auto;
   height: auto;
-  overflow: hidden;
+  min-height: 0;
+  overflow: visible;
 }
 
 .rewrite-codemirror .cm-editor {
   height: auto;
-  min-height: 24px;
-  background: var(--bg-input);
+  min-height: 0;
+  background: transparent;
+}
+
+/* Use ID selector (#modeViewRewrite = specificity [1,0,0]) to beat the global
+   html.theme-default rules in codemirror_styles.css which lock everything to 50px !important.
+   Class-only selectors ([0,3,0]) lose to html.theme-default ([0,3,1]) even with !important. */
+#modeViewRewrite .cm-editor {
+  /* In-flow: contributes to parent height for bidirectional wrapper expansion */
+  position: relative;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  border-radius: 0;
+  border-color: transparent;
+}
+
+/* Global focused rule uses !important at [0,3,1]; override with [1,2,0] + !important */
+#modeViewRewrite .cm-editor.cm-focused {
+  border-color: transparent !important;
+}
+
+/* Gutters — transparent so only the existing cm-line backgrounds (zebra, active line)
+   show against the panel behind; border-right removed for same reason.
+   Active line gutter highlight survives via its ::before pseudo-element (self-colored). */
+#modeViewRewrite .cm-editor .cm-gutters {
+  background: transparent;
+  border-right-color: transparent;
+}
+
+#modeViewRewrite .cm-editor .cm-content,
+#modeViewRewrite .cm-editor .cm-gutter {
+  min-height: 0 !important;
 }
 
 .rewrite-codemirror .cm-scroller {
-  overflow: auto;
-  min-height: 20px;
-  max-height: 80px;
+  overflow-y: auto;
+  height: auto;
+  max-height: none;
+  min-height: 0;
 }
 
 #rewriteSearchWrapper>label.block-label,
@@ -1196,9 +1272,8 @@ textarea {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   clip-path: inset(50%);
+  white-space: nowrap;
   border: 0;
-  background: var(--G-color-1-midlight2);
-  transform: translate(6px, 14px);
 }
 
 
@@ -1206,46 +1281,18 @@ textarea {
 
 /*#endregion*=====-===-=-=-=-=-==========*/
 
-.rewrite-label-search,
-.rewrite-label-replace {
+.rewrite-field-label {
   font-family: var(--f-pixel);
-  font-size: 11px;
+  font-size: 6.3px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--G-color-1);
   -webkit-font-smoothing: none;
-}
-
-.rewrite-label-search {
-  position: absolute;
-  top: 2px;
-  left: 0;
-  transform: scale(0.65);
-  transform-origin: top left;
-}
-
-.rewrite-label-replace {
-  position: absolute;
-  top: 2px;
-  right: 0;
-  transform: scale(0.65);
-  transform-origin: top right;
-}
-
-.rewrite-label-search {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: scale(0.65);
-  transform-origin: top left;
-}
-
-.rewrite-label-replace {
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: scale(0.65);
-  transform-origin: top right;
+  pointer-events: none;
+  padding-left: 8px;
+  transform-origin: bottom left;
+  transform: scale(var(--cm-label-scale, 1)) translateY(2px);
+  transition: transform 0.15s ease;
 }
 
 
@@ -1253,53 +1300,25 @@ textarea {
 
 /*=====-===-=-=-=-=-==========*/
 
-.rewrite-edge-line-bottom,
-.rewrite-edge-line-top {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 0;
-  background: var(--G-color-1-midlight2);
-  pointer-events: none;
-  opacity: 0.5;
+/* rewrite-gradient-down/up removed */
+
+/* Scrollbar for rewrite CodeMirror fields */
+.rewrite-codemirror .cm-scroller::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
 }
 
-.rewrite-edge-line-bottom {
-  bottom: 0;
+.rewrite-codemirror .cm-scroller::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.rewrite-edge-line-top {
-  top: 0;
+.rewrite-codemirror .cm-scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--G-colour-1-RGB), 0.35);
+  border-radius: 3px;
 }
 
-
-
-/*=====-===-=-=-=-=-==========*/
-
-.rewrite-gradient-down,
-.rewrite-gradient-up {
-  position: absolute;
-  left: 0;
-  right: 0;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.rewrite-gradient-down {
-  top: 0;
-  height: 11px;
-  background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0.32) 0%, rgba(var(--G-colour-1-RGB), 0) 100%);
-}
-
-#rewriteReplaceWrapper .rewrite-gradient-down {
-  top: auto;
-  bottom: 0;
-}
-
-.rewrite-gradient-up {
-  bottom: 11px;
-  height: 14px;
-  background: linear-gradient(180deg, rgba(var(--G-colour-1-RGB), 0) 0%, rgba(var(--G-colour-1-RGB), 0.32) 100%);
+.rewrite-codemirror .cm-scroller::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--G-colour-1-RGB), 0.55);
 }
 
 
@@ -1400,12 +1419,8 @@ textarea {
 
 
 
-.customSearch-Master {
+.customSearch-master {
   position: relative;
-  transform: translateY(-30px);
-
-  /* move the entire system down */
-
 }
 
 .customSearch-checkbox {
@@ -1580,9 +1595,10 @@ textarea {
 
 
 
-/* Container */
+/* Container — fills available space, CM6 scroller handles overflow */
 #codeEditor {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  min-height: 56px;
 }
 
 body.editor-maximized {
@@ -1597,10 +1613,11 @@ body.editor-maximized #appRoot {
 }
 
 body.editor-maximized #modeViewExpress {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 12px;
+  display: none !important;
+}
+
+body.editor-maximized #modePanel {
+  margin-top: 0 !important;
 }
 
 body.editor-maximized .hdr,
@@ -1608,10 +1625,32 @@ body.editor-maximized .tabs,
 body.editor-maximized #snippetsBar,
 body.editor-maximized #snippetContextMenu,
 body.editor-maximized #expressions,
-
 body.editor-maximized #expressMisc,
 body.editor-maximized #bankSelectMenu {
   display: none !important;
+}
+
+/* Collapse the mode-switch bar but keep the maximize toggle visible */
+body.editor-maximized .modeSwitchBar {
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible;
+  border: 0 !important;
+}
+
+body.editor-maximized .modeSwitchBar > *:not(#editorMaximizeBtn) {
+  display: none !important;
+}
+
+body.editor-maximized #editorMaximizeBtn {
+  position: fixed;
+  top: 4px;
+  right: 4px;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 3px;
+  border-radius: 4px;
 }
 
 /* ================================
@@ -1619,12 +1658,20 @@ body.editor-maximized #bankSelectMenu {
    ================================ */
 
 body.editor-maximized #codeEditor {
-  flex: 1 1 auto;
+  flex: 1 1 auto !important;
+  height: 100% !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+body.editor-maximized #codeEditor .cm-editor {
+  height: 100%;
+  min-height: 0;
 }
 
 body.editor-maximized #expressApplyRow {
   margin-top: auto;
-  margin-bottom: 12px;
+  margin-bottom: 2px;
   display: flex;
   justify-content: center;
 }
@@ -1633,10 +1680,34 @@ body.editor-maximized #expressApplyRow .apply-row {
   width: 100%;
   max-width: 100%;
   justify-content: center;
+  gap: 4px;
+}
+
+body.editor-maximized #applyBtn {
+  min-width: 56px;
+  padding: 3px 16px;
+  font-size: 11px;
+}
+
+body.editor-maximized #deleteExpressionsBtn {
+  --size: 13px;
+}
+
+body.editor-maximized #settingsCogBtn {
+  --size: 15px;
+}
+
+body.editor-maximized .express-apply {
+  padding: 0 4px 0;
+}
+
+body.editor-maximized #customSearch-Master {
+  margin-top: 4px;
+  margin-bottom: 0;
 }
 
 body.editor-maximized #toast {
-  display: block;
+  display: none !important;
 }
 
 
@@ -1646,23 +1717,17 @@ body.editor-maximized #toast {
 
 html.theme-default #codeEditor .cm-editor .cm-content,
 html.theme-default #codeEditor .cm-editor .cm-gutter {
-  min-height: 0 !important;
+  min-height: 56px !important; /* 3 lines minimum (12px font × 1.55 line-height × 3) */
 }
 
 #codeEditor .cm-editor {
-  /* Flex behavior â€” DO NOT REMOVE â†“ */
-  flex: 1 1 auto;
-  /* expand into container */
   height: 100%;
-  /* instead of auto */
-  min-height: 0;
-  /* allow calculations */
-
+  min-height: 56px; /* 3 lines minimum */
 
   /* Visual styling */
   border: 0px solid #444;
   border-radius: 6px;
-  background: #1b1b1b;
+  background: #2525251f;
   font-family: "Fira Code", ui-monospace, Menlo, Consolas, monospace;
   font-size: 11px;
   line-height: 1.4;
@@ -1692,6 +1757,10 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
   caret-color: #4c7ef3;
 }
 
+#codeEditor .cm-editor.cm-focused .cm-selectionBackground,
+#codeEditor .cm-selectionBackground {
+  background: rgba(var(--G-colour-1-RGB), 0.35) !important;
+}
 
 /* ============================================
    ðŸŽšï¸ SCROLLER + CUSTOM SCROLLBAR (WEBKIT ONLY)
@@ -1727,8 +1796,8 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
 
 /*---------------------------------\-----*/
 #codeEditor {
-  min-height: 0 !important;
-  flex: 1 1 auto !important;
+  flex: 1 1 0 !important;
+  min-height: 56px;
 }
 
 /*---------------------------------\-----*/
@@ -1779,6 +1848,31 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
 #bankNameLabel {
   overflow: visible;
   display: inline-block;
+}
+
+/* Dev ghost buttons — minimal, nearly invisible */
+.dev-ghost-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.btn-dev-ghost {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0 2px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--text-dimmed, rgba(255,255,255,0.18));
+  cursor: pointer;
+  opacity: 0.45;
+}
+
+.btn-dev-ghost:hover {
+  opacity: 0.75;
 }
 
 /* ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â Focused input gets light accent line */
@@ -1882,6 +1976,34 @@ html.theme-default #codeEditor .cm-editor .cm-gutter {
 .snippet-editor-textarea {
   height: 100px;
   resize: vertical;
+}
+
+.sm-snippet-row .snippet-editor-input,
+.sm-snippet-row .snippet-editor-textarea {
+  background: var(--bg-panel);
+  border-color: var(--border-accent);
+}
+
+.sm-snip-expr.snippet-editor-textarea {
+  height: auto;
+  resize: none;
+  overflow-y: hidden;
+  min-height: 20px;
+  line-height: 18px;
+}
+
+.sm-snip-expr.snippet-editor-textarea::-webkit-scrollbar {
+  width: 4px;
+}
+.sm-snip-expr.snippet-editor-textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sm-snip-expr.snippet-editor-textarea::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--G-colour-1-RGB), 0.35);
+  border-radius: 3px;
+}
+.sm-snip-expr.snippet-editor-textarea::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--G-colour-1-RGB), 0.55);
 }
 
 .snippet-editor-save {
@@ -2000,35 +2122,58 @@ button.tab-btn:hover {
    PRIMARY BUTTON — apply / main action
    ==================================================== */
 .btn-primary {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--G-color-1);
-  color: #0c0c10;
+  background: none;
+  color: var(--G-color-1-mid-2);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 0;
   padding: 7px 24px;
   font-family: var(--font-label);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: opacity var(--transition), transform var(--transition);
+  transition: color var(--transition), transform var(--transition);
   min-width: 90px;
 }
 
+/* SVG body shape — sits behind the label */
+.btn-primary-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  overflow: visible;
+}
+
 .btn-primary:hover {
-  opacity: 0.84;
+  color: var(--G-color-1);
 }
 
 .btn-primary:active {
   transform: scale(0.96);
-  opacity: 1;
 }
 
 .btn-primary .label {
+  position: relative;
+  z-index: 1;
   pointer-events: none;
+  color: var(--G-color-1);
+  transform: translateY(-1px);
+  transition: color var(--transition), transform var(--transition);
+}
+
+.btn-primary:hover .label {
+  color: var(--G-color-1-mid);
+  font-weight: 900;
+  -webkit-text-stroke: 0.4px currentColor;
+  transform: translateY(-1.5px) translateX(-1px) scale(1.06);
 }
 
 /* ====================================================
@@ -2056,12 +2201,16 @@ button.tab-btn:hover {
 }
 
 .checkbox-Diamond svg {
-  color: var(--text-faint);
+  color: var(--G-color-1-mid-2);
   transition: color var(--transition);
 }
 
 .checkbox-Diamond svg circle {
   transition: all var(--transition);
+}
+
+.checkbox-Diamond input:checked + svg {
+  color: var(--G-color-1);
 }
 
 .checkbox-Diamond input:checked + svg circle.checkbox-checked {
@@ -2073,11 +2222,7 @@ button.tab-btn:hover {
 }
 
 .checkbox-Diamond:hover svg {
-  color: var(--text-muted);
-}
-
-.checkbox-Diamond:hover svg circle:first-child {
-  stroke: var(--G-color-1);
+  color: var(--G-color-1);
 }
 
 /* ====================================================
@@ -2085,7 +2230,7 @@ button.tab-btn:hover {
    ==================================================== */
 #toast {
   min-height: 0;
-  padding: 0 8px;
+  padding: 0px;
   font-size: 10px;
   color: var(--text-muted);
   transition: all var(--transition);
@@ -2095,7 +2240,7 @@ button.tab-btn:hover {
   padding: 5px 8px;
   background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-radius: 1;
 }
 
 
@@ -2137,13 +2282,6 @@ button:disabled {
   position: relative;
   transform: translateZ(0);
   /* isolates for GPU safety */
-
-}
-
-.btn-clearSVG #bankSelectBtn {
-
-  transform: scale(10px) translateZ(0);
-
 
 }
 
@@ -2211,9 +2349,18 @@ button:disabled {
 
 
 #deleteExpressionsBtn {
+  transform: translateX(7px);
+  --size: 17px;
+  color: var(--G-color-1-mid-2);
+}
 
-  transform: translateX(24px);
-  --size: 20px;
+#deleteExpressionsBtn svg {
+  stroke: none;
+}
+
+#deleteExpressionsBtn:hover,
+#deleteExpressionsBtn:hover svg {
+  color: var(--G-color-1);
 }
 
 
@@ -2224,21 +2371,29 @@ button:disabled {
 }
 
 #editorClearBtn {
-  height: 45px !important;
+  width: auto !important;
+  aspect-ratio: unset !important;
+  transform: translateY(-9px) translateX(-3px);
+}
+
+#rewriteClearBtn {
   width: auto !important;
   aspect-ratio: unset !important;
 }
 
-#rewriteClearBtn {
-  height: 45px !important;
-  width: auto !important;
-  aspect-ratio: unset !important;
+.rewrite-matchcase-label {
+  --size: 14px;
+  color: var(--G-color-1-midlight2);
+  transition: color var(--transition);
+}
+
+.rewrite-matchcase-label:hover {
+  color: var(--G-color-1);
 }
 
 
 #editorClearBtn.express-editor-overlay-btn {
-  --size: 20px;
-  transform: translateY(-7px);
+  --size: 52px;
 }
 
 #loadPathFromSelectionBtn,
@@ -2248,15 +2403,15 @@ button:disabled {
 }
 
 #loadFromSelectionBtn {
-  transform: translateX(6px);
+  --size: 20px;
 }
 
 #loadPathFromSelectionBtn {
-  transform: translateX(18px);
   z-index: 10;
 }
 
-#loadPathFromSelectionBtn.is-armed svg {
+#loadPathFromSelectionBtn.is-armed svg,
+#loadFromSelectionBtn.is-armed svg {
   color: var(--G-color-1);
   animation: loadPathArmedPulse 0.9s ease-in-out infinite;
 }
@@ -2288,12 +2443,11 @@ button.btn-discreet:focus-visible {
 }
 
 button.btn-discreet svg {
-  width: 12px;
-  height: 16px;
-  fill: var(--G-color-1);
-  stroke: var(--G-color-1);
+  width: 9px;
+  height: auto;
+  fill: none;
+  stroke: currentColor;
   transition: inherit;
-  stroke-width: 0.5px;
 }
 
 button.btn-discreet .icon-collapse {
@@ -2319,11 +2473,18 @@ button.btn-discreet.is-active .icon-collapse {
    Editor maximize
    ================================================== */
 #editorMaximizeBtn {
+  color: var(--G-color-1-mid-2);
   border-radius: 6px;
+  transition: color 0.2s ease;
 }
 
 #editorMaximizeBtn:hover {
+  color: var(--G-color-1);
   border-radius: 6px;
+}
+
+#settingsCogBtn {
+  --size: 20px;
 }
 
 
@@ -2463,6 +2624,43 @@ button.btn-discreet.is-active .icon-collapse {
   font-weight: bold;
 }
 
+/* --- PickClick overlay on snippet buttons --- */
+.snippet-pc-btn {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity var(--transition), color var(--transition), transform var(--transition);
+  z-index: 2;
+  color: var(--G-color-1);
+}
+
+.snippet-btn:hover .snippet-pc-btn,
+.btn-primary:hover .snippet-pc-btn {
+  opacity: 1;
+}
+
+.snippet-pc-btn:hover {
+  opacity: 1 !important;
+  color: var(--G-color-1-offwhite);
+  transform: scale(1.25);
+}
+
+.snippet-pc-btn svg {
+  width: 11px;
+  height: 11px;
+  display: block;
+}
 
 .rhombus-left {
   --rhombus-transform: scaleX(1.23) translateX(-4%);
@@ -2581,7 +2779,6 @@ button.Dd-blank:hover .dropdown-icon path {
   height: 26px;
 
   padding: 11px 11px;
-  /*border: solid #8a8a8ab !important;*/
   border: solid #8a8a8a !important;
   border-radius: 41px;
 
@@ -2654,19 +2851,21 @@ button.target-btn {
 
 .apply-row {
   display: flex;
+  align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
-.apply-btn {
-  font-family: "dotsbold", sans-serif !important;
-  background-color: var(--G-colour-1-opac-10);
-  color: #fff;
-  /* text color */
-  border: 1px solid var(--G-color-1);
-  /* border color */
-  border-radius: 6px;
-  padding: 6px 12px;
-  cursor: pointer;
+/* Settings cog — hugs the right edge of the apply row */
+#settingsCogBtn {
+  margin-left: auto;
+  opacity: 0.45;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  color: var(--text-muted);
+}
+#settingsCogBtn:hover {
+  opacity: 1;
+  color: var(--G-color-1);
 }
 
 .apply-target-btn {
@@ -2902,7 +3101,8 @@ button.target-btn {
   white-space: nowrap;
   font-size: 12px;
   background: var(--G-color-1);
-  color: #0a0a0a;
+  color: var(--G-color-1);
+  border: 1px solid var(--G-color-1);
   padding: 6px 8px;
   border-radius: 6px;
   display: none;
@@ -3048,3 +3248,345 @@ button.target-btn {
 
 /*---------------------------------\-----*/
 /*#endregion* ----------------------\----*/
+
+/* === Controls toggle group === */
+.controls-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.controls-cb-pair {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transform: translateX(11px);
+}
+
+.controls-cb-pair:hover .controls-indicator-icon {
+  color: var(--text-muted);
+}
+
+.controls-cb-pair:hover .checkbox-Diamond svg {
+  color: var(--G-color-1);
+}
+
+.controls-indicator-icon {
+  width: 18px;
+  height: 10px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+
+.checkbox-layercontrols svg.btn-icon {
+  width: 11px;
+  height: 11px;
+}
+
+.controls-icon-divider {
+  display: inline-block;
+  width: 1px;
+  height: 12px;
+  background: var(--border-subtle);
+  flex-shrink: 0;
+  margin: 0 3px;
+  transform: translateX(8px);
+}
+
+.controls-manager-btn {
+  color: var(--G-color-1);
+  margin-right: 7px;
+}
+.controls-manager-btn:hover {
+  color: var(--G-color-1-midlight2);
+}
+
+/* === Controls-loaded indicator bar === */
+.snippet-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--G-color-1-mid-2);
+  opacity: 0;
+  transition: opacity var(--transition);
+  pointer-events: none;
+  border-radius: 0;
+}
+
+.snippet-btn.has-controls::after {
+  opacity: 1;
+}
+
+.snippet-btn:first-child::after {
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+.snippet-btn:last-child::after {
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+/* ===================================================== */
+/* Snippet Manager overlay                               */
+/* ===================================================== */
+
+.sm-bank-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.sm-bank-select {
+  flex: 1;
+  padding: 3px 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.sm-snippet-row {
+  padding: 10px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--bg-surface);
+}
+
+.sm-snippet-row + .sm-snippet-row { margin-top: 6px; }
+
+.sm-section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.sm-no-controls {
+  font-size: 10px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.sm-effect-entry {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.sm-effect-name {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--G-color-1-light);
+  flex-shrink: 0;
+}
+
+.sm-props-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.sm-prop-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.sm-prop-name {
+  color: var(--text-muted);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.sm-prop-value {
+  width: 60px;
+  padding: 2px 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 10px;
+}
+
+.sm-prop-expr-label { color: var(--text-faint); font-size: 9px; }
+
+.sm-prop-expr {
+  flex: 1;
+  min-width: 80px;
+  padding: 2px 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  color: var(--G-color-1-midlight);
+  font-size: 10px;
+  font-family: monospace;
+}
+
+.sm-manager-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ── Snippet Manager: Tabs (wrapper pattern) ────────── */
+.sm-tabs-container {
+  border: 1px solid var(--G-color-1);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.sm-tab-bar {
+  display: flex;
+  position: relative;
+}
+
+.sm-tab {
+  flex: 1;
+  padding: 2px;
+  background: transparent;
+  border: none;
+  border-left: 1px solid transparent;         /* reserve space so layout doesn't shift */
+  border-right: 1px solid transparent;
+  border-bottom: 1px solid var(--G-color-1);  /* inactive tabs show purple line */
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+  position: relative;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+
+.sm-tab:hover {
+  color: var(--text-primary);
+  background: rgba(var(--G-colour-1-RGB), 0.08);
+}
+
+.sm-tab.active {
+  background: var(--bg-surface);
+  color: var(--G-color-1);
+  border-left-color: var(--G-color-1);
+  border-right-color: var(--G-color-1);
+  border-bottom-color: var(--bg-surface);     /* seamless: bottom matches content area */
+  font-weight: 600;
+  z-index: 1;
+}
+
+/* Edge tabs: wrapper border already provides the outer edge */
+.sm-tab.active:first-child {
+  border-left-color: transparent;
+  border-top-left-radius: 0;
+}
+.sm-tab.active:last-child {
+  border-right-color: transparent;
+  border-top-right-radius: 0;
+}
+
+#smSnippetRows {
+  padding-top: 0;
+  overflow: hidden;                           /* prevent child margin collapse */
+  background: var(--bg-surface);              /* fill any margin gaps */
+}
+
+#smSnippetRows .sm-snippet-row {
+  margin-top: 0;                              /* override sibling margin rule */
+}
+
+/* ── Snippet Manager: panel-specific overrides ────────── */
+
+/* Anchor to top, grow downward */
+#snippetManagerPanel {
+  align-items: stretch;
+}
+
+/* Panel box: --bg-base (#111214) */
+#snippetManagerPanel .foreground-panel-box {
+  background: var(--bg-base);
+}
+
+/* Title: all caps, tight, Dosis */
+#snippetManagerPanel .foreground-panel-title {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 2px;
+  color: var(--G-color-1);
+}
+
+/* Content font: Dosis to match btn-primary */
+#snippetManagerPanel .foreground-panel-content {
+  font-family: var(--font-label);
+}
+
+/* Reduced field padding — slightly tighter than global 6px */
+#snippetManagerPanel .foreground-panel-content input,
+#snippetManagerPanel .foreground-panel-content textarea {
+  padding: 4px 6px;
+}
+
+/* Inactive tabs: match panel background */
+#snippetManagerPanel .sm-tab {
+  background: var(--bg-panel);
+}
+
+/* Active tab + snippet rows: dynamic accent tint */
+#snippetManagerPanel .sm-tab.active {
+  background: var(--G-color-1-tintdark-bg) !important;
+}
+
+#snippetManagerPanel #smSnippetRows,
+#snippetManagerPanel .sm-snippet-row {
+  background: var(--G-color-1-tintdark-bg);
+}
+
+/* ── Snippet Manager: footer buttons ────────── */
+#snippetManagerPanel .sm-manager-footer button {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: opacity var(--transition), color var(--transition);
+}
+
+#snippetManagerPanel #smSaveBtn {
+  background: var(--G-color-1);
+  color: #0c0c10;
+  border-color: transparent;
+}
+
+#snippetManagerPanel #smSaveBtn:hover {
+  opacity: 0.84;
+}
+
+#snippetManagerPanel #smCancelBtn {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border-color: var(--border-subtle);
+}
+
+#snippetManagerPanel #smCancelBtn:hover {
+  color: var(--text-primary);
+}

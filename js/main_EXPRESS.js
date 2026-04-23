@@ -78,14 +78,12 @@ if (window.HX_LOG_MODE === "verbose") {
 
     var docLength = state.doc.length;
 
-    // If editor is focused, insert at current selection
-    var isFocused = document.activeElement && document.activeElement.closest("#codeEditor");
     var sel = state.selection && state.selection.main
       ? state.selection.main
       : { from: docLength, to: docLength };
 
-    var from = isFocused ? sel.from : docLength;
-    var to   = isFocused ? sel.to   : docLength;
+    var from = sel.from;
+    var to   = sel.to;
 
     cm.dispatch({
       changes: { from: from, to: to, insert: sanitized }
@@ -432,6 +430,8 @@ function cy_filterEntriesByCustomSearch(entries, searchTerm) {
 
 function cy_replaceInExpressions(searchStr, replaceStr, options) {
   var search = (searchStr === undefined || searchStr === null) ? "" : String(searchStr);
+  // Normalize line endings so multi-line patterns match regardless of CRLF/CR/LF source
+  search = search.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   var replace = (replaceStr === undefined || replaceStr === null) ? "" : String(replaceStr);
   var opts = options || {};
   var matchCase = typeof opts.matchCase === "boolean" ? opts.matchCase : true;
@@ -496,7 +496,8 @@ function cy_replaceInExpressions(searchStr, replaceStr, options) {
         for (var i = 0; i < entries.length; i++) {
           var entry = entries[i];
           if (!entry || !entry.expression || !entry.path) continue;
-          var expr = String(entry.expression);
+          // Normalize expression line endings to match the normalized search pattern
+          var expr = String(entry.expression).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
           var pattern = new RegExp(escapedSearch, patternFlags);
           var localCount = 0;
           var replacedExpr = expr.replace(pattern, function () {

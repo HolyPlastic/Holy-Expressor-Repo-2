@@ -17,6 +17,10 @@ var HE_PICKCLICK_EVENT_CANCEL  = "com.holy.expressor.pickclick.cancel";
 var HE_PICKCLICK_EVENT_DEBUG   = "com.holy.expressor.pickclick.debug";
 var HE_PICKCLICK_EVENT_TRACE   = "com.holy.expressor.pickclick.trace";
 var HE_PICKCLICK_POLL_DELAY    = 250;
+// Max-tick cap — complements frontend 10s setTimeout in main_PICKCLICK.js.
+// 40 ticks * 250ms = 10s. Catches cases where the CEP listener is silent or
+// the app loses focus, so polling can't loop indefinitely on its own.
+var HE_PICKCLICK_MAX_POLL_TICKS = 40;
 
 // ----------------------------------------------------------
 // 🔌 PlugPlug bootstrap (required for CSXSEvent)
@@ -56,7 +60,8 @@ var he_PC_state = {
   sessionId: "",
   baselineSignature: "",      // deep signature baseline (expr path string)
   baselineCoarseSig: "",      // coarse signature baseline (cheap selection key)
-  taskId: null
+  taskId: null,
+  pollTicks: 0                // tick counter for HE_PICKCLICK_MAX_POLL_TICKS guard
 };
 
 // ----------------------------------------------------------
@@ -185,6 +190,11 @@ function he_PICK_LeafProp_Snapshot() {
           leafProps.push(props[i]);
         }
       } catch (_) {}
+    }
+
+    if (leafProps.length === 0) {
+      var promoted = he_promoteExprControlToLeaf(props);
+      if (promoted) leafProps.push(promoted);
     }
 
     if (leafProps.length !== 1) {
@@ -373,6 +383,35 @@ function he_PC_poll() {
     return;
   }
 
+  // Max-tick cap — complements frontend 10s setTimeout. If the CEP listener
+  // is silent or the app loses focus, the frontend may not deliver cancel;
+  // this guard stops the schedule chain on the backend side. Also closes the
+  // "unsupported property type → indefinite poll" hole documented in
+  // Docs/features/05-pickclick.md (bug 2, Hybrid polling non-termination).
+  he_PC_state.pollTicks = (he_PC_state.pollTicks || 0) + 1;
+  if (he_PC_state.pollTicks >= HE_PICKCLICK_MAX_POLL_TICKS) {
+    he_PC_trace("backend-timeout: MAX_POLL_TICKS reached", {
+      ticks: he_PC_state.pollTicks,
+      cap:   HE_PICKCLICK_MAX_POLL_TICKS
+    });
+
+    var timeoutSession = he_PC_state.sessionId;
+
+    he_PC_state.active            = false;
+    he_PC_state.sessionId         = "";
+    he_PC_state.baselineSignature = "";
+    he_PC_state.baselineCoarseSig = "";
+    he_PC_state.taskId            = null;
+    he_PC_state.pollTicks         = 0;
+
+    he_PC_dispatch(HE_PICKCLICK_EVENT_CANCEL, {
+      sessionId: timeoutSession,
+      reason:    "backend-timeout"
+    });
+    // Do NOT call scheduleNext — chain stops here.
+    return;
+  }
+
   // ----------------------------------------------------------
   // V1 – Class 5 HYBRID:
   // 1) compute coarse signature cheaply
@@ -418,6 +457,7 @@ function he_PC_poll() {
     he_PC_state.baselineSignature = "";
     he_PC_state.baselineCoarseSig = "";
     he_PC_state.taskId = null;
+    he_PC_state.pollTicks = 0;
 
     he_PC_dispatch(HE_PICKCLICK_EVENT_RESOLVE, {
       sessionId: session,
@@ -464,6 +504,7 @@ function he_PC_armPickClick(jsonStr) {
   // V1 – Class 5: initialize baselines from current context
   he_PC_state.baselineCoarseSig = he_PC_getCoarseSignature();
   he_PC_state.baselineSignature = he_PC_getSelectionPayload().signature || "";
+  he_PC_state.pollTicks = 0;
 
   he_PC_debug.enabled = !!data.debug;
   he_PC_debug.tick = 0;
@@ -499,6 +540,7 @@ function he_PC_cancelPickClick(jsonStr, explicitSession) {
     he_PC_state.sessionId = "";
     he_PC_state.baselineSignature = "";
     he_PC_state.taskId = null;
+    he_PC_state.pollTicks = 0;
 
     he_PC_dispatch(HE_PICKCLICK_EVENT_CANCEL, {
       sessionId: sessionId,

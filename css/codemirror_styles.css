@@ -1,7 +1,7 @@
 /* Obsidian Studio — CodeMirror theme for Holy Expressor */
 
 html.theme-default .cm-editor {
-  background-color: var(--bg-panel);
+  /* background-color: var(--bg-panel); */
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
 }
@@ -11,6 +11,11 @@ html.theme-default .cm-editor .cm-scroller {
   font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
   font-size: 12px;
   line-height: 1.55;
+}
+
+/* Rewrite (search/replace) fields — slightly larger text */
+#modeViewRewrite .cm-scroller {
+  font-size: 13px;
 }
 
 /* Scrollbar */
@@ -48,17 +53,16 @@ html.theme-default .cm-editor {
 }
 
 #codeEditor {
-  min-height: 0;
+  flex: 0 0 auto;
+  height: auto;
   max-height: none;
-  flex: 1 1 auto;
-  height: 100%;
 }
 
 /* Gutters container */
 html.theme-default .cm-editor .cm-gutters {
-  background-color: var(--bg-base);
+  background-color: #1f1d36;
   color: rgba(226, 226, 232, 0.3);
-  border-right: 1px solid var(--border-subtle);
+  border-right: none;
   box-sizing: border-box;
   width: auto !important;
   min-width: calc(1ch + 0.3em);
@@ -107,12 +111,17 @@ html.theme-default .cm-editor .cm-activeLineGutter::before {
   top: 0; bottom: 0;
   left: calc(-0.35em);
   right: calc(-0.04em);
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(var(--G-colour-1-RGB), 0.12);
 }
 
 /* Active line highlight */
 html.theme-default .cm-editor .cm-activeLine {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(var(--G-colour-1-RGB), 0.12);
+}
+
+/* Zebra striping — even lines get a very faint tint to distinguish rows */
+html.theme-default .cm-editor .cm-content .cm-line:nth-child(odd):not(.cm-activeLine) {
+  background-color: rgb(136 136 136 / 3%);
 }
 
 /* Selection */
@@ -130,4 +139,9 @@ html.theme-default .cm-editor .cm-matchingBracket {
 html.theme-default .cm-editor.cm-focused {
   border-color: rgba(var(--G-colour-1-RGB), 0.4) !important;
   outline: none;
+}
+
+.ͼo {
+  color: #abb2bf;
+  /* background-color: #282c34; */
 }

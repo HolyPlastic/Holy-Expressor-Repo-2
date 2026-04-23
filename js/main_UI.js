@@ -29,7 +29,7 @@ if (typeof Holy !== "object") Holy = {};
 
   // -----------------------------------------------------------
   // 🧭 Global log mode switch: set "verbose" or "silent"
-  window.HX_LOG_MODE = "verbose";
+  window.HX_LOG_MODE = "silent";
   // -----------------------------------------------------------
 
 
@@ -83,13 +83,6 @@ if (typeof Holy !== "object") Holy = {};
     }
 
 
-const safe = encodeURIComponent("TEST_LOG");
-cs.evalScript('NEW_log_showDialog("' + safe + '")', function(r) {
-    console.log("[NEW_log] static test result:", r);
-});
-
-
-
     // ---------------------------------------------------------
     // ⚡ Quick Access Panel Launcher (with Warm-Wake Fix)
     // ---------------------------------------------------------
@@ -102,17 +95,6 @@ cs.evalScript('NEW_log_showDialog("' + safe + '")', function(r) {
           ensureHostReady(() => {
             cs.requestOpenExtension("com.holy.expressor.quickpanel");
           });
-
-          setTimeout(function () {
-            try {
-ensureHostReady(() => {
-  cs.requestOpenExtension("com.holy.expressor.quickpanel");
-});
-            } catch (e) {
-              console.warn("[UI] QuickPanel Warm-Wake dispatch failed", e);
-            }
-
-          }, 800);
 
           cs.evalScript("app.activeViewer && app.activeViewer.setActive();");
         } catch (err) {
@@ -230,7 +212,7 @@ ensureHostReady(() => {
         }
 
         if (applyBtnLabel) {
-          applyBtnLabel.textContent = isExpress ? "APPLY" : "REWRITE";
+          applyBtnLabel.textContent = isExpress ? "EXPRESS" : "REWRITE";
         }
         if (applyBtn) {
           var actionLabel = isExpress ? "Apply expression to selection" : "Run search and replace";

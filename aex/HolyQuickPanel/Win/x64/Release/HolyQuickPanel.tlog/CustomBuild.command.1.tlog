@@ -1,0 +1,4 @@
+^C:\USERS\BEN\NEXUS\_GRID\PLUGINS\HOLY EXPRESSOR\HOLY-EXPRESSOR-REPO-2\AEX\HOLYQUICKPANEL\HOLYQUICKPANEL_PIPL.R
+cl /I "C:\Users\Ben\NEXUS\_GRID\_GRID_Ae\_SCRIPTS__Ae\ae25.6_61.64bit.AfterEffectsSDK\Examples\Headers" /EP ".."\\"HolyQuickPanel_PiPL.r" > "x64\Release\"\\"HolyQuickPanel_PiPL.rr"
+"C:\Users\Ben\NEXUS\_GRID\_GRID_Ae\_SCRIPTS__Ae\ae25.6_61.64bit.AfterEffectsSDK\Examples\Resources\PiPLTool" "x64\Release\HolyQuickPanel_PiPL.rr" "x64\Release\HolyQuickPanel_PiPL.rrc"
+cl /D "MSWindows" /EP x64\Release\HolyQuickPanel_PiPL.rrc >               "C:\Users\Ben\NEXUS\_GRID\PLUGINS\HOLY EXPRESSOR\Holy-Expressor-Repo-2\aex\HolyQuickPanel\Win\"\\"HolyQuickPanel_PiPL".rc

@@ -1,0 +1,124 @@
+Folder PATH listing
+Volume serial number is 0A04-57E4
+C:.
+|   .debug
+|   .gitattributes
+|   colorpicker.html
+|   index.html
+|   quickpanel.html
+|   structure.txt
+|   
++---.vscode
+|       extensions.json
+|       launch.json
+|       settings.json
+|       
++---AGENTS
+|   |   AGENTS.md
+|   |   DEV ARCHIVE.md
+|   |   ENVIRONMENT.md
+|   |   EXAMPLES.md
+|   |   KNOWLEDGE_BASE.md
+|   |   README.md
+|   |   
+|   \---PICK CLICK SPECIFIC
+|           Info_1.md
+|           Info_2.md
+|           PickClick - Canonical Investigation & Failure Analysis.md
+|           PICKCLICK DOC MAP.md
+|           
++---assets
+|   \---buttons
+|       |   ModeSwitchBtn v3 - Express.svg
+|       |   ModeSwitchBtn v3 - Rewrite.svg
+|       |   Rom1L-p1.svg
+|       |   Rom1L-p2.svg
+|       |   Rom1L-p3.svg
+|       |   Rom1R-p1.svg
+|       |   Rom1R-p2.svg
+|       |   Rom1R-p3.svg
+|       |   
+|       \---SVG
++---css
+|       codemirror_styles.css
+|       styles.css
+|       
++---css-devEx
+|   |   watcher.ps1
+|   |   
+|   \---raw-downloads
++---CSXS
+|       manifest.xml
+|       
++---fonts
+|       0927____.TTF
+|       6809 Chargen.otf
+|       BPdotsUnicaseSquareBold.otf
+|       COURIERO.TTF
+|       Deftone Stylus.otf
+|       Dosis-VariableFont_wght.ttf
+|       FreePixel.ttf
+|       GlitchGoblin.ttf
+|       Hooked Up 101.otf
+|       kleenblades_ldr.ttf
+|       mionta.ttf
+|       Montserrat-Regular.ttf
+|       nymonak.ttf
+|       Pixel.ttf
+|       PLANK__.TTF
+|       puree____2.ttf
+|       TOSTADA Italic.ttf
+|       TOSTADA.ttf
+|       tycho___.ttf
+|       V Dub.otf
+|       Zelega Zenega.otf
+|       Zero Hour.otf
+|       
++---helpers
+|       launch_flyover.bat
+|       
++---js
+|   |   codemirror-init.js
+|   |   colorpicker.js
+|   |   json2.js
+|   |   main.js
+|   |   main_BUTTON_LOGIC_1.js
+|   |   main_DEV_INIT.js
+|   |   main_EXPRESS.js
+|   |   main_FLYO.js
+|   |   main_MENU.js
+|   |   main_PICKCLICK.js
+|   |   main_SEARCH_REPLACE.js
+|   |   main_SNIPPETS.js
+|   |   main_STATE.js
+|   |   main_UI.js
+|   |   main_UTILS.js
+|   |   panel_state.js
+|   |   persistent-store.js
+|   |   quickpanel.js
+|   |   
+|   +---codemirror
+|   |       codemirror-bundle.js
+|   |       
+|   \---libs
+|           CSInterface.js
+|           
++---jsx
+|   |   host.jsx
+|   |   
+|   \---Modules
+|           host_APPLY.jsx
+|           host_DEV.jsx
+|           host_FLYO.jsx
+|           host_GET.jsx
+|           host_MAPS.jsx
+|           host_PICKCLICK.jsx
+|           host_UTILS.jsx
+|           
++---scripts
+|       setup-cep-environment.sh
+|       
+\---well-known
+    \---appspecific
+            com.chrome.devtools.json
+            

@@ -112,6 +112,36 @@ if (typeof Holy !== "object") Holy = {};
       console.warn("[Holy.SNIPPETS] init unavailable at boot");
     }
 
+    // ---------------------------------------------------------
+    // 🔗 NATIVE POPUP BRIDGE — poll quickpanel.json for flags
+    // written by the .aex native Quick Panel popup.
+    // ---------------------------------------------------------
+    setInterval(function() {
+      Holy.UI.cs.evalScript(
+        '(function(){' +
+        '  try {' +
+        '    var f = new File(Folder.userData.fullName + "/HolyExpressor/quickpanel.json");' +
+        '    if (!f.open("r")) return "0";' +
+        '    var data;' +
+        '    try { data = JSON.parse(f.read()); } catch(e) { f.close(); return "0"; }' +
+        '    f.close();' +
+        '    if (!data.openSnippetManager) return "0";' +
+        '    delete data.openSnippetManager;' +
+        '    var fw = new File(Folder.userData.fullName + "/HolyExpressor/quickpanel.json");' +
+        '    if (fw.open("w")) { fw.write(JSON.stringify(data, null, 2)); fw.close(); }' +
+        '    return "1";' +
+        '  } catch(e) { return "0"; }' +
+        '})()',
+        function(result) {
+          if (result === "1") {
+            if (Holy.SNIPPETS && typeof Holy.SNIPPETS.cy_openSnippetManager === "function") {
+              Holy.SNIPPETS.cy_openSnippetManager();
+            }
+          }
+        }
+      );
+    }, 2000);
+
     if (Holy.State && typeof Holy.State.attachPanelBindings === "function") {
       try {
         Holy.State.attachPanelBindings();
@@ -122,6 +152,18 @@ if (typeof Holy !== "object") Holy = {};
 
 
     Holy.MENU.contextM_disableNative();
+
+    // ---------------------------------------------------------
+    // ⚙️ SETTINGS MODULE INIT (flyout menu + settings panel)
+    // ---------------------------------------------------------
+    if (Holy.SETTINGS && typeof Holy.SETTINGS.init === "function") {
+      try {
+        Holy.SETTINGS.init();
+      } catch (err) {
+        console.warn("[DEV_INIT] Holy.SETTINGS.init failed", err);
+      }
+    }
+
     console.log("Holy Expressor ready");
   }
 

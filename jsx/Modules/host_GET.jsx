@@ -33,7 +33,55 @@ function he_GET_ProjectPath() {
 }
 
 // ==========================================================
-// SIMPLE LOAD PATH BUILDER (deterministic, no legacy heuristics)
+// Expression control group → leaf promotion
+// ==========================================================
+var HE_SINGLE_PROP_CONTROLS = {
+  "ADBE Slider Control": true,
+  "ADBE Checkbox Control": true,
+  "ADBE Color Control": true,
+  "ADBE Point Control": true,
+  "ADBE Point3D Control": true,
+  "ADBE Angle Control": true,
+  "ADBE Layer Control": true,
+  "ADBE Dropdown Menu Control": true
+};
+
+function he_promoteExprControlToLeaf(props) {
+  if (!props || props.length !== 1) return null;
+
+  var sel = props[0];
+  if (!sel) return null;
+
+  try {
+    if (sel.propertyType === PropertyType.PROPERTY) return null;
+  } catch (_) { return null; }
+
+  var mm = "";
+  try { mm = sel.matchName || ""; } catch (_) { return null; }
+  if (!HE_SINGLE_PROP_CONTROLS[mm]) return null;
+
+  try {
+    var parent = sel.propertyGroup(1);
+    if (!parent || parent.matchName !== "ADBE Effect Parade") return null;
+  } catch (_) { return null; }
+
+  var leaf = null;
+  var leafCount = 0;
+  try {
+    for (var i = 1; i <= sel.numProperties; i++) {
+      var child = sel.property(i);
+      if (!child) continue;
+      if (child.propertyType === PropertyType.PROPERTY && child.canSetExpression !== false) {
+        leaf = child;
+        leafCount++;
+        if (leafCount > 1) return null;
+      }
+    }
+  } catch (_) { return null; }
+
+  return (leafCount === 1) ? leaf : null;
+}
+
 // ==========================================================
 // SIMPLE LOAD PATH BUILDER (deterministic, no legacy heuristics)
 // ==========================================================
@@ -58,6 +106,11 @@ for (var i = 0; i < props.length; i++) {
       leafProps.push(props[i]);
     }
   } catch (_) {}
+}
+
+if (leafProps.length === 0) {
+  var promoted = he_promoteExprControlToLeaf(props);
+  if (promoted) leafProps.push(promoted);
 }
 
 if (leafProps.length !== 1) {
@@ -114,6 +167,7 @@ for (var i = 0; i < parentChain.length; i++) {
 
 
     var groupSegments = [];
+    var insideEffect = false;
 
 
 // V1 — Shape modifier allow-list (from legacy GROUP_TOKENS)
@@ -289,6 +343,12 @@ if (
         if (pendingEffect) {
           groupSegments.push('.effect("' + he_escapeExprString(nm) + '")');
           pendingEffect = false;
+          insideEffect = true;
+          continue;
+        }
+
+        if (insideEffect) {
+          groupSegments.push('("' + he_escapeExprString(nm) + '")');
           continue;
         }
 
@@ -511,7 +571,13 @@ var LEAF_ACCESSORS = {
 
     var leafAccessor = LEAF_ACCESSORS[leafMatch];
     if (!leafAccessor) {
-      return JSON.stringify({ ok: false, error: "Unsupported property", matchName: leafMatch, displayName: leaf.name });
+      if (insideEffect) {
+        var leafDispName = "";
+        try { leafDispName = leaf.name || ""; } catch (_) {}
+        leafAccessor = '("' + he_escapeExprString(leafDispName) + '")';
+      } else {
+        return JSON.stringify({ ok: false, error: "Unsupported property", matchName: leafMatch, displayName: leaf.name });
+      }
     }
 
     var useAbs = String(useAbsoluteComp) === "true";

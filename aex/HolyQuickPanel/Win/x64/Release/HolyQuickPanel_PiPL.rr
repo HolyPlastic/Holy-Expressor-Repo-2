@@ -1,0 +1,127 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+resource 'PiPL' (16000) {
+    {
+        Kind {
+            AEGP
+        },
+        Name {
+            "Holy Quick Panel"
+        },
+        Category {
+            "Holy Expressor"
+        },
+        Version {
+            65536
+        },
+
+    
+        CodeWin64X86 {"EntryPointFunc"},
+    
+
+
+
+
+
+
+    }
+};
